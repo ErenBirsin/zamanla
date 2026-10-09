@@ -1,5 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <!-- Bağlantı cümlesi gibi gizli ayarların Windows profilinde tutulduğu klasörün kimliği. Gizli bilgi değil. -->
+    <UserSecretsId>e699e200-e12c-41d9-84d3-6f6c6b368719</UserSecretsId>
+  </PropertyGroup>
+
   <ItemGroup>
     <!-- Sürüm yok: Directory.Packages.props'tan gelir. -->
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
