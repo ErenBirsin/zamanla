@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,xml,csproj,props,slnx,yml,yaml}]
+indent_size = 2
+
+[*.{ts,tsx,js,mjs,css,html}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# Hocanın stili: dosya kapsamlı namespace (namespace Zamanla.Domain;)
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_using_directive_placement = outside_namespace:warning
+
+# Primary constructor ve modern C# tercihleri
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+

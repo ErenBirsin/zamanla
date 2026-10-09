@@ -1,0 +1,17 @@
+<Project>
+
+  <!-- Solution'daki bütün projelere otomatik uygulanan ortak ayarlar. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- .editorconfig'teki kod stili kuralları derleme sırasında da kontrol edilsin. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Lokalde uyarılar görünür ama derlemeyi durdurmaz.
+         GitHub Actions'ta (CI=true) her uyarı hata sayılır; böylece main branch'e uyarılı kod girmez. -->
+    <TreatWarningsAsErrors Condition="'$(CI)' == 'true'">true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

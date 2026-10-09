@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Zamanla.Application/Zamanla.Application.csproj" />
+    <Project Path="src/Zamanla.Domain/Zamanla.Domain.csproj" />
+    <Project Path="src/Zamanla.Infrastructure/Zamanla.Infrastructure.csproj" />
+    <Project Path="src/Zamanla.WebAPI/Zamanla.WebAPI.csproj" />
+  </Folder>
+</Solution>

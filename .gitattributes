@@ -1,0 +1,7 @@
+# Satır sonlarını Git yönetsin: repoda LF, Windows çalışma kopyasında CRLF.
+* text=auto
+
+# İkili dosyalar değiştirilmesin
+*.png binary
+*.jpg binary
+*.woff2 binary
