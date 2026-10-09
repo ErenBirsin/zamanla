@@ -12,4 +12,7 @@
     <Project Path="src/Zamanla.Infrastructure/Zamanla.Infrastructure.csproj" />
     <Project Path="src/Zamanla.WebAPI/Zamanla.WebAPI.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Zamanla.Application.Tests/Zamanla.Application.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -1,6 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="TS.MediatR" />
+    <PackageReference Include="TS.Result" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Zamanla.Domain\Zamanla.Domain.csproj" />
   </ItemGroup>
 
