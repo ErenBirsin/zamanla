@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-sand: #f6f1ea;
+  --color-sand-soft: #fbf8f3;
+  --color-surface: #ffffff;
+  --color-ink: #1e1b18;
+  --color-ink-soft: #4a433c;
+  --color-muted: #6b6259;
+  --color-line: #e6dccf;
+  --color-line-soft: #f0e8dd;
+
+  --color-clay: #b8492f;
+  --color-clay-dark: #8e3b22;
+  --color-clay-soft: #f4ded5;
+
+  --color-sage: #4f6b4a;
+  --color-sage-soft: #dde7d6;
+
+  /* takvimde personel renkleri */
+  --color-staff-peach: #f7dccb;
+  --color-staff-sage: #dde7d6;
+  --color-staff-lavender: #e6e0f2;
+  --color-staff-sky: #d9e7f1;
+
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 18px;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-sand);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}

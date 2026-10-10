@@ -1,0 +1,13 @@
+{
+  "[typescript][typescriptreact][css][json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.unicodeHighlight.allowedLocales": {
+    "tr": true
+  }
+}
