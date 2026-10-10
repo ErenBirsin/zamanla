@@ -1,13 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- xUnit v3 test projeleri kendi başına çalışabilen birer uygulamadır (Microsoft.Testing.Platform). -->
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Her test dosyasına "using Xunit;" yazmamak için -->
     <Using Include="Xunit" />
   </ItemGroup>
 

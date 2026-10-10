@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using Zamanla.Application;
 using Zamanla.Infrastructure;
 using Zamanla.WebAPI;
@@ -17,6 +18,7 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(options => options.WithTitle("Zamanla API"));
 }
 
 app.UseHttpsRedirection();

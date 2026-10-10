@@ -1,7 +1,5 @@
 <Project>
 
-  <!-- Central Package Management: NuGet paketlerinin sürümleri yalnızca burada yazılır.
-       Projeler .csproj içinde paketi sürümsüz ekler; böylece aynı paketin iki farklı sürümü olamaz. -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
@@ -20,6 +18,7 @@
 
   <ItemGroup Label="WebAPI">
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.14" />
   </ItemGroup>
 
   <ItemGroup Label="Tests">

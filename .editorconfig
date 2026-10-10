@@ -17,11 +17,9 @@ indent_size = 2
 trim_trailing_whitespace = false
 
 [*.cs]
-# Hocanın stili: dosya kapsamlı namespace (namespace Zamanla.Domain;)
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_using_directive_placement = outside_namespace:warning
 
-# Primary constructor ve modern C# tercihleri
 csharp_style_prefer_primary_constructors = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_var_for_built_in_types = true:suggestion

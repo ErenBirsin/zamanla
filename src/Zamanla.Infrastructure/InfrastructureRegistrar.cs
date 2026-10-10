@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Zamanla.Application.Services;
 using Zamanla.Infrastructure.Context;
+using Zamanla.Infrastructure.Interceptors;
+using Zamanla.Infrastructure.Services;
 
 namespace Zamanla.Infrastructure;
 public static class InfrastructureRegistrar
@@ -14,8 +17,15 @@ public static class InfrastructureRegistrar
             ?? throw new InvalidOperationException(
                 "'SqlServer' bağlantı cümlesi bulunamadı. User Secrets'a eklendiğinden emin ol.");
 
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
+        services.AddHttpContextAccessor();
+        services.AddSingleton(TimeProvider.System);
+        services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<AuditInterceptor>();
+
+        services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+            options
+                .UseSqlServer(connectionString)
+                .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");

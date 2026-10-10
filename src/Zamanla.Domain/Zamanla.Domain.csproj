@@ -1,5 +1,3 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Domain hiçbir projeye referans vermez. Ortak ayarlar Directory.Build.props'tan gelir. -->
-
 </Project>
