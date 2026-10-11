@@ -22,6 +22,34 @@ namespace Zamanla.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Zamanla.Domain.RefreshTokens.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens", (string)null);
+                });
+
             modelBuilder.Entity("Zamanla.Domain.Tenants.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -91,6 +119,80 @@ namespace Zamanla.Infrastructure.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("AppUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Zamanla.Domain.RefreshTokens.RefreshToken", b =>
+                {
+                    b.HasOne("Zamanla.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Zamanla.Domain.RefreshTokens.ValueObjects.ExpiresDate", "ExpiresDate", b1 =>
+                        {
+                            b1.Property<Guid>("RefreshTokenId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTimeOffset>("Value")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("ExpiresDate");
+
+                            b1.HasKey("RefreshTokenId");
+
+                            b1.ToTable("RefreshTokens");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RefreshTokenId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.RefreshTokens.ValueObjects.IsActive", "IsActive", b1 =>
+                        {
+                            b1.Property<Guid>("RefreshTokenId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<bool>("Value")
+                                .HasColumnType("bit")
+                                .HasColumnName("IsActive");
+
+                            b1.HasKey("RefreshTokenId");
+
+                            b1.ToTable("RefreshTokens");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RefreshTokenId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.RefreshTokens.ValueObjects.Token", "Token", b1 =>
+                        {
+                            b1.Property<Guid>("RefreshTokenId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("nvarchar(64)")
+                                .HasColumnName("Token");
+
+                            b1.HasKey("RefreshTokenId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("RefreshTokens");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RefreshTokenId");
+                        });
+
+                    b.Navigation("ExpiresDate")
+                        .IsRequired();
+
+                    b.Navigation("IsActive")
+                        .IsRequired();
+
+                    b.Navigation("Token")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Zamanla.Domain.Tenants.Tenant", b =>

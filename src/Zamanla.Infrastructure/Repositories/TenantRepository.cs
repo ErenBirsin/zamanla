@@ -3,5 +3,10 @@ using Zamanla.Domain.Tenants;
 using Zamanla.Infrastructure.Context;
 
 namespace Zamanla.Infrastructure.Repositories;
-internal sealed class TenantRepository(ApplicationDbContext context)
-    : Repository<Tenant, ApplicationDbContext>(context), ITenantRepository;
+
+internal sealed class TenantRepository : Repository<Tenant, ApplicationDbContext>, ITenantRepository
+{
+    public TenantRepository(ApplicationDbContext context) : base(context)
+    {
+    }
+}

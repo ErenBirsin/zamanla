@@ -1,3 +1,4 @@
+using Zamanla.Infrastructure.Options;
 using GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +42,12 @@ public static class InfrastructureRegistrar
             .AddClasses(classes => classes.AssignableTo(typeof(IRepository<>)), publicOnly: false)
             .AsImplementedInterfaces()
             .WithScopedLifetime());
+
+        services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+        services.ConfigureOptions<JwtSetupOptions>();
+        services.AddAuthentication().AddJwtBearer();
+        services.AddAuthorization();
+        services.AddScoped<IJwtProvider, JwtProvider>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");
