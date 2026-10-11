@@ -57,6 +57,42 @@ namespace Zamanla.Infrastructure.Migrations
                     b.ToTable("Tenants", (string)null);
                 });
 
+            modelBuilder.Entity("Zamanla.Domain.Users.AppUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("AppUsers", (string)null);
+                });
+
             modelBuilder.Entity("Zamanla.Domain.Tenants.Tenant", b =>
                 {
                     b.OwnsOne("Zamanla.Domain.Shared.Name", "Name", b1 =>
@@ -126,6 +162,106 @@ namespace Zamanla.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("TimeZoneId")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Zamanla.Domain.Users.AppUser", b =>
+                {
+                    b.HasOne("Zamanla.Domain.Tenants.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Zamanla.Domain.Shared.Email", "Email", b1 =>
+                        {
+                            b1.Property<Guid>("AppUserId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(254)
+                                .HasColumnType("nvarchar(254)")
+                                .HasColumnName("Email");
+
+                            b1.HasKey("AppUserId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("AppUsers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppUserId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Shared.FirstName", "FirstName", b1 =>
+                        {
+                            b1.Property<Guid>("AppUserId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("FirstName");
+
+                            b1.HasKey("AppUserId");
+
+                            b1.ToTable("AppUsers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppUserId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Shared.LastName", "LastName", b1 =>
+                        {
+                            b1.Property<Guid>("AppUserId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("LastName");
+
+                            b1.HasKey("AppUserId");
+
+                            b1.ToTable("AppUsers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppUserId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Users.ValueObjects.Password", "Password", b1 =>
+                        {
+                            b1.Property<Guid>("AppUserId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("PasswordHash")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("nvarchar(256)")
+                                .HasColumnName("PasswordHash");
+
+                            b1.HasKey("AppUserId");
+
+                            b1.ToTable("AppUsers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppUserId");
+                        });
+
+                    b.Navigation("Email")
+                        .IsRequired();
+
+                    b.Navigation("FirstName")
+                        .IsRequired();
+
+                    b.Navigation("LastName")
+                        .IsRequired();
+
+                    b.Navigation("Password")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618
