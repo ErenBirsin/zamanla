@@ -23,9 +23,14 @@ public static class InfrastructureRegistrar
         services.AddScoped<AuditInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
-            options
-                .UseSqlServer(connectionString)
-                .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
+        options
+            .UseSqlServer(connectionString)
+            .AddInterceptors(
+                serviceProvider.GetRequiredService<AuditInterceptor>(),
+                serviceProvider.GetRequiredService<TenantInterceptor>()));
+
+        services.AddScoped<ITenantContext, TenantContext>();
+        services.AddScoped<TenantInterceptor>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");
