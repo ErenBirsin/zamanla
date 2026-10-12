@@ -1,3 +1,5 @@
+using Zamanla.Infrastructure.Options;
+using GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +9,7 @@ using Zamanla.Infrastructure.Interceptors;
 using Zamanla.Infrastructure.Services;
 
 namespace Zamanla.Infrastructure;
+
 public static class InfrastructureRegistrar
 {
     public static IServiceCollection AddInfrastructure(
@@ -20,12 +23,31 @@ public static class InfrastructureRegistrar
         services.AddHttpContextAccessor();
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<ITenantContext, TenantContext>();
         services.AddScoped<AuditInterceptor>();
+        services.AddScoped<TenantInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
             options
                 .UseSqlServer(connectionString)
-                .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
+                .AddInterceptors(
+                    serviceProvider.GetRequiredService<AuditInterceptor>(),
+                    serviceProvider.GetRequiredService<TenantInterceptor>()));
+
+        services.AddScoped<IUnitOfWork>(serviceProvider =>
+            serviceProvider.GetRequiredService<ApplicationDbContext>());
+
+        services.Scan(scan => scan
+            .FromAssemblies(typeof(InfrastructureRegistrar).Assembly)
+            .AddClasses(classes => classes.AssignableTo(typeof(IRepository<>)), publicOnly: false)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
+        services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+        services.ConfigureOptions<JwtSetupOptions>();
+        services.AddAuthentication().AddJwtBearer();
+        services.AddAuthorization();
+        services.AddScoped<IJwtProvider, JwtProvider>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");

@@ -1,5 +1,7 @@
 # Zamanla
 
+[![CI](https://github.com/ErenBirsin/zamanla/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ErenBirsin/zamanla/actions/workflows/ci.yml)
+
 Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) online randevu uygulaması.
 
 > Geliştirme aşamasında. Ayrıntılı README, MVP tamamlandığında eklenecek.
