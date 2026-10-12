@@ -36,5 +36,14 @@ public static class AuthModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<AuthTokens>>();
+
+        app.MapGet("/me",
+            async (ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new CurrentUserGetQuery(), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<CurrentUserDto>>()
+            .RequireAuthorization();
     }
 }
