@@ -50,6 +50,46 @@ namespace Zamanla.Infrastructure.Migrations
                     b.ToTable("RefreshTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Zamanla.Domain.SalonServices.SalonService", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("SalonServices", (string)null);
+                });
+
             modelBuilder.Entity("Zamanla.Domain.Tenants.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -192,6 +232,120 @@ namespace Zamanla.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Token")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Zamanla.Domain.SalonServices.SalonService", b =>
+                {
+                    b.HasOne("Zamanla.Domain.Tenants.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Zamanla.Domain.SalonServices.ValueObjects.Duration", "Buffer", b1 =>
+                        {
+                            b1.Property<Guid>("SalonServiceId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("Value")
+                                .HasColumnType("int")
+                                .HasColumnName("BufferMinutes");
+
+                            b1.HasKey("SalonServiceId");
+
+                            b1.ToTable("SalonServices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalonServiceId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.SalonServices.ValueObjects.Duration", "Duration", b1 =>
+                        {
+                            b1.Property<Guid>("SalonServiceId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("Value")
+                                .HasColumnType("int")
+                                .HasColumnName("DurationMinutes");
+
+                            b1.HasKey("SalonServiceId");
+
+                            b1.ToTable("SalonServices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalonServiceId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Shared.Name", "Name", b1 =>
+                        {
+                            b1.Property<Guid>("SalonServiceId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("Name");
+
+                            b1.HasKey("SalonServiceId");
+
+                            b1.ToTable("SalonServices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalonServiceId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.SalonServices.ValueObjects.Category", "Category", b1 =>
+                        {
+                            b1.Property<Guid>("SalonServiceId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("Category");
+
+                            b1.HasKey("SalonServiceId");
+
+                            b1.ToTable("SalonServices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalonServiceId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Shared.Price", "Price", b1 =>
+                        {
+                            b1.Property<Guid>("SalonServiceId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Value")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Price");
+
+                            b1.HasKey("SalonServiceId");
+
+                            b1.ToTable("SalonServices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalonServiceId");
+                        });
+
+                    b.Navigation("Buffer")
+                        .IsRequired();
+
+                    b.Navigation("Category")
+                        .IsRequired();
+
+                    b.Navigation("Duration")
+                        .IsRequired();
+
+                    b.Navigation("Name")
+                        .IsRequired();
+
+                    b.Navigation("Price")
                         .IsRequired();
                 });
 
