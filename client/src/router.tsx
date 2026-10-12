@@ -5,20 +5,31 @@ import { RegisterPage } from '@/features/auth/RegisterPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { PanelLayout } from '@/features/panel/PanelLayout'
 import { NotFoundPage } from '@/features/system/NotFoundPage'
+import { GuestOnly, RequireAuth } from '@/shared/auth/guards'
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/app" replace /> },
   {
-    element: <AuthLayout />,
+    element: <GuestOnly />,
     children: [
-      { path: '/login', element: <LoginPage /> },
-      { path: '/register', element: <RegisterPage /> },
+      {
+        element: <AuthLayout />,
+        children: [
+          { path: '/login', element: <LoginPage /> },
+          { path: '/register', element: <RegisterPage /> },
+        ],
+      },
     ],
   },
   {
     path: '/app',
-    element: <PanelLayout />,
-    children: [{ index: true, element: <DashboardPage /> }],
+    element: <RequireAuth />,
+    children: [
+      {
+        element: <PanelLayout />,
+        children: [{ index: true, element: <DashboardPage /> }],
+      },
+    ],
   },
   { path: '*', element: <NotFoundPage /> },
 ])
