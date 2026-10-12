@@ -14,5 +14,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Zamanla.Application.Tests/Zamanla.Application.Tests.csproj" />
+    <Project Path="tests/Zamanla.WebAPI.IntegrationTests/Zamanla.WebAPI.IntegrationTests.csproj" />
   </Folder>
 </Solution>
