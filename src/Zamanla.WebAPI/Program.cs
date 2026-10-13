@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.OData;
 using Scalar.AspNetCore;
 using System.Threading.RateLimiting;
 using Zamanla.Application;
 using Zamanla.Infrastructure;
 using Zamanla.WebAPI;
+using Zamanla.WebAPI.Controllers;
 using Zamanla.WebAPI.Modules;
 
 
@@ -27,6 +29,17 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
+builder.Services
+    .AddControllers()
+    .AddOData(options => options
+        .Select()
+        .Filter()
+        .Count()
+        .Expand()
+        .OrderBy()
+        .SetMaxTop(null)
+        .AddRouteComponents("api/odata", MainODataController.GetEdmModel()));
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -43,6 +56,7 @@ app.UseAuthorization();
 app.UseRateLimiter();
 
 app.MapHealthChecks("/api/health");
+app.MapControllers();
 app.MapAuth();
-
+app.MapSalonService();
 app.Run();

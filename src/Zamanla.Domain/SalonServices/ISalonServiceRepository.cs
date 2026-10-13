@@ -1,7 +1,7 @@
-using GenericRepository;
+using Zamanla.Domain.Abstractions;
 
 namespace Zamanla.Domain.SalonServices;
 
-public interface ISalonServiceRepository : IRepository<SalonService>
+public interface ISalonServiceRepository : IAuditableRepository<SalonService>
 {
 }
