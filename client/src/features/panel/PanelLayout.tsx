@@ -7,9 +7,10 @@ import { Logo } from '@/shared/ui/Logo'
 const navItems = [
   { to: '/app', label: 'Genel bakış', end: true },
   { to: '/app/services', label: 'Hizmetler', end: false },
+  { to: '/app/staff', label: 'Personel', end: false },
 ]
 
-const upcomingItems = ['Takvim', 'Randevular', 'Müşteriler', 'Personel', 'Ayarlar']
+const upcomingItems = ['Takvim', 'Randevular', 'Müşteriler', 'Ayarlar']
 
 const roleLabels = { Owner: 'İşletme sahibi', Staff: 'Personel' }
 
@@ -19,7 +20,6 @@ export function PanelLayout() {
   const queryClient = useQueryClient()
 
   const logout = () => {
-    // önbellekte önceki kullanıcının verisi kalmasın
     queryClient.clear()
     clearSession()
   }

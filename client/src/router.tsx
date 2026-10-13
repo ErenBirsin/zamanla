@@ -3,7 +3,6 @@ import { AuthLayout } from '@/features/auth/AuthLayout'
 import { PanelLayout } from '@/features/panel/PanelLayout'
 import { GuestOnly, RequireAuth } from '@/shared/auth/guards'
 
-// sayfalar hocanın loadComponent'i gibi ilk açıldıklarında yüklenir
 export const router = createBrowserRouter([
   {
     // ilk açılışta lazy sayfa yüklenene kadar boş zemin gösterilir
@@ -49,6 +48,12 @@ export const router = createBrowserRouter([
                 path: 'services',
                 lazy: async () => ({
                   Component: (await import('@/features/services/ServicesPage')).ServicesPage,
+                }),
+              },
+              {
+                path: 'staff',
+                lazy: async () => ({
+                  Component: (await import('@/features/staff/StaffPage')).StaffPage,
                 }),
               },
             ],
