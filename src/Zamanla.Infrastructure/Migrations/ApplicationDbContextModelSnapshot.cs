@@ -90,6 +90,46 @@ namespace Zamanla.Infrastructure.Migrations
                     b.ToTable("SalonServices", (string)null);
                 });
 
+            modelBuilder.Entity("Zamanla.Domain.Staffs.Staff", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Staffs", (string)null);
+                });
+
             modelBuilder.Entity("Zamanla.Domain.Tenants.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -347,6 +387,135 @@ namespace Zamanla.Infrastructure.Migrations
 
                     b.Navigation("Price")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Zamanla.Domain.Staffs.Staff", b =>
+                {
+                    b.HasOne("Zamanla.Domain.Tenants.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Zamanla.Domain.Shared.FirstName", "FirstName", b1 =>
+                        {
+                            b1.Property<Guid>("StaffId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("FirstName");
+
+                            b1.HasKey("StaffId");
+
+                            b1.ToTable("Staffs");
+
+                            b1.WithOwner()
+                                .HasForeignKey("StaffId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Shared.LastName", "LastName", b1 =>
+                        {
+                            b1.Property<Guid>("StaffId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("LastName");
+
+                            b1.HasKey("StaffId");
+
+                            b1.ToTable("Staffs");
+
+                            b1.WithOwner()
+                                .HasForeignKey("StaffId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Staffs.ValueObjects.Color", "Color", b1 =>
+                        {
+                            b1.Property<Guid>("StaffId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("Color");
+
+                            b1.HasKey("StaffId");
+
+                            b1.ToTable("Staffs");
+
+                            b1.WithOwner()
+                                .HasForeignKey("StaffId");
+                        });
+
+                    b.OwnsMany("Zamanla.Domain.Staffs.ValueObjects.StaffSalonService", "SalonServices", b1 =>
+                        {
+                            b1.Property<Guid>("StaffId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("SalonServiceId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("StaffId", "Id");
+
+                            b1.ToTable("StaffSalonServices", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("StaffId");
+                        });
+
+                    b.OwnsMany("Zamanla.Domain.Staffs.ValueObjects.WorkingHour", "WorkingHours", b1 =>
+                        {
+                            b1.Property<Guid>("StaffId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<int>("Day")
+                                .HasColumnType("int");
+
+                            b1.Property<TimeOnly>("EndTime")
+                                .HasColumnType("time");
+
+                            b1.Property<TimeOnly>("StartTime")
+                                .HasColumnType("time");
+
+                            b1.HasKey("StaffId", "Id");
+
+                            b1.ToTable("StaffWorkingHours", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("StaffId");
+                        });
+
+                    b.Navigation("Color")
+                        .IsRequired();
+
+                    b.Navigation("FirstName")
+                        .IsRequired();
+
+                    b.Navigation("LastName")
+                        .IsRequired();
+
+                    b.Navigation("SalonServices");
+
+                    b.Navigation("WorkingHours");
                 });
 
             modelBuilder.Entity("Zamanla.Domain.Tenants.Tenant", b =>
