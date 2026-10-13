@@ -6,6 +6,7 @@ using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using TS.MediatR;
 using Zamanla.Application.SalonServices;
+using Zamanla.Application.Staffs;
 
 namespace Zamanla.WebAPI.Controllers;
 
@@ -20,10 +21,15 @@ public class MainODataController : ODataController
         ODataConventionModelBuilder builder = new();
         builder.EnableLowerCamelCase();
         builder.EntitySet<SalonServiceDto>("services");
+        builder.EntitySet<StaffDto>("staff");
         return builder.GetEdmModel();
     }
 
     [HttpGet("services")]
     public IQueryable<SalonServiceDto> Services(ISender sender, CancellationToken cancellationToken = default)
         => sender.Send(new SalonServiceGetAllQuery(), cancellationToken).Result;
+
+    [HttpGet("staff")]
+    public IQueryable<StaffDto> Staff(ISender sender, CancellationToken cancellationToken = default)
+    => sender.Send(new StaffGetAllQuery(), cancellationToken).Result;
 }

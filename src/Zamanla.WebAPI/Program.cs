@@ -59,4 +59,5 @@ app.MapHealthChecks("/api/health");
 app.MapControllers();
 app.MapAuth();
 app.MapSalonService();
+app.MapStaff();
 app.Run();
