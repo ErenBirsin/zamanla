@@ -33,6 +33,8 @@ public sealed class Staff : SoftDeletableEntity, ITenantEntity
     // takvimde personelin randevu rengi
     public Color Color { get; private set; } = default!;
     public bool IsActive { get; private set; }
+    public int BookingVersion { get; private set; } // her randevu kaydında artar aynı anda gelen iki kayıttan ikincisi çakışma hatası alır
+
     // aynı güne birden fazla aralık girilebilir (örneğin öğle arası)
     public IReadOnlyCollection<WorkingHour> WorkingHours => _workingHours;
     public IReadOnlyCollection<StaffSalonService> SalonServices => _salonServices;
@@ -65,6 +67,11 @@ public sealed class Staff : SoftDeletableEntity, ITenantEntity
     {
         _salonServices.Clear();
         _salonServices.AddRange(salonServices);
+    }
+
+    public void IncreaseBookingVersion()
+    {
+        BookingVersion++;
     }
 
     public void Activate()

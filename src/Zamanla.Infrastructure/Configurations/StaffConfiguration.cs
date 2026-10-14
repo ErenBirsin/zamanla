@@ -12,6 +12,9 @@ internal sealed class StaffConfiguration : IEntityTypeConfiguration<Staff>
         builder.ToTable("Staffs");
         builder.HasKey(s => s.Id);
 
+
+        builder.Property(s => s.BookingVersion).IsConcurrencyToken();
+
         builder.OwnsOne(s => s.FirstName, firstName =>
         {
             firstName.Property(f => f.Value).HasColumnName("FirstName").HasMaxLength(100);

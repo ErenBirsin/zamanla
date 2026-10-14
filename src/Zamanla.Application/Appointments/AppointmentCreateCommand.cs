@@ -144,7 +144,17 @@ internal sealed class AppointmentCreateCommandHandler(
         #endregion
 
         appointmentRepository.Add(appointment);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        staff.IncreaseBookingVersion();
+        staffRepository.Update(staff);
+
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Result<string>.Failure(409, "Aynı anda başka bir randevu kaydedildi, lütfen tekrar deneyin");
+        }
 
         return "Randevu oluşturuldu";
     }

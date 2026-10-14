@@ -171,6 +171,10 @@ namespace Zamanla.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("BookingVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
