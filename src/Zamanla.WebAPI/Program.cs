@@ -60,4 +60,5 @@ app.MapControllers();
 app.MapAuth();
 app.MapSalonService();
 app.MapStaff();
+app.MapCustomer();
 app.Run();

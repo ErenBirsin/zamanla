@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using TS.MediatR;
+using Zamanla.Application.Customers;
 using Zamanla.Application.SalonServices;
 using Zamanla.Application.Staffs;
 
@@ -22,6 +23,7 @@ public class MainODataController : ODataController
         builder.EnableLowerCamelCase();
         builder.EntitySet<SalonServiceDto>("services");
         builder.EntitySet<StaffDto>("staff");
+        builder.EntitySet<CustomerDto>("customers");
         return builder.GetEdmModel();
     }
 
@@ -32,4 +34,8 @@ public class MainODataController : ODataController
     [HttpGet("staff")]
     public IQueryable<StaffDto> Staff(ISender sender, CancellationToken cancellationToken = default)
     => sender.Send(new StaffGetAllQuery(), cancellationToken).Result;
+
+    [HttpGet("customers")]
+    public IQueryable<CustomerDto> Customers(ISender sender, CancellationToken cancellationToken = default)
+    => sender.Send(new CustomerGetAllQuery(), cancellationToken).Result;
 }
