@@ -109,4 +109,32 @@ public sealed class AvailabilityCalculatorTests
         // Assert
         slots.ShouldBeEmpty();
     }
+
+
+    [Fact]
+    public void IsWithinWorkingHours_WhenAppointmentFitsRange_ReturnsTrue()
+    {
+        // Arrange: 12:15–13:00, aralık 13:00'te bitiyor
+        DateTimeRange time = new(At(12, 15), At(13, 0));
+
+        // Act
+        var result = AvailabilityCalculator.IsWithinWorkingHours(time, Istanbul, [MondayHours(9, 13)]);
+
+        // Assert
+        result.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void IsWithinWorkingHours_WhenAppointmentRunsIntoLunch_ReturnsFalse()
+    {
+        // Arrange: 12:30–13:15, öğle arası 13–14
+        DateTimeRange time = new(At(12, 30), At(13, 15));
+        WorkingHour[] hours = [MondayHours(9, 13), MondayHours(14, 18)];
+
+        // Act
+        var result = AvailabilityCalculator.IsWithinWorkingHours(time, Istanbul, hours);
+
+        // Assert
+        result.ShouldBeFalse();
+    }
 }
