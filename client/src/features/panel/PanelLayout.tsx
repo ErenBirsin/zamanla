@@ -8,9 +8,10 @@ const navItems = [
   { to: '/app', label: 'Genel bakış', end: true },
   { to: '/app/services', label: 'Hizmetler', end: false },
   { to: '/app/staff', label: 'Personel', end: false },
+  { to: '/app/customers', label: 'Müşteriler', end: false },
 ]
 
-const upcomingItems = ['Takvim', 'Randevular', 'Müşteriler', 'Ayarlar']
+const upcomingItems = ['Takvim', 'Randevular', 'Ayarlar']
 
 const roleLabels = { Owner: 'İşletme sahibi', Staff: 'Personel' }
 
