@@ -46,6 +46,21 @@ public static class AvailabilityCalculator
         return slots;
     }
 
+    // randevu (hazırlık payı hariç) o günün tek bir çalışma aralığına tamamen sığmalı
+    public static bool IsWithinWorkingHours(
+        DateTimeRange time,
+        TimeZoneInfo timeZone,
+        IEnumerable<WorkingHour> workingHours)
+    {
+        var localStart = TimeZoneInfo.ConvertTime(time.Start, timeZone);
+        var date = DateOnly.FromDateTime(localStart.DateTime);
+
+        return workingHours
+            .Where(h => h.Day == date.DayOfWeek)
+            .Any(h => ToDateTimeOffset(date, h.StartTime, timeZone) <= time.Start
+                && time.End <= ToDateTimeOffset(date, h.EndTime, timeZone));
+    }
+
     private static DateTimeOffset ToDateTimeOffset(DateOnly date, TimeOnly time, TimeZoneInfo timeZone)
     {
         var local = date.ToDateTime(time);
