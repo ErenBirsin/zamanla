@@ -1,4 +1,3 @@
-using Zamanla.Infrastructure.Options;
 using GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Zamanla.Application.Services;
 using Zamanla.Infrastructure.Context;
 using Zamanla.Infrastructure.Interceptors;
+using Zamanla.Infrastructure.Options;
 using Zamanla.Infrastructure.Services;
 
 namespace Zamanla.Infrastructure;
