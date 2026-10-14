@@ -22,6 +22,12 @@ internal sealed class ExceptionHandler(ILogger<ExceptionHandler> logger) : IExce
 
             result = Result<string>.Failure(StatusCodes.Status422UnprocessableEntity, messages);
         }
+        else if (exception is BadHttpRequestException badRequestException)
+        {
+            result = Result<string>.Failure(
+                badRequestException.StatusCode,
+                "İstek okunamadı. Gönderilen değerleri kontrol edin.");
+        }
         else
         {
             logger.LogError(exception, "Beklenmeyen hata: {Method} {Path}",

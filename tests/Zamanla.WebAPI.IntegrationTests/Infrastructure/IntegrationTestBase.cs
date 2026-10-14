@@ -52,6 +52,15 @@ public abstract class IntegrationTestBase(ZamanlaApiFactory factory) : IAsyncLif
         return await GetMeAsync(tokens.AccessToken);
     }
 
+    // kayıt olur ve o işletmenin sahibi olarak istek atan bir client döner
+    protected async Task<HttpClient> CreateOwnerClientAsync(string slug, string email)
+    {
+        var tokens = await RegisterAsync(slug, email);
+        var client = Factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", tokens.AccessToken);
+        return client;
+    }
+
     // HTTP isteği olmadan, verilen kullanıcı giriş yapmış gibi bir scope açar
     protected IServiceScope CreateScopeAs(CurrentUserDto user)
     {

@@ -4,7 +4,14 @@ import { useCurrentUser } from '@/features/auth/useCurrentUser'
 import { useSession } from '@/shared/auth/session'
 import { Logo } from '@/shared/ui/Logo'
 
-const upcomingItems = ['Takvim', 'Randevular', 'Müşteriler', 'Hizmetler', 'Personel', 'Ayarlar']
+const navItems = [
+  { to: '/app', label: 'Genel bakış', end: true },
+  { to: '/app/services', label: 'Hizmetler', end: false },
+  { to: '/app/staff', label: 'Personel', end: false },
+  { to: '/app/customers', label: 'Müşteriler', end: false },
+]
+
+const upcomingItems = ['Takvim', 'Randevular', 'Ayarlar']
 
 const roleLabels = { Owner: 'İşletme sahibi', Staff: 'Personel' }
 
@@ -14,7 +21,6 @@ export function PanelLayout() {
   const queryClient = useQueryClient()
 
   const logout = () => {
-    // önbellekte önceki kullanıcının verisi kalmasın
     queryClient.clear()
     clearSession()
   }
@@ -32,15 +38,18 @@ export function PanelLayout() {
         </div>
 
         <nav className="flex flex-col gap-0.5">
-          <NavLink
-            to="/app"
-            end
-            className={({ isActive }) =>
-              `rounded-xl px-3 py-2.5 text-sm font-semibold ${isActive ? 'bg-clay-soft text-clay-dark' : 'text-ink-soft hover:bg-line-soft'}`
-            }
-          >
-            Genel bakış
-          </NavLink>
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                `rounded-xl px-3 py-2.5 text-sm font-semibold ${isActive ? 'bg-clay-soft text-clay-dark' : 'text-ink-soft hover:bg-line-soft'}`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
           {upcomingItems.map((item) => (
             <span
               key={item}

@@ -42,6 +42,10 @@
     min-height: 100dvh;
   }
 
+  input:autofill {
+    transition: background-color 0s 600000s;
+  }
+
   h1,
   h2,
   h3 {
