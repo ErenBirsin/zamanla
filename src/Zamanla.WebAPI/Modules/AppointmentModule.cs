@@ -53,5 +53,14 @@ public static class AppointmentModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<string>>();
+
+
+        app.MapPut("{id}/reschedule",
+            async (Guid id, AppointmentRescheduleCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request with { Id = id }, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<string>>();
     }
 }

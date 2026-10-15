@@ -91,10 +91,15 @@ public sealed class Appointment : Entity, ITenantEntity
         Note = note;
     }
 
-    public void Reschedule(DateTimeOffset startAt, DateTimeOffset now)
+    public void Reschedule(Guid staffId, DateTimeOffset startAt, DateTimeOffset now)
     {
+        var description = staffId == StaffId
+            ? "Randevu yeni saate taşındı"
+            : "Randevu başka bir personele taşındı";
+
+        SetStaffId(staffId);
         SetTime(startAt);
-        AddHistory(new AppointmentHistory("Randevu saati değiştirildi", "Randevu yeni saate taşındı", now));
+        AddHistory(new AppointmentHistory("Randevu saati değiştirildi", description, now));
     }
 
     public void Complete(DateTimeOffset now)
