@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useStaff } from '@/features/staff/useStaff'
 import { formatPrice } from '@/shared/ui/format'
+import { AppointmentDetailPanel } from './AppointmentDetailPanel'
 import { AppointmentFormDialog } from './AppointmentFormDialog'
 import { DayGrid } from './DayGrid'
 import { addDays, formatDayTitle, todayKey } from './time'
@@ -39,7 +40,14 @@ export function CalendarPage() {
   // null: kapalı; boş alana tıklanınca personel ve saat dolu gelir
   const [formStart, setFormStart] = useState<{ staffId?: string; minutes?: number } | null>(null)
 
-  const goTo = (key: string) => setSearchParams(key === todayKey() ? {} : { date: key })
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  // iptal edilen ya da başka güne taşınan randevu listede yoksa panel kapanır
+  const selected = appointments.find((a) => a.id === selectedId) ?? null
+
+  const goTo = (key: string) => {
+    setSelectedId(null)
+    setSearchParams(key === todayKey() ? {} : { date: key })
+  }
 
   const noShowCount = appointments.filter((a) => a.status === 'Gelmedi').length
   const expectedRevenue = appointments
@@ -129,17 +137,32 @@ export function CalendarPage() {
           </p>
         </div>
       ) : (
-        <DayGrid
-          dateKey={dateKey}
-          staff={activeStaff}
-          appointments={appointments}
-          // geçmiş günlere randevu eklenmez
-          onEmptyClick={
-            dateKey < todayKey()
-              ? undefined
-              : (staffId, minutes) => setFormStart({ staffId, minutes })
-          }
-        />
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+          <div className="min-w-0 flex-1">
+            <DayGrid
+              dateKey={dateKey}
+              staff={activeStaff}
+              appointments={appointments}
+              // geçmiş günlere randevu eklenmez
+              onEmptyClick={
+                dateKey < todayKey()
+                  ? undefined
+                  : (staffId, minutes) => setFormStart({ staffId, minutes })
+              }
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
+          </div>
+          {selected && (
+            <AppointmentDetailPanel
+              // başka karta geçince iptal formu gibi iç durumlar sıfırlansın
+              key={selected.id}
+              appointment={selected}
+              dateKey={dateKey}
+              onClose={() => setSelectedId(null)}
+            />
+          )}
+        </div>
       )}
 
       {/* dialog her açılışta sıfırdan kurulur, önceki seçimler kalmaz */}

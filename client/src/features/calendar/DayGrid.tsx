@@ -28,6 +28,8 @@ interface DayGridProps {
   staff: Staff[]
   appointments: Appointment[]
   onEmptyClick?: (staffId: string, minutes: number) => void
+  selectedId: string | null
+  onSelect: (id: string) => void
 }
 
 // takvim o gün en erken açılan ve en geç kapanan personele göre çizilir
@@ -73,7 +75,14 @@ function initials(name: string) {
     .toLocaleUpperCase('tr')
 }
 
-export function DayGrid({ dateKey, staff, appointments, onEmptyClick }: DayGridProps) {
+export function DayGrid({
+  dateKey,
+  staff,
+  appointments,
+  onEmptyClick,
+  selectedId,
+  onSelect,
+}: DayGridProps) {
   const now = useNow()
   const weekday = dayOfWeek(dateKey)
 
@@ -182,6 +191,8 @@ export function DayGrid({ dateKey, staff, appointments, onEmptyClick }: DayGridP
                     appointment={appointment}
                     top={toTop(start) + 1}
                     height={(end - start) * PX_PER_MINUTE - 2}
+                    selected={appointment.id === selectedId}
+                    onSelect={() => onSelect(appointment.id)}
                   />
                 )
               })}

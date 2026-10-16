@@ -29,3 +29,19 @@ export async function createAppointment(body: AppointmentCreateBody) {
   const { data } = await http.post<Result<string>>('/appointments', body)
   return data.data!
 }
+
+export async function completeAppointment(id: string) {
+  const { data } = await http.put<Result<string>>(`/appointments/${id}/complete`)
+  return data.data!
+}
+
+export async function markAppointmentNoShow(id: string) {
+  const { data } = await http.put<Result<string>>(`/appointments/${id}/no-show`)
+  return data.data!
+}
+
+// neden boşsa backend "Salon tarafından iptal edildi" yazar
+export async function cancelAppointment(id: string, reason: string) {
+  const { data } = await http.put<Result<string>>(`/appointments/${id}/cancel`, { reason })
+  return data.data!
+}

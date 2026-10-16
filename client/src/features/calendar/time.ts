@@ -67,3 +67,17 @@ export function minutesToLabel(minutes: number) {
   const minute = String(minutes % 60).padStart(2, '0')
   return `${hour}:${minute}`
 }
+
+const dateTimeFormat = new Intl.DateTimeFormat('tr-TR', {
+  timeZone: TIME_ZONE,
+  day: 'numeric',
+  month: 'long',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+})
+
+// geçmiş kayıtları için: "16 Ekim 14:05"
+export function formatDateTime(value: string) {
+  return dateTimeFormat.format(new Date(value))
+}

@@ -6,9 +6,17 @@ interface AppointmentCardProps {
   appointment: Appointment
   top: number
   height: number
+  selected: boolean
+  onSelect: () => void
 }
 
-export function AppointmentCard({ appointment, top, height }: AppointmentCardProps) {
+export function AppointmentCard({
+  appointment,
+  top,
+  height,
+  selected,
+  onSelect,
+}: AppointmentCardProps) {
   const { status } = appointment
   const time = `${formatClock(appointment.startAt)} – ${formatClock(appointment.endAt)}`
   const services = appointment.salonServices.map((service) => service.name).join(' + ')
@@ -23,9 +31,12 @@ export function AppointmentCard({ appointment, top, height }: AppointmentCardPro
         : `${staffColorClasses[appointment.staffColor]} text-ink`
 
   return (
-    <article
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
       aria-label={`${time} ${appointment.customerFullName}, ${services}, ${status}`}
-      className={`absolute inset-x-1 flex overflow-hidden rounded-[10px] px-2.5 leading-4 ${rows === 1 ? 'items-center gap-1.5' : 'flex-col gap-0.5 py-1.5'} ${colors}`}
+      className={`absolute inset-x-1 flex cursor-pointer overflow-hidden rounded-[10px] px-2.5 text-left leading-4 ${rows === 1 ? 'items-center gap-1.5' : 'flex-col gap-0.5 py-1.5'} ${colors} ${selected ? 'ring-2 ring-ink' : ''}`}
       style={{ top, height }}
     >
       <span className="flex items-center gap-1.5 text-[11px] font-semibold whitespace-nowrap opacity-85">
@@ -54,6 +65,6 @@ export function AppointmentCard({ appointment, top, height }: AppointmentCardPro
       </span>
       <span className="truncate text-[13px] font-semibold">{appointment.customerFullName}</span>
       {rows === 3 && <span className="truncate text-xs opacity-85">{services}</span>}
-    </article>
+    </button>
   )
 }
