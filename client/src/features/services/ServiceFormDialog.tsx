@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Dialog } from '@/shared/ui/Dialog'
+import { FormError } from '@/shared/ui/FormError'
 import { FormField } from '@/shared/ui/FormField'
 import { type ServiceValues, serviceSchema } from './schemas'
 import { createService, updateService } from './servicesApi'
@@ -50,7 +51,13 @@ export function ServiceFormDialog({ open, service, categories, onClose }: Servic
       void queryClient.invalidateQueries({ queryKey: servicesQueryKey })
       onClose()
     },
+    meta: { inlineError: true },
   })
+
+  const { reset: resetSave } = saveMutation
+  useEffect(() => {
+    if (open) resetSave()
+  }, [open, resetSave])
 
   return (
     <Dialog open={open} title={service ? 'Hizmeti düzenle' : 'Yeni hizmet'} onClose={onClose}>
@@ -115,6 +122,7 @@ export function ServiceFormDialog({ open, service, categories, onClose }: Servic
           </label>
         )}
 
+        <FormError error={saveMutation.error} />
         <div className="mt-2 flex justify-end gap-3">
           <button
             type="button"
