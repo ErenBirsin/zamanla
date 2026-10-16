@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useStaff } from '@/features/staff/useStaff'
 import { formatPrice } from '@/shared/ui/format'
+import { AppointmentFormDialog } from './AppointmentFormDialog'
 import { DayGrid } from './DayGrid'
 import { addDays, formatDayTitle, todayKey } from './time'
 import { useDayAppointments } from './useDayAppointments'
@@ -34,6 +36,7 @@ export function CalendarPage() {
   const { data: staff = [], isPending: staffPending } = useStaff()
   const { data: appointments = [], isPending: appointmentsPending } = useDayAppointments(dateKey)
   const activeStaff = staff.filter((member) => member.isActive)
+  const [formOpen, setFormOpen] = useState(false)
 
   const goTo = (key: string) => setSearchParams(key === todayKey() ? {} : { date: key })
 
@@ -74,6 +77,26 @@ export function CalendarPage() {
         <p className="text-[15px] font-semibold first-letter:uppercase">
           {formatDayTitle(dateKey)}
         </p>
+        <button
+          type="button"
+          onClick={() => setFormOpen(true)}
+          className="flex h-11 cursor-pointer items-center gap-2 rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark sm:ml-auto"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Yeni randevu
+        </button>
       </header>
 
       <div className="flex flex-wrap gap-2.5 text-[13px] text-ink-soft">
@@ -106,6 +129,18 @@ export function CalendarPage() {
         </div>
       ) : (
         <DayGrid dateKey={dateKey} staff={activeStaff} appointments={appointments} />
+      )}
+
+      {/* dialog her açılışta sıfırdan kurulur, önceki seçimler kalmaz */}
+      {formOpen && (
+        <AppointmentFormDialog
+          initialDate={dateKey < todayKey() ? todayKey() : dateKey}
+          onClose={() => setFormOpen(false)}
+          onCreated={(date) => {
+            setFormOpen(false)
+            goTo(date)
+          }}
+        />
       )}
     </>
   )

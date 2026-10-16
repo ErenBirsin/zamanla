@@ -7,7 +7,12 @@ function showErrors(error: unknown) {
 }
 
 export const queryClient = new QueryClient({
-  queryCache: new QueryCache({ onError: showErrors }),
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      if (query.meta?.inlineError) return
+      showErrors(error)
+    },
+  }),
   mutationCache: new MutationCache({
     onError: (error, _variables, _context, mutation) => {
       if (mutation.meta?.inlineError) return

@@ -35,3 +35,17 @@ export interface Appointment {
   salonServices: AppointmentService[]
   histories: AppointmentHistory[]
 }
+
+export interface AvailabilitySlot {
+  startAt: string
+  staffId: string
+  staffFullName: string
+}
+
+export interface AppointmentCreateBody {
+  customerId: string
+  staffId: string
+  salonServiceIds: string[]
+  startAt: string
+  note: string
+}
