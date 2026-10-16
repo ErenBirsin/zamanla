@@ -10,13 +10,16 @@ import { FormError } from '@/shared/ui/FormError'
 import { formatPrice } from '@/shared/ui/format'
 import { createAppointment } from './appointmentsApi'
 import { CustomerPicker } from './CustomerPicker'
-import { formatClock, todayKey } from './time'
+import { formatClock, minutesOfDay, minutesToLabel, todayKey } from './time'
 import type { AvailabilitySlot } from './types'
 import { useAvailability } from './useAvailability'
 import { appointmentsQueryKey } from './useDayAppointments'
 
 interface AppointmentFormDialogProps {
   initialDate: string
+  // takvimde boş alana tıklanınca gelir
+  initialStaffId?: string
+  initialMinutes?: number
   onClose: () => void
   onCreated: (date: string) => void
 }
@@ -25,6 +28,8 @@ const sectionTitle = 'text-[13px] font-semibold'
 
 export function AppointmentFormDialog({
   initialDate,
+  initialStaffId = '',
+  initialMinutes,
   onClose,
   onCreated,
 }: AppointmentFormDialogProps) {
@@ -36,9 +41,11 @@ export function AppointmentFormDialog({
   const [customer, setCustomer] = useState<Customer | null>(null)
   // seçim sırası önemli: hizmetler bu sırayla arka arkaya yapılır
   const [salonServiceIds, setSalonServiceIds] = useState<string[]>([])
-  const [selectedStaffId, setSelectedStaffId] = useState('')
+  const [selectedStaffId, setSelectedStaffId] = useState(initialStaffId)
   const [date, setDate] = useState(initialDate)
-  const [slot, setSlot] = useState<AvailabilitySlot | null>(null)
+  const [pickedSlot, setSlot] = useState<AvailabilitySlot | null>(null)
+  // takvimde tıklanan saat; boş saatler gelince uygunsa kendiliğinden seçilir
+  const [preferredMinutes, setPreferredMinutes] = useState(initialMinutes)
   const [note, setNote] = useState('')
 
   const { data: services = [] } = useServices()
@@ -63,6 +70,11 @@ export function AppointmentFormDialog({
 
   const availability = useAvailability(date, salonServiceIds, selectedStaffId)
   const slots = availability.data ?? []
+  const preferredSlot =
+    preferredMinutes === undefined
+      ? undefined
+      : slots.find((item) => minutesOfDay(item.startAt) === preferredMinutes)
+  const slot = pickedSlot ?? preferredSlot ?? null
 
   const toggleService = (id: string) => {
     const next = salonServiceIds.includes(id)
@@ -88,6 +100,7 @@ export function AppointmentFormDialog({
       // saat bu arada dolduysa takvim ve boş saatler yenilensin, kullanıcı başka saat seçsin
       if (isAxiosError(error) && error.response?.status === 409) {
         setSlot(null)
+        setPreferredMinutes(undefined)
         void queryClient.invalidateQueries({ queryKey: appointmentsQueryKey })
       }
     },
@@ -183,6 +196,7 @@ export function AppointmentFormDialog({
                 if (!event.target.value) return
                 setDate(event.target.value)
                 setSlot(null)
+                setPreferredMinutes(undefined)
               }}
               className="h-12 w-full rounded-xl border border-[#dcd0c1] bg-surface px-3 text-[15px] outline-none focus:border-clay focus:ring-3 focus:ring-clay-soft"
             />
@@ -192,7 +206,11 @@ export function AppointmentFormDialog({
         <section className="flex flex-col gap-2">
           <h3 className={sectionTitle}>Saat</h3>
           {salonServiceIds.length === 0 ? (
-            <p className="text-sm text-muted">Boş saatleri görmek için hizmet seç.</p>
+            <p className="text-sm text-muted">
+              Boş saatleri görmek için hizmet seç.
+              {preferredMinutes !== undefined &&
+                ` ${minutesToLabel(preferredMinutes)} uygunsa seçili gelir.`}
+            </p>
           ) : availability.isPending ? (
             <p className="text-sm text-muted">Boş saatler yükleniyor…</p>
           ) : availability.isError ? (
@@ -222,6 +240,11 @@ export function AppointmentFormDialog({
           {slot && (
             <p className="text-[13px] text-muted">
               {formatClock(slot.startAt)} · {slot.staffFullName}
+            </p>
+          )}
+          {!slot && preferredMinutes !== undefined && availability.isSuccess && (
+            <p className="text-[13px] text-clay-dark">
+              {minutesToLabel(preferredMinutes)} bu hizmetler için uygun değil, başka bir saat seç.
             </p>
           )}
         </section>

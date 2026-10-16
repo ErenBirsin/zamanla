@@ -36,7 +36,8 @@ export function CalendarPage() {
   const { data: staff = [], isPending: staffPending } = useStaff()
   const { data: appointments = [], isPending: appointmentsPending } = useDayAppointments(dateKey)
   const activeStaff = staff.filter((member) => member.isActive)
-  const [formOpen, setFormOpen] = useState(false)
+  // null: kapalı; boş alana tıklanınca personel ve saat dolu gelir
+  const [formStart, setFormStart] = useState<{ staffId?: string; minutes?: number } | null>(null)
 
   const goTo = (key: string) => setSearchParams(key === todayKey() ? {} : { date: key })
 
@@ -79,7 +80,7 @@ export function CalendarPage() {
         </p>
         <button
           type="button"
-          onClick={() => setFormOpen(true)}
+          onClick={() => setFormStart({})}
           className="flex h-11 cursor-pointer items-center gap-2 rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark sm:ml-auto"
         >
           <svg
@@ -128,16 +129,28 @@ export function CalendarPage() {
           </p>
         </div>
       ) : (
-        <DayGrid dateKey={dateKey} staff={activeStaff} appointments={appointments} />
+        <DayGrid
+          dateKey={dateKey}
+          staff={activeStaff}
+          appointments={appointments}
+          // geçmiş günlere randevu eklenmez
+          onEmptyClick={
+            dateKey < todayKey()
+              ? undefined
+              : (staffId, minutes) => setFormStart({ staffId, minutes })
+          }
+        />
       )}
 
       {/* dialog her açılışta sıfırdan kurulur, önceki seçimler kalmaz */}
-      {formOpen && (
+      {formStart && (
         <AppointmentFormDialog
           initialDate={dateKey < todayKey() ? todayKey() : dateKey}
-          onClose={() => setFormOpen(false)}
+          initialStaffId={formStart.staffId}
+          initialMinutes={formStart.minutes}
+          onClose={() => setFormStart(null)}
           onCreated={(date) => {
-            setFormOpen(false)
+            setFormStart(null)
             goTo(date)
           }}
         />

@@ -3,6 +3,7 @@ import { formatPhone } from '@/features/customers/phone'
 import type { Customer } from '@/features/customers/types'
 import { useCustomers } from '@/features/customers/useCustomers'
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
+import { NewCustomerForm } from '@/features/calendar/NewCustomerForm'
 
 interface CustomerPickerProps {
   value: Customer | null
@@ -14,6 +15,7 @@ const RESULT_LIMIT = 6
 export function CustomerPicker({ value, onChange }: CustomerPickerProps) {
   const inputId = useId()
   const [search, setSearch] = useState('')
+  const [adding, setAdding] = useState(false)
   const debouncedSearch = useDebouncedValue(search.trim())
   // boş aramada bütün müşteri listesi çekilmesin
   const { data: customers = [], isFetching } = useCustomers(debouncedSearch, debouncedSearch !== '')
@@ -33,6 +35,19 @@ export function CustomerPicker({ value, onChange }: CustomerPickerProps) {
           Değiştir
         </button>
       </div>
+    )
+  }
+
+  if (adding) {
+    return (
+      <NewCustomerForm
+        search={search.trim()}
+        onSaved={(customer) => {
+          setAdding(false)
+          onChange(customer)
+        }}
+        onCancel={() => setAdding(false)}
+      />
     )
   }
 
@@ -80,6 +95,13 @@ export function CustomerPicker({ value, onChange }: CustomerPickerProps) {
           {customers.length - RESULT_LIMIT} sonuç daha var, aramayı daralt.
         </p>
       )}
+      <button
+        type="button"
+        onClick={() => setAdding(true)}
+        className="self-start text-[13px] font-semibold text-clay-dark underline underline-offset-2 hover:text-clay"
+      >
+        + Yeni müşteri ekle
+      </button>
     </div>
   )
 }
