@@ -21,6 +21,14 @@ public static class AppointmentModule
             })
             .Produces<Result<string>>();
 
+        app.MapGet("availability",
+            async (DateOnly date, Guid[] salonServiceIds, Guid? staffId, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new AvailabilityGetQuery(date, [.. salonServiceIds], staffId), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<List<AvailabilitySlotDto>>>();
+
         app.MapGet("{id}",
             async (Guid id, ISender sender, CancellationToken cancellationToken) =>
             {
