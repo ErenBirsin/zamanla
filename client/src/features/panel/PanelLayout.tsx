@@ -6,12 +6,13 @@ import { Logo } from '@/shared/ui/Logo'
 
 const navItems = [
   { to: '/app', label: 'Genel bakış', end: true },
+  { to: '/app/calendar', label: 'Takvim', end: false },
   { to: '/app/services', label: 'Hizmetler', end: false },
   { to: '/app/staff', label: 'Personel', end: false },
   { to: '/app/customers', label: 'Müşteriler', end: false },
 ]
 
-const upcomingItems = ['Takvim', 'Randevular', 'Ayarlar']
+const upcomingItems = ['Randevular', 'Ayarlar']
 
 const roleLabels = { Owner: 'İşletme sahibi', Staff: 'Personel' }
 
