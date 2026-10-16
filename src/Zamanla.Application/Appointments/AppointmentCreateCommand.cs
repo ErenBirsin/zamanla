@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Services;
+using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
 using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.Customers;
@@ -117,13 +118,7 @@ internal sealed class AppointmentCreateCommandHandler(
             return Result<string>.Failure(400, "Geçmiş bir saate randevu verilemez");
         }
 
-        var tenantId = tenantContext.GetTenantId();
-        var timeZoneId = await tenantRepository
-            .Where(t => t.Id == tenantId)
-            .Select(t => t.TimeZoneId.Value)
-            .FirstAsync(cancellationToken);
-        var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-
+        var timeZone = await tenantRepository.GetTimeZoneAsync(tenantContext.GetTenantId(), cancellationToken);
         if (!AvailabilityCalculator.IsWithinWorkingHours(appointment.Time, timeZone, staff.WorkingHours))
         {
             return Result<string>.Failure(400, "Seçilen saat personelin çalışma saatleri dışında");

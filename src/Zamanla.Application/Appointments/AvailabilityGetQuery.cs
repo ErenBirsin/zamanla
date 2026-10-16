@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Services;
+using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
 using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.SalonServices;
@@ -72,12 +73,7 @@ internal sealed class AvailabilityGetQueryHandler(
         #endregion
 
         #region Gün ve Dolu Saatler
-        var tenantId = tenantContext.GetTenantId();
-        var timeZoneId = await tenantRepository
-            .Where(t => t.Id == tenantId)
-            .Select(t => t.TimeZoneId.Value)
-            .FirstAsync(cancellationToken);
-        var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        var timeZone = await tenantRepository.GetTimeZoneAsync(tenantContext.GetTenantId(), cancellationToken);
 
         // işletmenin saat diliminde günün başı ve sonu
         var localMidnight = request.Date.ToDateTime(TimeOnly.MinValue);
