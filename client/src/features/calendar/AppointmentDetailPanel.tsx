@@ -5,6 +5,7 @@ import { formatPhone } from '@/features/customers/phone'
 import { staffColorClasses } from '@/features/staff/staffOptions'
 import { formatPrice } from '@/shared/ui/format'
 import { cancelAppointment, completeAppointment, markAppointmentNoShow } from './appointmentsApi'
+import { RescheduleDialog } from './RescheduleDialog'
 import { formatClock, formatDateTime, formatDayTitle, todayKey } from './time'
 import type { Appointment } from './types'
 import { appointmentsQueryKey } from './useDayAppointments'
@@ -14,6 +15,7 @@ interface AppointmentDetailPanelProps {
   appointment: Appointment
   dateKey: string
   onClose: () => void
+  onRescheduled: (date: string) => void
 }
 
 // bu sayıdan sonra müşteri için uyarı gösterilir
@@ -32,12 +34,15 @@ export function AppointmentDetailPanel({
   appointment,
   dateKey,
   onClose,
+  onRescheduled,
 }: AppointmentDetailPanelProps) {
   const queryClient = useQueryClient()
   const reasonId = useId()
   const now = useNow()
+  // gelmedi ve iptal geri alınamaz; önce panelde onay istenir
   const [confirming, setConfirming] = useState<'no-show' | 'cancel' | null>(null)
   const [reason, setReason] = useState('')
+  const [rescheduling, setRescheduling] = useState(false)
   const ref = useRef<HTMLElement>(null)
 
   // mobilde panel takvimin altında kalıyor; seçilince görünür alana kaydır
@@ -254,14 +259,23 @@ export function AppointmentDetailPanel({
               </svg>
               Tamamlandı
             </button>
-            <button
-              type="button"
-              disabled={!hasStarted || statusMutation.isPending}
-              onClick={() => setConfirming('no-show')}
-              className="h-11 cursor-pointer rounded-full border border-line text-sm font-semibold hover:bg-sand-soft disabled:cursor-default disabled:opacity-50"
-            >
-              Gelmedi
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setRescheduling(true)}
+                className="h-11 cursor-pointer rounded-full border border-line text-sm font-semibold hover:bg-sand-soft"
+              >
+                Yeniden planla
+              </button>
+              <button
+                type="button"
+                disabled={!hasStarted || statusMutation.isPending}
+                onClick={() => setConfirming('no-show')}
+                className="h-11 cursor-pointer rounded-full border border-line text-sm font-semibold hover:bg-sand-soft disabled:cursor-default disabled:opacity-50"
+              >
+                Gelmedi
+              </button>
+            </div>
             {!hasStarted && (
               <p className="text-center text-xs text-muted">
                 Tamamlandı ve Gelmedi randevu saati gelince işaretlenebilir.
@@ -276,6 +290,17 @@ export function AppointmentDetailPanel({
             </button>
           </div>
         ))}
+
+      {rescheduling && (
+        <RescheduleDialog
+          appointment={appointment}
+          onClose={() => setRescheduling(false)}
+          onRescheduled={(date) => {
+            setRescheduling(false)
+            onRescheduled(date)
+          }}
+        />
+      )}
     </aside>
   )
 }

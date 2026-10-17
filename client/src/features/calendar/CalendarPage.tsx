@@ -160,6 +160,12 @@ export function CalendarPage() {
               appointment={selected}
               dateKey={dateKey}
               onClose={() => setSelectedId(null)}
+              // başka güne taşındıysa o güne geçilir, panel açık kalır
+              onRescheduled={(date) => {
+                if (date === dateKey) return
+                goTo(date)
+                setSelectedId(selected.id)
+              }}
             />
           )}
         </div>

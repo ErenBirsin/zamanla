@@ -17,9 +17,16 @@ export async function getDayAppointments(dateKey: string) {
 }
 
 // staffId boşsa "fark etmez": her saat için o gün en az randevusu olan personel gelir
-export async function getAvailability(date: string, salonServiceIds: string[], staffId: string) {
+// appointmentId taşıma içindir: randevunun kendi saati boş sayılır
+export async function getAvailability(
+  date: string,
+  salonServiceIds: string[],
+  staffId: string,
+  appointmentId?: string,
+) {
   const { data } = await http.get<Result<AvailabilitySlot[]>>('/appointments/availability', {
-    params: { date, salonServiceIds, staffId: staffId || undefined }, // backend listeyi "salonServiceIds=a&salonServiceIds=b" biçiminde bekliyor
+    params: { date, salonServiceIds, staffId: staffId || undefined, appointmentId },
+    // backend listeyi "salonServiceIds=a&salonServiceIds=b" biçiminde bekliyor
     paramsSerializer: { indexes: null },
   })
   return data.data!
@@ -43,5 +50,13 @@ export async function markAppointmentNoShow(id: string) {
 // neden boşsa backend "Salon tarafından iptal edildi" yazar
 export async function cancelAppointment(id: string, reason: string) {
   const { data } = await http.put<Result<string>>(`/appointments/${id}/cancel`, { reason })
+  return data.data!
+}
+
+export async function rescheduleAppointment(id: string, staffId: string, startAt: string) {
+  const { data } = await http.put<Result<string>>(`/appointments/${id}/reschedule`, {
+    staffId,
+    startAt,
+  })
   return data.data!
 }

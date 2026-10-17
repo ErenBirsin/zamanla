@@ -81,3 +81,8 @@ const dateTimeFormat = new Intl.DateTimeFormat('tr-TR', {
 export function formatDateTime(value: string) {
   return dateTimeFormat.format(new Date(value))
 }
+
+// randevunun işletme saatine göre günü: "2026-10-19"
+export function toDateKey(value: string) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date(value))
+}
