@@ -239,6 +239,24 @@ public sealed class AppointmentTests(ZamanlaApiFactory factory) : IntegrationTes
     }
 
     [Fact]
+    public async Task Availability_ForReschedule_TreatsOwnTimeAsFree()
+    {
+        using var client = await CreateOwnerClientAsync("salon-a", "a@test.com");
+        var salon = await SetupSalonAsync(client);
+        var id = await CreateAppointmentAsync(client, salon, NextMonday(10));
+
+        var date = NextMonday(10).ToString("yyyy-MM-dd");
+        var result = await client.GetFromJsonAsync<Result<List<AvailabilitySlotDto>>>(
+            $"/api/appointments/availability?date={date}&salonServiceIds={salon.ServiceId}&staffId={salon.StaffId}&appointmentId={id}",
+            CancellationToken);
+
+        // taşırken randevunun kendi saati ve ona taşan saatler boş görünür
+        var slots = result!.Data!.Select(s => s.StartAt).ToList();
+        slots.ShouldContain(NextMonday(10));
+        slots.ShouldContain(NextMonday(10, 15));
+    }
+
+    [Fact]
     public async Task Reschedule_ToBusySlot_ReturnsConflict()
     {
         using var client = await CreateOwnerClientAsync("salon-a", "a@test.com");
