@@ -1,5 +1,4 @@
 using Zamanla.Domain.Abstractions;
-using Zamanla.Domain.Customers.ValueObjects;
 using Zamanla.Domain.Shared;
 
 namespace Zamanla.Domain.Customers;
@@ -30,6 +29,7 @@ public sealed class Customer : Entity, ITenantEntity
     public Email? Email { get; private set; }
     public Note? Note { get; private set; }
     public bool IsAnonymized { get; private set; }
+    public int NoShowCount { get; private set; } // 3 ve üstünde takvimde uyarı gösterilecek
 
     public string FullName => $"{FirstName.Value} {LastName.Value}";
 
@@ -58,7 +58,14 @@ public sealed class Customer : Entity, ITenantEntity
     {
         Note = note;
     }
+
+    public void IncreaseNoShowCount()
+    {
+        NoShowCount++;
+    }
+
     // KVKK silme talebi: kişisel bilgiler gider, geçmiş randevular için kayıt kalır
+
     public void Anonymize()
     {
         FirstName = new FirstName("Silinmiş");

@@ -4,6 +4,7 @@ import { useEffect, useId } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Dialog } from '@/shared/ui/Dialog'
+import { FormError } from '@/shared/ui/FormError'
 import { FormField } from '@/shared/ui/FormField'
 import { createCustomer, updateCustomer } from './customersApi'
 import { formatPhone } from './phone'
@@ -58,7 +59,13 @@ export function CustomerFormDialog({ open, customer, onClose }: CustomerFormDial
       void queryClient.invalidateQueries({ queryKey: customersQueryKey })
       onClose()
     },
+    meta: { inlineError: true },
   })
+
+  const { reset: resetSave } = saveMutation
+  useEffect(() => {
+    if (open) resetSave()
+  }, [open, resetSave])
 
   return (
     <Dialog open={open} title={customer ? 'Müşteriyi düzenle' : 'Yeni müşteri'} onClose={onClose}>
@@ -104,6 +111,7 @@ export function CustomerFormDialog({ open, customer, onClose }: CustomerFormDial
           {errors.note && <p className="text-[13px] text-clay-dark">{errors.note.message}</p>}
         </div>
 
+        <FormError error={saveMutation.error} />
         <div className="mt-2 flex justify-end gap-3">
           <button
             type="button"

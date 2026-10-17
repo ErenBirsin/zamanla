@@ -3,7 +3,6 @@ using GenericRepository;
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Domain.Customers;
-using Zamanla.Domain.Customers.ValueObjects;
 using Zamanla.Domain.Shared;
 
 namespace Zamanla.Application.Customers;

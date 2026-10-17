@@ -1,5 +1,25 @@
 # Değişiklik günlüğü
 
+## [0.4.0] - 2026-10-17
+
+Aşama 3: Randevu çekirdeği.
+
+### Eklendi
+
+- Randevular eklendi. Bir randevuda birden fazla hizmet olabiliyor, hizmetler aynı personel tarafından arka arkaya yapılıyor. Süre, fiyat ve hazırlık payı randevu alındığı andaki haliyle saklanıyor.
+- Boş saatler personelin çalışma saatlerine, öğle arasına ve diğer randevulara göre 15 dakikalık adımlarla hesaplanıyor. Personel seçilmezse ("fark etmez") o gün en az randevusu olan personel atanıyor.
+- Aynı saate aynı anda gelen iki randevudan yalnızca biri kaydediliyor. Bu, 20 paralel istekle test edildi.
+- Randevu tamamlandı, gelmedi, iptal ve yeniden planlama işlemleri eklendi. Her değişiklik randevunun geçmişine yazılıyor, gelmeyen müşterinin sayacı artıyor.
+- Personelin saatleri ya da hizmetleri ileri tarihli randevuları dışarıda bırakacak şekilde değiştirilemiyor. Mesajda hangi randevuların etkilendiği gösteriliyor. Randevusu olan personel silinemiyor.
+- Panele günlük takvim eklendi: personel sütunları, mola ve kapalı saatler, randevu durumuna göre renkler ve "şu an" çizgisi.
+- Takvimden hızlı randevu eklenebiliyor. Müşteri aranabiliyor ya da yeni müşteri eklenebiliyor. Takvimde boş alana tıklanınca personel ve saat dolu geliyor.
+- Randevu detay paneli eklendi. Panelde durum işlemleri, 3 kez gelmeyen müşteri için uyarı, randevu geçmişi ve yeniden planlama var.
+- Randevu kuralları için entegrasyon testleri yazıldı. Toplam test sayısı 63.
+
+### Düzeltildi
+
+- Form pencerelerinde hatalar artık pencerenin içinde gösteriliyor. Önceden bildirim pencerenin arkasında kalıyordu.
+
 ## [0.3.0] - 2026-10-14
 
 Aşama 2: İşletme kurulumu.
@@ -50,6 +70,8 @@ Aşama 0: Projenin kurulumu ve temel yapı.
 - Hataların merkezi olarak yönetilmesi sağlandı ve API dokümantasyonu için Scalar eklendi.
 - React 19, Vite, TypeScript ve Tailwind CSS ile istemci tarafının temeli oluşturuldu. Tasarım renkleri belirlendi ve API durumunu gösteren bir sağlık kartı eklendi.
 - GitHub Actions üzerinden backend build ve test işlemleri ile istemci lint ve build kontrolleri yapılandırıldı.
+
+[0.4.0]: https://github.com/ErenBirsin/zamanla/compare/v0.3.0...v0.4.0
 
 [0.3.0]: https://github.com/ErenBirsin/zamanla/compare/v0.2.0...v0.3.0
 

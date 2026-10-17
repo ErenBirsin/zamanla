@@ -6,6 +6,7 @@ import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { useServices } from '@/features/services/useServices'
 import { Dialog } from '@/shared/ui/Dialog'
+import { FormError } from '@/shared/ui/FormError'
 import { FormField } from '@/shared/ui/FormField'
 import { DayScheduleRow } from './DayScheduleRow'
 import { defaultSchedule, toSchedule, toWorkingHours } from './schedule'
@@ -76,7 +77,13 @@ export function StaffFormDialog({ open, staff, onClose }: StaffFormDialogProps) 
       void queryClient.invalidateQueries({ queryKey: staffQueryKey })
       onClose()
     },
+    meta: { inlineError: true },
   })
+
+  const { reset: resetSave } = saveMutation
+  useEffect(() => {
+    if (open) resetSave()
+  }, [open, resetSave])
 
   return (
     <Dialog open={open} title={staff ? 'Personeli düzenle' : 'Yeni personel'} onClose={onClose}>
@@ -171,6 +178,7 @@ export function StaffFormDialog({ open, staff, onClose }: StaffFormDialogProps) 
           </label>
         )}
 
+        <FormError error={saveMutation.error} />
         <div className="mt-1 flex justify-end gap-3">
           <button
             type="button"
