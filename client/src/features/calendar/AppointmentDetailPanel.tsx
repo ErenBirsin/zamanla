@@ -36,7 +36,7 @@ export function AppointmentDetailPanel({
   const queryClient = useQueryClient()
   const reasonId = useId()
   const now = useNow()
-  const [cancelling, setCancelling] = useState(false)
+  const [confirming, setConfirming] = useState<'no-show' | 'cancel' | null>(null)
   const [reason, setReason] = useState('')
   const ref = useRef<HTMLElement>(null)
 
@@ -61,7 +61,7 @@ export function AppointmentDetailPanel({
           : cancelAppointment(appointment.id, reason.trim()),
     onSuccess: (message) => {
       toast.success(message)
-      setCancelling(false)
+      setConfirming(null)
       // iptal edilen randevu takvimden kalkar, panel de kendiliğinden kapanır
       void queryClient.invalidateQueries({ queryKey: appointmentsQueryKey })
     },
@@ -175,7 +175,31 @@ export function AppointmentDetailPanel({
       </div>
 
       {isOpen &&
-        (cancelling ? (
+        (confirming === 'no-show' ? (
+          <div className="flex flex-col gap-2.5">
+            <p className="text-sm">
+              <strong>{appointment.customerFullName}</strong> gelmedi olarak işaretlensin mi?
+              Gelmeme sayısı {appointment.customerNoShowCount + 1} olacak, bu işlem geri alınamaz.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirming(null)}
+                className="h-11 cursor-pointer rounded-full border border-line text-sm font-semibold hover:bg-sand-soft"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                disabled={statusMutation.isPending}
+                onClick={() => statusMutation.mutate('no-show')}
+                className="h-11 cursor-pointer rounded-full bg-clay text-sm font-semibold text-white hover:bg-clay-dark disabled:cursor-default disabled:opacity-60"
+              >
+                Gelmedi
+              </button>
+            </div>
+          </div>
+        ) : confirming === 'cancel' ? (
           <div className="flex flex-col gap-2.5">
             <label htmlFor={reasonId} className="text-[13px] font-semibold">
               İptal nedeni
@@ -192,7 +216,7 @@ export function AppointmentDetailPanel({
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => setCancelling(false)}
+                onClick={() => setConfirming(null)}
                 className="h-11 cursor-pointer rounded-full border border-line text-sm font-semibold hover:bg-sand-soft"
               >
                 Vazgeç
@@ -233,7 +257,7 @@ export function AppointmentDetailPanel({
             <button
               type="button"
               disabled={!hasStarted || statusMutation.isPending}
-              onClick={() => statusMutation.mutate('no-show')}
+              onClick={() => setConfirming('no-show')}
               className="h-11 cursor-pointer rounded-full border border-line text-sm font-semibold hover:bg-sand-soft disabled:cursor-default disabled:opacity-50"
             >
               Gelmedi
@@ -245,7 +269,7 @@ export function AppointmentDetailPanel({
             )}
             <button
               type="button"
-              onClick={() => setCancelling(true)}
+              onClick={() => setConfirming('cancel')}
               className="h-10 cursor-pointer text-sm font-semibold text-clay-dark hover:text-clay"
             >
               Randevuyu iptal et
