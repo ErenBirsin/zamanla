@@ -13,10 +13,12 @@ using Zamanla.Domain.Tenants;
 namespace Zamanla.Application.Appointments;
 
 // staffId boşsa fark etmez: hizmetleri veren tüm personel
+// appointmentId taşıma içindir: süre o randevudan alınır, kendi saati boş sayılır
 public sealed record AvailabilityGetQuery(
     DateOnly Date,
     List<Guid> SalonServiceIds,
-    Guid? StaffId) : IRequest<Result<List<AvailabilitySlotDto>>>;
+    Guid? StaffId,
+    Guid? AppointmentId) : IRequest<Result<List<AvailabilitySlotDto>>>;
 
 public sealed class AvailabilitySlotDto
 {
@@ -32,7 +34,8 @@ public sealed class AvailabilityGetQueryValidator : AbstractValidator<Availabili
         RuleFor(p => p.Date)
             .NotEmpty().WithMessage("Tarih seçin");
         RuleFor(p => p.SalonServiceIds)
-            .NotEmpty().WithMessage("En az bir hizmet seçin");
+            .NotEmpty().WithMessage("En az bir hizmet seçin")
+            .When(p => p.AppointmentId is null);
     }
 }
 
@@ -47,17 +50,41 @@ internal sealed class AvailabilityGetQueryHandler(
     public async Task<Result<List<AvailabilitySlotDto>>> Handle(AvailabilityGetQuery request, CancellationToken cancellationToken)
     {
         #region Hizmet ve Personel
-        var salonServiceIds = request.SalonServiceIds.Distinct().ToList();
-        var salonServices = await salonServiceRepository
-            .Where(s => salonServiceIds.Contains(s.Id) && s.IsActive)
-            .ToListAsync(cancellationToken);
-        if (salonServices.Count != salonServiceIds.Count)
+        List<Guid> salonServiceIds;
+        int duration;
+        int buffer;
+        if (request.AppointmentId is Guid appointmentId)
         {
-            return Result<List<AvailabilitySlotDto>>.Failure(404, "Seçilen hizmetlerden biri bulunamadı ya da pasif");
-        }
+            var appointment = await appointmentRepository.FirstOrDefaultAsync(a => a.Id == appointmentId, cancellationToken);
+            if (appointment is null)
+            {
+                return Result<List<AvailabilitySlotDto>>.Failure(404, "Randevu bulunamadı");
+            }
 
-        var duration = salonServices.Sum(s => s.Duration.Value);
-        var buffer = salonServices.Max(s => s.Buffer.Value);
+            if (appointment.IsFinished)
+            {
+                return Result<List<AvailabilitySlotDto>>.Failure(400, "Bu randevu kapanmış, değiştirilemez");
+            }
+
+            // taşımada süre değişmez; hizmet sonradan değişmiş ya da pasif olsa da randevudaki kopya kullanılır
+            salonServiceIds = appointment.SalonServices.Select(s => s.SalonServiceId).ToList();
+            duration = appointment.SalonServices.Sum(s => s.Duration);
+            buffer = appointment.SalonServices.Max(s => s.Buffer);
+        }
+        else
+        {
+            salonServiceIds = request.SalonServiceIds.Distinct().ToList();
+            var salonServices = await salonServiceRepository
+                .Where(s => salonServiceIds.Contains(s.Id) && s.IsActive)
+                .ToListAsync(cancellationToken);
+            if (salonServices.Count != salonServiceIds.Count)
+            {
+                return Result<List<AvailabilitySlotDto>>.Failure(404, "Seçilen hizmetlerden biri bulunamadı ya da pasif");
+            }
+
+            duration = salonServices.Sum(s => s.Duration.Value);
+            buffer = salonServices.Max(s => s.Buffer.Value);
+        }
 
         var staffs = await staffRepository
             .Where(s => s.IsActive && (request.StaffId == null || s.Id == request.StaffId))
@@ -82,8 +109,11 @@ internal sealed class AvailabilityGetQueryHandler(
 
         var staffIds = staffs.Select(s => s.Id).ToList();
         var confirmed = Status.Confirmed.Value;
+        // taşınan randevunun kendi saati dolu sayılmaz
+        var excludedId = request.AppointmentId ?? Guid.Empty;
         var busy = await appointmentRepository
             .Where(a => staffIds.Contains(a.StaffId)
+                && a.Id != excludedId
                 && a.Status.Value == confirmed
                 && a.Time.Start < dayEnd
                 && a.BlockedUntil > dayStart)
