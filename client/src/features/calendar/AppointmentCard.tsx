@@ -36,7 +36,7 @@ export function AppointmentCard({
       onClick={onSelect}
       aria-pressed={selected}
       aria-label={`${time} ${appointment.customerFullName}, ${services}, ${status}`}
-      className={`absolute inset-x-1 flex cursor-pointer overflow-hidden rounded-[10px] px-2.5 text-left leading-4 ${rows === 1 ? 'items-center gap-1.5' : 'flex-col gap-0.5 py-1.5'} ${colors} ${selected ? 'ring-2 ring-ink' : ''}`}
+      className={`absolute inset-x-1 z-10 flex cursor-pointer overflow-hidden rounded-[10px] px-2.5 text-left leading-4 ${rows === 1 ? 'items-center gap-1.5' : 'flex-col gap-0.5 py-1.5'} ${colors} ${selected ? 'ring-2 ring-ink' : ''}`}
       style={{ top, height }}
     >
       <span className="flex items-center gap-1.5 text-[11px] font-semibold whitespace-nowrap opacity-85">

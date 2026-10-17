@@ -6,9 +6,10 @@ import type { Appointment } from './types'
 import { useNow } from './useNow'
 import type { MouseEvent } from 'react'
 
-const HOUR_HEIGHT = 64
+const HOUR_HEIGHT = 96
 const PX_PER_MINUTE = HOUR_HEIGHT / 60
 const COLUMN_MIN_WIDTH = 170
+const MIN_CARD_HEIGHT = 15 * PX_PER_MINUTE - 2
 
 interface Range {
   start: number
@@ -163,8 +164,10 @@ export function DayGrid({
               onClick={(event) => handleColumnClick(column.id, event)}
               style={{
                 height,
-                // her saat başında ince çizgi
-                backgroundImage: `repeating-linear-gradient(to bottom, var(--color-line-soft) 0, var(--color-line-soft) 1px, transparent 1px, transparent ${HOUR_HEIGHT}px)`,
+                // saat başında çizgi, yarım saatte daha açık çizgi
+                backgroundImage: `repeating-linear-gradient(to bottom, var(--color-line) 0, var(--color-line) 1px, transparent 1px, 
+                transparent ${HOUR_HEIGHT / 2}px, var(--color-line-soft) ${HOUR_HEIGHT / 2}px, var(--color-line-soft) ${HOUR_HEIGHT / 2 + 1}px,
+                 transparent ${HOUR_HEIGHT / 2 + 1}px, transparent ${HOUR_HEIGHT}px)`,
               }}
             >
               {closedBlocks(column.ranges, bounds).map((block) => (
@@ -190,7 +193,7 @@ export function DayGrid({
                     key={appointment.id}
                     appointment={appointment}
                     top={toTop(start) + 1}
-                    height={(end - start) * PX_PER_MINUTE - 2}
+                    height={Math.max((end - start) * PX_PER_MINUTE - 2, MIN_CARD_HEIGHT)}
                     selected={appointment.id === selectedId}
                     onSelect={() => onSelect(appointment.id)}
                   />
@@ -202,7 +205,7 @@ export function DayGrid({
           {showNow && (
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 flex items-center"
+              className="pointer-events-none absolute inset-x-0 z-0 flex items-center"
               style={{ top: toTop(nowMinutes) + 12 }}
             >
               <span className="flex w-14 justify-end pr-1">
