@@ -1,5 +1,21 @@
 # Değişiklik günlüğü
 
+## [0.6.0] - 2026-10-18
+
+MVP: Kurulum rehberi ve demo verisi.
+
+### Eklendi
+
+- API geliştirme ortamında ilk kez çalıştırıldığında veritabanı boşsa "Demo Kuaför" adında örnek bir salon oluşturuluyor. Salonda 6 hizmet, 3 personel, 8 müşteri ve bir haftalık randevu verisi bulunuyor. Online alınan randevular da örneklere dahil edildi. Geçmiş randevuların bir kısmı tamamlandı, bir kısmı gelmedi olarak işaretlendi. Demo salon daha önce oluşturulmuşsa tekrar eklenmiyor.
+- Demo salon oluşturulurken kayıt işlemlerinde kullanılan komut kullanıldı. Böylece şifre hash'leme ve salonla kayıtların ilişkilendirilmesi mevcut yapıyla aynı şekilde yapılıyor.
+- README dosyasına proje özellikleri, kullanılan teknolojiler, kurulum adımları, demo hesap bilgileri, test komutları, klasör yapısı ve yapılması planlanan geliştirmeler eklendi.
+- Proje, GitHub'dan yeni klonlanmış bir repo ve boş veritabanıyla kurularak test edildi. Kurulum sırasında eksik olduğu fark edilen `dotnet restore` adımı da README'ye eklendi.
+
+### Düzeltildi
+
+- Genel bakış sayfasındaki randevu linki kartında bulunan "yakında açılıyor" yazısı güncellendi. Kurulum henüz tamamlanmadıysa buna uygun bir açıklama gösteriliyor. Randevu sayfasını yeni sekmede açmak için "Aç" düğmesi eklendi.
+- Randevu linki, dar kartlarda düzgün görünmüyordu. Kutunun çok fazla küçülmesi engellendi; alan yetmediğinde düğmelerin alt satıra geçmesi sağlandı.
+
 ## [0.5.0] - 2026-10-18
 
 Aşama 4: Herkese açık randevu sayfası.
