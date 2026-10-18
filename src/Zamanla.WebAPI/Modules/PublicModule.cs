@@ -47,5 +47,29 @@ public static class PublicModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<PublicAppointmentDto>>();
+
+        app.MapGet("manage/{token}/availability",
+            async (string token, DateOnly date, Guid? staffId, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new PublicRescheduleAvailabilityGetQuery(token, date, staffId), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<List<AvailabilitySlotDto>>>();
+
+        app.MapPut("manage/{token}/cancel",
+            async (string token, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new PublicAppointmentCancelCommand(token), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<string>>();
+
+        app.MapPut("manage/{token}/reschedule",
+            async (string token, PublicAppointmentRescheduleCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request with { Token = token }, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<string>>();
     }
 }
