@@ -49,6 +49,8 @@ public sealed class Appointment : Entity, ITenantEntity
     public Status Status { get; private set; } = default!;
     public Source Source { get; private set; } = default!;
     public Note? Note { get; private set; }
+    // yalnızca online randevularda; panelden girilenlerde boş
+    public ManageToken? ManageToken { get; private set; }
     public IReadOnlyCollection<AppointmentHistory> Histories => _histories;
 
     // tamamlanan, gelinmeyen ya da iptal edilen randevu tekrar değiştirilemez
@@ -89,6 +91,10 @@ public sealed class Appointment : Entity, ITenantEntity
     public void SetNote(Note? note)
     {
         Note = note;
+    }
+    public void SetManageToken(ManageToken manageToken)
+    {
+        ManageToken = manageToken;
     }
 
     public void Reschedule(Guid staffId, DateTimeOffset startAt, DateTimeOffset now)

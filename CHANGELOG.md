@@ -1,5 +1,20 @@
 # Değişiklik günlüğü
 
+## [0.5.0] - 2026-10-18
+
+Aşama 4: Herkese açık randevu sayfası.
+
+### Eklendi
+
+- Müşterilerin giriş yapmadan, salonun kendine ait linki üzerinden randevu alabilmesi sağlandı. Müşteri hizmeti, personeli ve saati seçtikten sonra adını, soyadını ve telefon numarasını girerek randevusunu oluşturabiliyor. Sayfa telefon kullanımına uygun olacak şekilde hazırlandı.
+- Salon bilgileri kısa link üzerinden getiriliyor. Panele başka bir salon hesabıyla giriş yapılmış olsa bile link hangi salona aitse o salonun bilgileri gösteriliyor.
+- Online randevular en fazla 60 gün sonrası için alınabiliyor. Ayrıca takvimin gereksiz randevularla doldurulmasını önlemek için aynı telefon numarasıyla en fazla 5 ileri tarihli online randevu oluşturulabiliyor.
+- Girilen telefon numarası ve ad soyad bilgileri mevcut bir müşteriyle eşleşirse o kayıt kullanılıyor. Eşleşme yoksa yeni müşteri oluşturuluyor. Böylece aynı telefon numarası kullanılarak farklı kişiler için de randevu alınabiliyor.
+- Randevu oluşturulduktan sonra müşteriye randevusunu yönetebileceği özel bir link veriliyor. Bu link üzerinden randevu görüntülenebiliyor, randevuya 3 saat kalana kadar iptal edilebiliyor ve randevu başlamadan önce saat değiştirilebiliyor. Güvenlik için linkte kullanılan anahtar veritabanında doğrudan değil, özeti alınarak saklanıyor.
+- Randevuyu telefonun takvimine eklemek için bir .ics dosyası oluşturuldu. Takvim kaydına randevudan 1 saat önce hatırlatma da eklendi.
+- Herkese açık API uçlarına IP başına dakikada 60 istek sınırı getirildi.
+- Online randevu oluşturma ve randevu yönetim linki işlemleri için entegrasyon testleri yazıldı. Toplam test sayısı 80'e çıktı.
+
 ## [0.4.0] - 2026-10-17
 
 Aşama 3: Randevu çekirdeği.
@@ -70,6 +85,8 @@ Aşama 0: Projenin kurulumu ve temel yapı.
 - Hataların merkezi olarak yönetilmesi sağlandı ve API dokümantasyonu için Scalar eklendi.
 - React 19, Vite, TypeScript ve Tailwind CSS ile istemci tarafının temeli oluşturuldu. Tasarım renkleri belirlendi ve API durumunu gösteren bir sağlık kartı eklendi.
 - GitHub Actions üzerinden backend build ve test işlemleri ile istemci lint ve build kontrolleri yapılandırıldı.
+
+[0.5.0]: https://github.com/ErenBirsin/zamanla/compare/v0.4.0...v0.5.0
 
 [0.4.0]: https://github.com/ErenBirsin/zamanla/compare/v0.3.0...v0.4.0
 

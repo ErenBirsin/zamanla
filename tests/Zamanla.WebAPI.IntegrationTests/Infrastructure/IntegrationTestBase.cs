@@ -61,6 +61,15 @@ public abstract class IntegrationTestBase(ZamanlaApiFactory factory) : IAsyncLif
         return client;
     }
 
+    // testin çalıştığı günden bağımsız, her zaman ileri bir pazartesi (İstanbul saati)
+    protected static DateTimeOffset NextMonday(int hour, int minute = 0)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var days = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
+        var monday = today.AddDays(days == 0 ? 7 : days);
+        return new DateTimeOffset(monday.ToDateTime(new TimeOnly(hour, minute)), TimeSpan.FromHours(3));
+    }
+
     // HTTP isteği olmadan, verilen kullanıcı giriş yapmış gibi bir scope açar
     protected IServiceScope CreateScopeAs(CurrentUserDto user)
     {
