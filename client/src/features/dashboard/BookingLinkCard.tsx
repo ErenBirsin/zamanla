@@ -5,8 +5,11 @@ interface BookingLinkCardProps {
   ready: boolean
 }
 
+const linkButton =
+  'flex h-10 shrink-0 cursor-pointer items-center rounded-full border border-line bg-surface px-4 text-sm font-semibold hover:bg-sand-soft'
+
 export function BookingLinkCard({ slug, ready }: BookingLinkCardProps) {
-  // müşterinin randevu alacağı sayfa (/b/:slug) bu adreste açılacak
+  // müşterinin randevu aldığı sayfa
   const link = `${window.location.origin}/b/${slug}`
   // ekranda "https://" olmadan, daha kısa görünsün
   const displayLink = link.replace(/^https?:\/\//, '')
@@ -30,8 +33,9 @@ export function BookingLinkCard({ slug, ready }: BookingLinkCardProps) {
       </div>
 
       <p className="text-sm leading-relaxed text-ink-soft">
-        Müşterilerin bu linkten hizmet, personel ve saat seçerek randevu alacak. Online randevu
-        sayfası yakında açılıyor; linkin şimdiden hazır.
+        {ready
+          ? 'Müşterilerin bu linkten hizmet, personel ve saat seçerek randevu alır. Instagram profiline ya da WhatsApp durumuna ekleyebilirsin.'
+          : 'Hizmet ve personel ekleyip çalışma saatlerini girince müşterilerin bu linkten randevu alabilir.'}
       </p>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -41,11 +45,10 @@ export function BookingLinkCard({ slug, ready }: BookingLinkCardProps) {
         >
           {displayLink}
         </code>
-        <button
-          type="button"
-          onClick={copy}
-          className="h-10 shrink-0 cursor-pointer rounded-full border border-line bg-surface px-4 text-sm font-semibold hover:bg-sand-soft"
-        >
+        <a href={link} target="_blank" rel="noreferrer" className={linkButton}>
+          Aç
+        </a>
+        <button type="button" onClick={copy} className={linkButton}>
           Kopyala
         </button>
       </div>
