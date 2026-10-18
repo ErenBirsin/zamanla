@@ -333,15 +333,6 @@ public sealed class AppointmentTests(ZamanlaApiFactory factory) : IntegrationTes
         return new SalonData(serviceId, staffId, customerId);
     }
 
-    // testin çalıştığı günden bağımsız, her zaman ileri bir pazartesi (İstanbul saati)
-    private static DateTimeOffset NextMonday(int hour, int minute = 0)
-    {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var days = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
-        var monday = today.AddDays(days == 0 ? 7 : days);
-        return new DateTimeOffset(monday.ToDateTime(new TimeOnly(hour, minute)), TimeSpan.FromHours(3));
-    }
-
     private Task<HttpResponseMessage> PostAppointmentAsync(HttpClient client, SalonData salon, DateTimeOffset startAt)
     {
         var command = new AppointmentCreateCommand(salon.CustomerId, salon.StaffId, [salon.ServiceId], startAt, null);

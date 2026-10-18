@@ -1,7 +1,8 @@
+using Shouldly;
 using System.Net;
 using System.Net.Http.Json;
-using Shouldly;
 using TS.Result;
+using Zamanla.Application.Appointments;
 using Zamanla.Application.Public;
 using Zamanla.Application.SalonServices;
 using Zamanla.Application.Staffs;
@@ -50,6 +51,36 @@ public sealed class PublicSalonTests(ZamanlaApiFactory factory) : IntegrationTes
         var result = await ownerA.GetFromJsonAsync<Result<PublicSalonDto>>("/api/public/salon-b", CancellationToken);
 
         result!.Data!.Services.ShouldHaveSingleItem().Name.ShouldBe("B hizmeti");
+    }
+
+    [Fact]
+    public async Task Availability_WithoutLogin_ReturnsSlots()
+    {
+        using var owner = await CreateOwnerClientAsync("salon-a", "a@test.com");
+        var haircutId = await CreateServiceAsync(owner, "Sac kesimi");
+        await CreateStaffAsync(owner, haircutId);
+
+        var date = NextMonday(9).ToString("yyyy-MM-dd");
+        var result = await Client.GetFromJsonAsync<Result<List<AvailabilitySlotDto>>>(
+            $"/api/public/salon-a/availability?date={date}&salonServiceIds={haircutId}", CancellationToken);
+
+        // 45 dk: 17:15 kapanışa sığar, 17:30 sığmaz
+        var slots = result!.Data!.Select(s => s.StartAt).ToList();
+        slots.ShouldContain(NextMonday(9));
+        slots.ShouldContain(NextMonday(17, 15));
+        slots.ShouldNotContain(NextMonday(17, 30));
+    }
+
+    [Fact]
+    public async Task Availability_BeyondBookingWindow_ReturnsBadRequest()
+    {
+        using var owner = await CreateOwnerClientAsync("salon-a", "a@test.com");
+
+        var date = DateTime.UtcNow.AddDays(OnlineBooking.MaxDaysAhead + 2).ToString("yyyy-MM-dd");
+        var response = await Client.GetAsync(
+            $"/api/public/salon-a/availability?date={date}&salonServiceIds={Guid.NewGuid()}", CancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     private async Task<Guid> CreateServiceAsync(HttpClient client, string name)
