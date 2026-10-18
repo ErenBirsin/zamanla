@@ -12,6 +12,13 @@ export function openHours(staff: PublicStaff[], dateKey: string) {
   return `${minutesToLabel(start)} – ${minutesToLabel(end)}`
 }
 
+export function worksOn(member: PublicStaff, dateKey: string) {
+  const day = dayOfWeek(dateKey)
+  return member.workingHours.some((hour) => hour.day === day)
+}
+
+export const fullName = (member: PublicStaff) => `${member.firstName} ${member.lastName}`
+
 export const initials = (text: string) =>
   text
     .split(/\s+/)
