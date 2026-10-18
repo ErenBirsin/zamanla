@@ -31,5 +31,13 @@ public static class PublicModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<List<AvailabilitySlotDto>>>();
+
+        app.MapPost("appointments",
+            async (PublicAppointmentCreateCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<PublicAppointmentCreatedDto>>();
     }
 }
