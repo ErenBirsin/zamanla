@@ -41,16 +41,19 @@ export function BookingLinkCard({ slug, ready }: BookingLinkCardProps) {
       <div className="flex flex-wrap items-center gap-2">
         <code
           title={link}
-          className="min-w-0 flex-1 truncate rounded-xl border border-line-soft bg-sand-soft px-3 py-2.5 text-sm"
+          className="min-w-48 flex-1 truncate rounded-xl border border-line-soft bg-sand-soft px-3 py-2.5 text-sm"
         >
           {displayLink}
         </code>
-        <a href={link} target="_blank" rel="noreferrer" className={linkButton}>
-          Aç
-        </a>
-        <button type="button" onClick={copy} className={linkButton}>
-          Kopyala
-        </button>
+        {/* yer kalmazsa iki düğme birlikte alt satıra geçer */}
+        <div className="flex gap-2">
+          <a href={link} target="_blank" rel="noreferrer" className={linkButton}>
+            Aç
+          </a>
+          <button type="button" onClick={copy} className={linkButton}>
+            Kopyala
+          </button>
+        </div>
       </div>
     </section>
   )
