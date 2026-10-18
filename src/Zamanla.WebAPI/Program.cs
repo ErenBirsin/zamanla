@@ -16,6 +16,7 @@ builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
 var loginPermitLimit = builder.Configuration.GetValue("RateLimiting:LoginPermitLimit", 5);
+var publicPermitLimit = builder.Configuration.GetValue("RateLimiting:PublicPermitLimit", 60);
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -25,6 +26,14 @@ builder.Services.AddRateLimiter(options =>
             _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = loginPermitLimit,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+    options.AddPolicy("public-fixed", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = publicPermitLimit,
                 Window = TimeSpan.FromMinutes(1)
             }));
 });
@@ -62,4 +71,5 @@ app.MapSalonService();
 app.MapStaff();
 app.MapCustomer();
 app.MapAppointment();
+app.MapPublic();
 app.Run();
