@@ -39,5 +39,13 @@ public static class PublicModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<PublicAppointmentCreatedDto>>();
+
+        app.MapGet("manage/{token}",
+            async (string token, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new PublicAppointmentGetQuery(token), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<PublicAppointmentDto>>();
     }
 }

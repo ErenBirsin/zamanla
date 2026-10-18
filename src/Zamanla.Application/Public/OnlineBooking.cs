@@ -7,4 +7,7 @@ public static class OnlineBooking
 
     // aynı telefonla kendisi ve yakınları için alınabilir; takvim sahte randevularla doldurulmasın
     public const int MaxUpcomingPerPhone = 5;
+
+    // linkten iptal en geç bu kadar saat önce; sonrası için müşteri salonu arar
+    public const int CancelHoursBefore = 3;
 }
