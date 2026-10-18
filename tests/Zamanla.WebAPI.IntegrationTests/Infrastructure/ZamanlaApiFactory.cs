@@ -22,6 +22,7 @@ public sealed class ZamanlaApiFactory : WebApplicationFactory<Program>, IAsyncLi
         builder.UseSetting("ConnectionStrings:SqlServer", ConnectionString);
         builder.UseSetting("Jwt:SecretKey", "zamanla-integration-test-only-secret-key-never-use-in-production-0001");
         builder.UseSetting("RateLimiting:LoginPermitLimit", "1000");
+        builder.UseSetting("RateLimiting:PublicPermitLimit", "1000");
     }
 
     public async ValueTask InitializeAsync()
