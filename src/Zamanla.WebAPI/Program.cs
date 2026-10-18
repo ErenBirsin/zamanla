@@ -72,4 +72,8 @@ app.MapStaff();
 app.MapCustomer();
 app.MapAppointment();
 app.MapPublic();
+if (app.Environment.IsDevelopment())
+{
+    await app.SeedDemoDataAsync();
+}
 app.Run();
