@@ -106,9 +106,10 @@ macOS / Linux için:
 dotnet user-secrets set "Jwt:SecretKey" "$(openssl rand -hex 48)" --project src/Zamanla.WebAPI
 ```
 
-### 4. Veritabanını oluştur
+### 4. Paketleri yükle ve veritabanını oluştur
 
 ```bash
+dotnet restore
 dotnet tool install --global dotnet-ef --version 10.*
 dotnet ef database update --project src/Zamanla.Infrastructure --startup-project src/Zamanla.WebAPI
 ```
