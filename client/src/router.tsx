@@ -79,6 +79,12 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        path: '/b/:slug/r/:token',
+        lazy: async () => ({
+          Component: (await import('@/features/booking/ManagePage')).ManagePage,
+        }),
+      },
+      {
         path: '*',
         lazy: async () => ({
           Component: (await import('@/features/system/NotFoundPage')).NotFoundPage,

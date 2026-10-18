@@ -10,6 +10,7 @@ const dayMonth = new Intl.DateTimeFormat('tr-TR', {
   day: 'numeric',
   month: 'long',
 })
+const monthShort = new Intl.DateTimeFormat('tr-TR', { timeZone: TIME_ZONE, month: 'short' })
 const monthYear = new Intl.DateTimeFormat('tr-TR', {
   timeZone: TIME_ZONE,
   month: 'long',
@@ -18,6 +19,9 @@ const monthYear = new Intl.DateTimeFormat('tr-TR', {
 
 // "Per"
 export const formatWeekdayShort = (dateKey: string) => weekdayShort.format(noon(dateKey))
+
+// "Eki"
+export const formatMonthShort = (dateKey: string) => monthShort.format(noon(dateKey))
 
 // "Ekim 2026"
 export const formatMonthYear = (dateKey: string) => monthYear.format(noon(dateKey))
@@ -31,3 +35,12 @@ export function formatSlot(startAt: string) {
   const dateKey = toDateKey(startAt)
   return `${formatWeekdayShort(dateKey)} ${dayMonth.format(noon(dateKey))} · ${formatClock(startAt)}`
 }
+
+// "Pazartesi, 14:00 – 14:45"
+export function formatTimeRange(startAt: string, endAt: string) {
+  const dateKey = toDateKey(startAt)
+  return `${weekdayLong.format(noon(dateKey))}, ${formatClock(startAt)} – ${formatClock(endAt)}`
+}
+
+export const minutesBetween = (startAt: string, endAt: string) =>
+  Math.round((new Date(endAt).getTime() - new Date(startAt).getTime()) / 60_000)

@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 
 interface BookingFooterProps {
-  title: string
-  subtitle: string
+  // başlık yoksa buton bütün genişliği kaplar
+  title?: string
+  subtitle?: string
   children?: ReactNode
 }
 
@@ -11,10 +12,12 @@ export function BookingFooter({ title, subtitle, children }: BookingFooterProps)
   return (
     <footer className="fixed inset-x-0 bottom-0 border-t border-line bg-surface">
       <div className="mx-auto flex max-w-md items-center gap-4 px-5 pt-4 pb-7">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[15px] font-bold">{title}</span>
-          <span className="truncate text-[13px] text-muted">{subtitle}</span>
-        </div>
+        {title && (
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate text-[15px] font-bold">{title}</span>
+            <span className="truncate text-[13px] text-muted">{subtitle}</span>
+          </div>
+        )}
         {children}
       </div>
     </footer>

@@ -1,6 +1,11 @@
 import { http } from '@/shared/api/http'
 import type { Result } from '@/shared/models/result'
-import type { PublicSalon } from './types'
+import type {
+  PublicAppointment,
+  PublicAppointmentCreated,
+  PublicBookingBody,
+  PublicSalon,
+} from './types'
 import type { AvailabilitySlot } from '@/features/calendar/types'
 
 export async function getPublicSalon(slug: string) {
@@ -19,5 +24,18 @@ export async function getPublicAvailability(
     params: { date, salonServiceIds, staffId: staffId || undefined },
     paramsSerializer: { indexes: null },
   })
+  return data.data!
+}
+
+export async function createPublicAppointment(slug: string, body: PublicBookingBody) {
+  const { data } = await http.post<Result<PublicAppointmentCreated>>(
+    `/public/${slug}/appointments`,
+    body,
+  )
+  return data.data!
+}
+
+export async function getManagedAppointment(slug: string, token: string) {
+  const { data } = await http.get<Result<PublicAppointment>>(`/public/${slug}/manage/${token}`)
   return data.data!
 }
