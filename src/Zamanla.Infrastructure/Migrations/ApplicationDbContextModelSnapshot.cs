@@ -446,6 +446,29 @@ namespace Zamanla.Infrastructure.Migrations
                                 .HasForeignKey("AppointmentId");
                         });
 
+                    b.OwnsOne("Zamanla.Domain.Appointments.ValueObjects.ManageToken", "ManageToken", b1 =>
+                        {
+                            b1.Property<Guid>("AppointmentId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("nvarchar(64)")
+                                .HasColumnName("ManageToken");
+
+                            b1.HasKey("AppointmentId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique()
+                                .HasFilter("[ManageToken] IS NOT NULL");
+
+                            b1.ToTable("Appointments");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppointmentId");
+                        });
+
                     b.OwnsOne("Zamanla.Domain.Appointments.ValueObjects.Source", "Source", b1 =>
                         {
                             b1.Property<Guid>("AppointmentId")
@@ -488,6 +511,8 @@ namespace Zamanla.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Histories");
+
+                    b.Navigation("ManageToken");
 
                     b.Navigation("Note");
 

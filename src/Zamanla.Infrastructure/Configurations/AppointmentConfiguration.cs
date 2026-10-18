@@ -47,6 +47,13 @@ internal sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appoin
             note.Property(n => n.Value).HasColumnName("Note").HasMaxLength(500);
         });
 
+        builder.OwnsOne(a => a.ManageToken, manageToken =>
+        {
+            manageToken.Property(t => t.Value).HasColumnName("ManageToken").HasMaxLength(64);
+            // linkten gelen token'ın özetiyle randevu bulunur
+            manageToken.HasIndex(t => t.Value).IsUnique();
+        });
+
         builder.OwnsMany(a => a.SalonServices, salonService =>
         {
             salonService.ToTable("AppointmentSalonServices");
