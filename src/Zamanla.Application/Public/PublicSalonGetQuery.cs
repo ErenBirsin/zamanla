@@ -15,6 +15,7 @@ public sealed record PublicSalonGetQuery() : IRequest<Result<PublicSalonDto>>;
 public sealed class PublicSalonDto
 {
     public string Name { get; set; } = default!;
+    public int BookingDaysAhead { get; set; }
     public List<PublicSalonServiceDto> Services { get; set; } = new();
     public List<PublicStaffDto> Staff { get; set; } = new();
 }
@@ -70,6 +71,7 @@ internal sealed class PublicSalonGetQueryHandler(
         return new PublicSalonDto
         {
             Name = name,
+            BookingDaysAhead = OnlineBooking.MaxDaysAhead,
             Services = bookableServices
                 .Select(s => new PublicSalonServiceDto
                 {

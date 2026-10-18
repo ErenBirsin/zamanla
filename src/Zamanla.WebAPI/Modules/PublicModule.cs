@@ -1,5 +1,6 @@
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Appointments;
 using Zamanla.Application.Public;
 
 namespace Zamanla.WebAPI.Modules;
@@ -22,5 +23,13 @@ public static class PublicModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<PublicSalonDto>>();
+
+        app.MapGet("availability",
+            async (DateOnly date, Guid[] salonServiceIds, Guid? staffId, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new PublicAvailabilityGetQuery(date, [.. salonServiceIds], staffId), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<List<AvailabilitySlotDto>>>();
     }
 }
