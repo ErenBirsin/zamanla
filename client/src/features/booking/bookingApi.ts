@@ -39,3 +39,35 @@ export async function getManagedAppointment(slug: string, token: string) {
   const { data } = await http.get<Result<PublicAppointment>>(`/public/${slug}/manage/${token}`)
   return data.data!
 }
+
+// saat değiştirirken boş saatler; randevunun kendi saati boş sayılır
+export async function getRescheduleAvailability(
+  slug: string,
+  token: string,
+  date: string,
+  staffId: string,
+) {
+  const { data } = await http.get<Result<AvailabilitySlot[]>>(
+    `/public/${slug}/manage/${token}/availability`,
+    { params: { date, staffId: staffId || undefined } },
+  )
+  return data.data!
+}
+
+export async function cancelManagedAppointment(slug: string, token: string) {
+  const { data } = await http.put<Result<string>>(`/public/${slug}/manage/${token}/cancel`)
+  return data.data!
+}
+
+export async function rescheduleManagedAppointment(
+  slug: string,
+  token: string,
+  staffId: string,
+  startAt: string,
+) {
+  const { data } = await http.put<Result<string>>(`/public/${slug}/manage/${token}/reschedule`, {
+    staffId,
+    startAt,
+  })
+  return data.data!
+}

@@ -1,12 +1,16 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useLocation, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { formatDateTime } from '@/features/calendar/time'
 import { formatPrice } from '@/shared/ui/format'
+import { cancelManagedAppointment } from './bookingApi'
 import { formatSlot, minutesBetween } from './format'
 import { downloadIcs } from './ics'
+import { RescheduleSection } from './RescheduleSection'
 import { SalonNotFound } from './SalonNotFound'
 import { useManagedAppointment } from './useManagedAppointment'
-import { usePublicSalon } from './usePublicSalon'
+import { publicQueryKey, usePublicSalon } from './usePublicSalon'
 
 const statusNotes: Record<string, string> = {
   'İptal Edildi': 'Bu randevu iptal edildi.',
@@ -22,8 +26,20 @@ export function ManagePage() {
   const location = useLocation()
   // randevu az önce alındıysa onay başlığı gösterilir; link sonradan açılınca normal görünüm
   const justBooked = (location.state as { justBooked?: boolean } | null)?.justBooked === true
+  const queryClient = useQueryClient()
   const salon = usePublicSalon(slug)
   const appointment = useManagedAppointment(slug, token)
+  // iptal geri alınamaz; önce onay istenir
+  const [mode, setMode] = useState<'reschedule' | 'cancel' | null>(null)
+
+  const cancelMutation = useMutation({
+    mutationFn: () => cancelManagedAppointment(slug, token),
+    onSuccess: (message) => {
+      toast.success(message)
+      setMode(null)
+      void queryClient.invalidateQueries({ queryKey: publicQueryKey(slug) })
+    },
+  })
 
   if (salon.isPending || appointment.isPending) {
     return <div className="min-h-dvh bg-sand" />
@@ -65,7 +81,7 @@ export function ManagePage() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-5 pt-10 pb-8">
-      {justBooked ? (
+      {justBooked && isOpen ? (
         <div className="flex flex-col items-center gap-3 text-center">
           <span className="flex size-18 items-center justify-center rounded-full bg-sage-soft">
             <span className="flex size-12 items-center justify-center rounded-full bg-sage">
@@ -176,6 +192,65 @@ export function ManagePage() {
             <p>İptal için son saat geçti. Gelemeyeceksen lütfen salonu ara.</p>
           )}
           <p>Ödeme salonda yapılır. Linki kaybetmemek için Takvime ekle'yi kullanabilirsin.</p>
+        </div>
+      )}
+
+      {isOpen && mode === 'reschedule' && (
+        <RescheduleSection
+          slug={slug}
+          token={token}
+          salon={salon.data}
+          appointment={item}
+          onClose={() => setMode(null)}
+        />
+      )}
+
+      {isOpen && mode === 'cancel' && (
+        <div className="flex flex-col gap-3 rounded-[20px] border border-clay/30 bg-clay-soft/50 p-4.5">
+          <p className="text-sm">
+            <strong>{formatSlot(item.startAt)}</strong> randevun iptal edilsin mi? Bu işlem geri
+            alınamaz.
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setMode(null)}
+              className="h-11 cursor-pointer rounded-full border border-line bg-surface text-sm font-semibold hover:bg-sand-soft"
+            >
+              Vazgeç
+            </button>
+            <button
+              type="button"
+              disabled={cancelMutation.isPending}
+              onClick={() => cancelMutation.mutate()}
+              className="h-11 cursor-pointer rounded-full bg-clay text-sm font-semibold text-white hover:bg-clay-dark disabled:cursor-default disabled:opacity-60"
+            >
+              İptal et
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isOpen && mode === null && (item.canReschedule || item.canCancel) && (
+        <div className="flex flex-col gap-2">
+          {item.canReschedule && (
+            <button
+              type="button"
+              onClick={() => setMode('reschedule')}
+              className="h-12 cursor-pointer rounded-full bg-ink text-[15px] font-semibold text-white"
+            >
+              Saati değiştir
+            </button>
+          )}
+          {item.canCancel && (
+            <button
+              type="button"
+              onClick={() => setMode('cancel')}
+              className="h-11 cursor-pointer text-sm font-semibold text-clay-dark hover:text-clay"
+            >
+              Randevuyu iptal et
+            </button>
+          )}
         </div>
       )}
 
