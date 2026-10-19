@@ -9,6 +9,7 @@ using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.SalonServices;
 using Zamanla.Domain.Staffs;
 using Zamanla.Domain.Tenants;
+using Zamanla.Domain.TimeOffs;
 
 namespace Zamanla.Application.Appointments;
 
@@ -44,6 +45,7 @@ internal sealed class AvailabilityGetQueryHandler(
     IStaffRepository staffRepository,
     IAppointmentRepository appointmentRepository,
     ITenantRepository tenantRepository,
+    ITimeOffRepository timeOffRepository,
     ITenantContext tenantContext,
     TimeProvider timeProvider) : IRequestHandler<AvailabilityGetQuery, Result<List<AvailabilitySlotDto>>>
 {
@@ -119,6 +121,15 @@ internal sealed class AvailabilityGetQueryHandler(
                 && a.BlockedUntil > dayStart)
             .Select(a => new { a.StaffId, a.Time.Start, a.BlockedUntil })
             .ToListAsync(cancellationToken);
+
+        // izinler de dolu sayılır; personeli boş olan izin bütün salonun kapalı olduğu gündür
+        var timeOffs = await timeOffRepository
+            .Where(t => (t.StaffId == null || staffIds.Contains(t.StaffId.Value))
+                && t.Time.Start < dayEnd
+                && t.Time.End > dayStart)
+            .Select(t => new { t.StaffId, t.Time.Start, t.Time.End })
+            .ToListAsync(cancellationToken);
+
         #endregion
 
         var now = timeProvider.GetUtcNow();
@@ -126,8 +137,11 @@ internal sealed class AvailabilityGetQueryHandler(
         foreach (var staff in staffs)
         {
             var staffBusy = busy
-                .Where(b => b.StaffId == staff.Id)
-                .Select(b => new DateTimeRange(b.Start, b.BlockedUntil));
+            .Where(b => b.StaffId == staff.Id)
+            .Select(b => new DateTimeRange(b.Start, b.BlockedUntil))
+            .Concat(timeOffs
+                .Where(t => t.StaffId == null || t.StaffId == staff.Id)
+                .Select(t => new DateTimeRange(t.Start, t.End)));
             var staffSlots = AvailabilityCalculator.GetSlots(
                 request.Date, timeZone, staff.WorkingHours, staffBusy, duration, buffer, now);
 

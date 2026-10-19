@@ -2,12 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using TS.Result;
 using Zamanla.Application.Appointments;
 using Zamanla.Application.Tenants;
+using Zamanla.Application.TimeOffs;
 using Zamanla.Domain.Appointments;
 using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.SalonServices;
 using Zamanla.Domain.Shared;
 using Zamanla.Domain.Staffs;
 using Zamanla.Domain.Tenants;
+using Zamanla.Domain.TimeOffs;
 
 namespace Zamanla.Application.Services;
 
@@ -17,6 +19,7 @@ public sealed class AppointmentBookingService(
     IStaffRepository staffRepository,
     ISalonServiceRepository salonServiceRepository,
     ITenantRepository tenantRepository,
+    ITimeOffRepository timeOffRepository,
     ITenantContext tenantContext)
 {
     public async Task<Result<Appointment>> CreateAsync(
@@ -89,6 +92,12 @@ public sealed class AppointmentBookingService(
         if (!AvailabilityCalculator.IsWithinWorkingHours(appointment.Time, timeZone, staff.WorkingHours))
         {
             return Result<Appointment>.Failure(400, "Seçilen saat personelin çalışma saatleri dışında");
+        }
+
+        var timeOffConflict = await timeOffRepository.GetTimeOffConflictAsync(staff.Id, appointment.Time, cancellationToken);
+        if (timeOffConflict is not null)
+        {
+            return Result<Appointment>.Failure(400, timeOffConflict);
         }
 
         var start = appointment.Time.Start;

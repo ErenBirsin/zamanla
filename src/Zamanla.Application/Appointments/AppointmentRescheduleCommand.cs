@@ -5,10 +5,12 @@ using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Services;
 using Zamanla.Application.Tenants;
+using Zamanla.Application.TimeOffs;
 using Zamanla.Domain.Appointments;
 using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.Staffs;
 using Zamanla.Domain.Tenants;
+using Zamanla.Domain.TimeOffs;
 
 namespace Zamanla.Application.Appointments;
 
@@ -33,6 +35,7 @@ internal sealed class AppointmentRescheduleCommandHandler(
     IStaffRepository staffRepository,
     ITenantRepository tenantRepository,
     ITenantContext tenantContext,
+    ITimeOffRepository timeOffRepository,
     TimeProvider timeProvider,
     IUnitOfWork unitOfWork) : IRequestHandler<AppointmentRescheduleCommand, Result<string>>
 {
@@ -87,6 +90,12 @@ internal sealed class AppointmentRescheduleCommandHandler(
         if (!AvailabilityCalculator.IsWithinWorkingHours(appointment.Time, timeZone, staff.WorkingHours))
         {
             return Result<string>.Failure(400, "Seçilen saat personelin çalışma saatleri dışında");
+        }
+
+        var timeOffConflict = await timeOffRepository.GetTimeOffConflictAsync(staff.Id, appointment.Time, cancellationToken);
+        if (timeOffConflict is not null)
+        {
+            return Result<string>.Failure(400, timeOffConflict);
         }
 
         var appointmentId = appointment.Id;
