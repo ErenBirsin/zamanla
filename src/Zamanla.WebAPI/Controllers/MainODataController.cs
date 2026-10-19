@@ -9,6 +9,7 @@ using Zamanla.Application.Appointments;
 using Zamanla.Application.Customers;
 using Zamanla.Application.SalonServices;
 using Zamanla.Application.Staffs;
+using Zamanla.Application.TimeOffs;
 
 namespace Zamanla.WebAPI.Controllers;
 
@@ -26,6 +27,7 @@ public class MainODataController : ODataController
         builder.EntitySet<StaffDto>("staff");
         builder.EntitySet<CustomerDto>("customers");
         builder.EntitySet<AppointmentDto>("appointments");
+        builder.EntitySet<TimeOffDto>("timeOffs");
         return builder.GetEdmModel();
     }
 
@@ -44,4 +46,9 @@ public class MainODataController : ODataController
     [HttpGet("appointments")]
     public IQueryable<AppointmentDto> Appointments(ISender sender, CancellationToken cancellationToken = default)
     => sender.Send(new AppointmentGetAllQuery(), cancellationToken).Result;
+
+
+    [HttpGet("timeOffs")]
+    public IQueryable<TimeOffDto> TimeOffs(ISender sender, CancellationToken cancellationToken = default)
+    => sender.Send(new TimeOffGetAllQuery(), cancellationToken).Result;
 }
