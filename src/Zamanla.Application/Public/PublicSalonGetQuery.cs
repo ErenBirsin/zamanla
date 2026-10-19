@@ -19,6 +19,7 @@ public sealed class PublicSalonDto
     public Address? Address { get; set; }
     public string? PhoneNumber { get; set; }
     public int BookingDaysAhead { get; set; }
+    public int CancelHoursBefore { get; set; }
     public List<PublicSalonServiceDto> Services { get; set; } = new();
     public List<PublicStaffDto> Staff { get; set; } = new();
 }
@@ -54,15 +55,16 @@ internal sealed class PublicSalonGetQueryHandler(
         var salon = await tenantRepository
             .Where(t => t.Id == tenantId)
             .Select(t => new
-    {
+            {
                 Name = t.Name.Value,
                 Address = t.Address != null
                     ? new Address(t.Address.City, t.Address.District, t.Address.FullAddress)
                     : null,
                 PhoneNumber = t.PhoneNumber != null ? t.PhoneNumber.Value : null,
-                t.BookingPolicy.MaxDaysAhead
-    })
-    .FirstAsync(cancellationToken);
+                t.BookingPolicy.MaxDaysAhead,
+                t.BookingPolicy.CancelHoursBefore
+            })
+            .FirstAsync(cancellationToken);
 
         var staffs = await staffRepository
             .Where(s => s.IsActive)
@@ -85,6 +87,7 @@ internal sealed class PublicSalonGetQueryHandler(
             Address = salon.Address,
             PhoneNumber = salon.PhoneNumber,
             BookingDaysAhead = salon.MaxDaysAhead,
+            CancelHoursBefore = salon.CancelHoursBefore,
             Services = bookableServices
                 .Select(s => new PublicSalonServiceDto
                 {

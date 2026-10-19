@@ -27,6 +27,7 @@ export interface PublicSalon {
   bookingDaysAhead: number
   services: PublicService[]
   staff: PublicStaff[]
+  cancelHoursBefore: number
 }
 
 export interface PublicBookingBody {

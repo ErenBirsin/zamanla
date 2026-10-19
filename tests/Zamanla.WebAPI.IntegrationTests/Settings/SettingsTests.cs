@@ -83,11 +83,12 @@ public sealed class SettingsTests(ZamanlaApiFactory factory) : IntegrationTestBa
             "Test Salon",
             new Address("İstanbul", "Kadıköy", "Moda Cad. No: 12"),
             "0216 000 00 00",
-            new BookingPolicy(7, 3, 5));
+            new BookingPolicy(7, 2, 5));
         (await client.PutAsJsonAsync("/api/settings", command, CancellationToken)).EnsureSuccessStatusCode();
 
         var salon = await Client.GetFromJsonAsync<Result<PublicSalonDto>>("/api/public/salon-a", CancellationToken);
         salon!.Data!.BookingDaysAhead.ShouldBe(7);
+        salon.Data.CancelHoursBefore.ShouldBe(2);
         salon.Data.PhoneNumber.ShouldBe("+902160000000");
         salon.Data.Address!.District.ShouldBe("Kadıköy");
 
