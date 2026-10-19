@@ -41,7 +41,7 @@ export function ServicesPage() {
 
   return (
     <>
-      <header className="clearjustify-between flex flex-wrap items-end gap-4">
+      <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <h1 className="text-3xl font-bold">Hizmetler</h1>
           <p className="text-muted">Müşterilerin randevu alırken seçeceği hizmetler.</p>
