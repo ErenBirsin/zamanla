@@ -14,19 +14,20 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Müşteriler: isim ya da telefonla arama. Silinen müşterinin kişisel bilgileri KVKK'ya uygun şekilde anonimleştirilir.
 - Günlük takvim: personel sütunları, mola ve kapalı saatler, "şu an" çizgisi.
 - Randevular: birden fazla hizmet, tamamlandı / gelmedi / iptal / yeniden planlama ve randevu geçmişi.
+- Ayarlar: salon adı, adres, telefon ve online randevu kuralları.
 
 ### Müşteri tarafı
 
 - Salonun linkinden (`/b/salon-adi`) hizmet, personel ve saat seçerek randevu alma. Sayfa telefon için tasarlandı.
 - Randevuyu görüntüleme, iptal etme ve saatini değiştirme için kişiye özel yönetim linki.
 - Randevuyu telefonun takvimine ekleme (.ics, 1 saat önce hatırlatma).
+- Salon adres ve telefon girdiyse randevu sayfasında ve randevu linkinde gösterilir; telefon tıklanınca arama başlar.
 
 ### Kurallar ve güvenlik
 
 - Boş saatler çalışma saatlerine, molalara ve diğer randevulara göre 15 dakikalık adımlarla hesaplanır.
 - Aynı saate aynı anda gelen iki randevudan yalnızca biri kaydedilir.
-- Online randevu en fazla 60 gün ilerisi için alınır; aynı telefonla en fazla 5 ileri tarihli online randevu olabilir.
-- İptal randevuya 3 saat kalana kadar yapılabilir.
+- Online randevu kuralları her salon için ayarlardan değiştirilebilir: kaç gün ilerisi (varsayılan 60), linkten iptal için son süre (varsayılan 3 saat) ve aynı telefonla en fazla ileri tarihli randevu (varsayılan 5).
 - Yönetim linkindeki anahtar veritabanında açık haliyle değil, SHA-256 özetiyle saklanır.
 - JWT access token (15 dk) ve refresh token (14 gün). Kullanılmış bir refresh token tekrar gelirse açık oturumlar kapatılır.
 - Giriş, kayıt ve herkese açık uçlarda IP bazlı istek sınırı.
@@ -189,6 +190,12 @@ client/
 - [x] Aşama 3: Randevular ve günlük takvim
 - [x] Aşama 4: Herkese açık randevu sayfası
 - [x] MVP: Kurulum rehberi ve demo verisi
-- [ ] Aşama 5: Hatırlatma bildirimleri (Hangfire), canlı takvim (SignalR), salon ayarları, günlük özet, kullanıcı yetkileri
+- [ ] Aşama 5: v1 katmanı
+  - [x] 5.1 Salon ayarları
+  - [ ] 5.2 Personel izni ve kapalı günler
+  - [ ] 5.3 Hatırlatmalar (Hangfire, e-posta)
+  - [ ] 5.4 Canlı takvim ve bildirim zili (SignalR)
+  - [ ] 5.5 Günlük özet
+  - [ ] 5.6 Personel hesapları ve yetkiler
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).
