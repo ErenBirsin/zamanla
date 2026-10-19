@@ -68,6 +68,12 @@ export const router = createBrowserRouter([
                   Component: (await import('@/features/customers/CustomersPage')).CustomersPage,
                 }),
               },
+              {
+                path: 'settings',
+                lazy: async () => ({
+                  Component: (await import('@/features/settings/SettingsPage')).SettingsPage,
+                }),
+              },
             ],
           },
         ],
