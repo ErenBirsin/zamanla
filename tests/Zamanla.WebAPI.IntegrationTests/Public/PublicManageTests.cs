@@ -1,16 +1,18 @@
-using System.Net;
-using System.Net.Http.Json;
 using GenericRepository;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
+using System.Net;
+using System.Net.Http.Json;
 using TS.Result;
 using Zamanla.Application.Appointments;
 using Zamanla.Application.Auth;
 using Zamanla.Application.Public;
 using Zamanla.Application.SalonServices;
+using Zamanla.Application.Settings;
 using Zamanla.Application.Staffs;
 using Zamanla.Domain.Appointments;
 using Zamanla.Domain.Staffs.ValueObjects;
+using Zamanla.Domain.Tenants.ValueObjects;
 using Zamanla.WebAPI.IntegrationTests.Infrastructure;
 
 namespace Zamanla.WebAPI.IntegrationTests.Public;
@@ -100,6 +102,27 @@ public sealed class PublicManageTests(ZamanlaApiFactory factory) : IntegrationTe
         appointment.CanCancel.ShouldBeFalse();
         appointment.CanReschedule.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task Cancel_WhenSalonAllowsLateCancel_Succeeds()
+    {
+        var tokens = await RegisterAsync("salon-a", "a@test.com");
+        var user = await GetMeAsync(tokens.AccessToken);
+        using var owner = Factory.CreateClient();
+        owner.DefaultRequestHeaders.Authorization = new("Bearer", tokens.AccessToken);
+        var salon = await SetupSalonAsync(owner);
+        var token = await BookAsync("salon-a", salon, NextMonday(10));
+        await MoveAppointmentAsync(user, token, DateTimeOffset.UtcNow.AddHours(1));
+        // salon son ana kadar linkten iptale izin veriyor
+        var settings = new SettingsUpdateCommand("Test Salon", null, null, BookingPolicy.Default with { CancelHoursBefore = 0 });
+        (await owner.PutAsJsonAsync("/api/settings", settings, CancellationToken)).EnsureSuccessStatusCode();
+
+        var response = await Client.PutAsync($"/api/public/salon-a/manage/{token}/cancel", null, CancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await GetAsync("salon-a", token)).Status.ShouldBe("İptal Edildi");
+    }
+
     #endregion
 
     #region Saat değiştirme
