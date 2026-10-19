@@ -15,7 +15,14 @@ export function SalonHeader({ salon }: SalonHeaderProps) {
         <span className="flex size-13 shrink-0 items-center justify-center rounded-2xl bg-clay font-display text-xl font-bold text-white">
           {initials(salon.name)}
         </span>
-        <h1 className="text-[26px] leading-tight font-bold">{salon.name}</h1>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h1 className="text-[26px] leading-tight font-bold">{salon.name}</h1>
+          {salon.address && (
+            <span className="truncate text-[13px] text-[#cfc4b6]">
+              {salon.address.district}, {salon.address.city}
+            </span>
+          )}
+        </div>
       </div>
       <p className="flex w-fit items-center gap-1.5 rounded-full bg-[#2e2925] px-2.5 py-1.5 text-[13px]">
         <span className={`size-1.75 rounded-full ${hours ? 'bg-[#8db580]' : 'bg-muted'}`} />

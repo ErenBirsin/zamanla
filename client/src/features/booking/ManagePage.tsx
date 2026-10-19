@@ -5,12 +5,13 @@ import { toast } from 'sonner'
 import { formatDateTime } from '@/features/calendar/time'
 import { formatPrice } from '@/shared/ui/format'
 import { cancelManagedAppointment } from './bookingApi'
-import { formatSlot, minutesBetween } from './format'
+import { formatAddress, formatSlot, minutesBetween } from './format'
 import { downloadIcs } from './ics'
 import { RescheduleSection } from './RescheduleSection'
 import { SalonNotFound } from './SalonNotFound'
 import { useManagedAppointment } from './useManagedAppointment'
 import { publicQueryKey, usePublicSalon } from './usePublicSalon'
+import { formatPhone } from '@/features/customers/phone'
 
 const statusNotes: Record<string, string> = {
   'İptal Edildi': 'Bu randevu iptal edildi.',
@@ -63,6 +64,8 @@ export function ManagePage() {
   const isOpen = item.status === 'Onaylandı'
   const services = item.services.map((service) => service.name).join(' + ')
   const duration = minutesBetween(item.startAt, item.endAt)
+  const address = salon.data.address ? formatAddress(salon.data.address) : null
+  const phone = salon.data.phoneNumber
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(window.location.href)
@@ -77,6 +80,7 @@ export function ManagePage() {
       startAt: item.startAt,
       endAt: item.endAt,
       url: window.location.href,
+      location: address ?? undefined,
     })
 
   return (
@@ -139,6 +143,7 @@ export function ManagePage() {
           <Row label="Hizmet" value={`${services} · ${duration} dk`} />
           <Row label="Personel" value={item.staffFullName} />
           <Row label="Ücret" value={`${formatPrice(item.total)} · salonda`} />
+          {address && <Row label="Adres" value={address} />}
         </dl>
       </div>
 
@@ -189,7 +194,18 @@ export function ManagePage() {
               kadar bu sayfadan iptal edebilirsin.
             </p>
           ) : (
-            <p>İptal için son saat geçti. Gelemeyeceksen lütfen salonu ara.</p>
+            <p>
+              İptal için son saat geçti. Gelemeyeceksen lütfen salonu ara
+              {phone && (
+                <>
+                  :{' '}
+                  <a href={`tel:${phone}`} className="font-semibold text-ink underline">
+                    {formatPhone(phone)}
+                  </a>
+                </>
+              )}
+              .
+            </p>
           )}
           <p>Ödeme salonda yapılır. Linki kaybetmemek için Takvime ekle'yi kullanabilirsin.</p>
         </div>

@@ -5,6 +5,7 @@ interface CalendarEvent {
   startAt: string
   endAt: string
   url: string
+  location?: string
 }
 
 // .ics saatleri UTC ve ayraçsız: 20261019T110000Z
@@ -34,6 +35,7 @@ export function downloadIcs(event: CalendarEvent) {
     `DTEND:${stamp(event.endAt)}`,
     `SUMMARY:${escape(event.title)}`,
     `DESCRIPTION:${escape(event.description)}`,
+    ...(event.location ? [`LOCATION:${escape(event.location)}`] : []),
     `URL:${event.url}`,
     'BEGIN:VALARM',
     'TRIGGER:-PT1H',
