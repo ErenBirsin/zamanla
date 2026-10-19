@@ -8,6 +8,7 @@ using Zamanla.Application.Public;
 using Zamanla.Application.SalonServices;
 using Zamanla.Application.Staffs;
 using Zamanla.Domain.Staffs.ValueObjects;
+using Zamanla.Domain.Tenants.ValueObjects;
 using Zamanla.WebAPI.IntegrationTests.Infrastructure;
 
 namespace Zamanla.WebAPI.IntegrationTests.Public;
@@ -55,7 +56,7 @@ public sealed class PublicBookingTests(ZamanlaApiFactory factory) : IntegrationT
     {
         using var owner = await CreateOwnerClientAsync("salon-a", "a@test.com");
         var salon = await SetupSalonAsync(owner);
-        for (var hour = 9; hour < 9 + OnlineBooking.MaxUpcomingPerPhone; hour++)
+        for (var hour = 9; hour < 9 + BookingPolicy.Default.MaxUpcomingPerPhone; hour++)
         {
             (await BookAsync("salon-a", salon, "Ayse", "Yilmaz", NextMonday(hour))).EnsureSuccessStatusCode();
         }
@@ -63,7 +64,7 @@ public sealed class PublicBookingTests(ZamanlaApiFactory factory) : IntegrationT
         var response = await BookAsync("salon-a", salon, "Ayse", "Yilmaz", NextMonday(15));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        (await GetAppointmentsAsync(owner)).Count.ShouldBe(OnlineBooking.MaxUpcomingPerPhone);
+        (await GetAppointmentsAsync(owner)).Count.ShouldBe(BookingPolicy.Default.MaxUpcomingPerPhone);
     }
 
     [Fact]

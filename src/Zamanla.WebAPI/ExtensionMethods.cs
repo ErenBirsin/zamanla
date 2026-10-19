@@ -1,5 +1,4 @@
 using GenericRepository;
-using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using Zamanla.Application.Auth;
 using Zamanla.Application.Services;
@@ -47,12 +46,11 @@ public static class ExtensionMethods
             return;
         }
 
-        var tenantId = await tenantRepository
-            .Where(t => t.Slug.Value == DemoSlug)
-            .Select(t => t.Id)
-            .FirstAsync();
-        // oturum olmadığı için salon elle seçilir; kayıtlara bu salonu TenantInterceptor yazar
-        srv.GetRequiredService<ITenantContext>().SetTenantId(tenantId);
+        var tenant = (await tenantRepository.FirstOrDefaultAsync(t => t.Slug.Value == DemoSlug))!;
+        tenant.SetAddress(new Address("İstanbul", "Kadıköy", "Moda Cad. No: 12"));
+        tenant.SetPhoneNumber(new PhoneNumber("0216 000 00 00"));
+        tenantRepository.Update(tenant);
+        srv.GetRequiredService<ITenantContext>().SetTenantId(tenant.Id);
         #endregion
 
         #region Hizmetler, Personel ve Müşteriler

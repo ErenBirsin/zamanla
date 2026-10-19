@@ -146,6 +146,7 @@ export function BookingPage() {
             ).toISOString()}
             servicesTitle={servicesTitle}
             totalPrice={totalPrice}
+            cancelHoursBefore={salon.data.cancelHoursBefore}
           />
         )}
       </main>

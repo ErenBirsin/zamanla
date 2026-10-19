@@ -968,6 +968,37 @@ namespace Zamanla.Infrastructure.Migrations
 
             modelBuilder.Entity("Zamanla.Domain.Tenants.Tenant", b =>
                 {
+                    b.OwnsOne("Zamanla.Domain.Shared.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("TenantId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("City");
+
+                            b1.Property<string>("District")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("District");
+
+                            b1.Property<string>("FullAddress")
+                                .IsRequired()
+                                .HasMaxLength(250)
+                                .HasColumnType("nvarchar(250)")
+                                .HasColumnName("FullAddress");
+
+                            b1.HasKey("TenantId");
+
+                            b1.ToTable("Tenants");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TenantId");
+                        });
+
                     b.OwnsOne("Zamanla.Domain.Shared.Name", "Name", b1 =>
                         {
                             b1.Property<Guid>("TenantId")
@@ -978,6 +1009,50 @@ namespace Zamanla.Infrastructure.Migrations
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
                                 .HasColumnName("Name");
+
+                            b1.HasKey("TenantId");
+
+                            b1.ToTable("Tenants");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TenantId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Shared.PhoneNumber", "PhoneNumber", b1 =>
+                        {
+                            b1.Property<Guid>("TenantId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(13)
+                                .HasColumnType("nvarchar(13)")
+                                .HasColumnName("PhoneNumber");
+
+                            b1.HasKey("TenantId");
+
+                            b1.ToTable("Tenants");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TenantId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Tenants.ValueObjects.BookingPolicy", "BookingPolicy", b1 =>
+                        {
+                            b1.Property<Guid>("TenantId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("CancelHoursBefore")
+                                .HasColumnType("int")
+                                .HasColumnName("BookingCancelHoursBefore");
+
+                            b1.Property<int>("MaxDaysAhead")
+                                .HasColumnType("int")
+                                .HasColumnName("BookingMaxDaysAhead");
+
+                            b1.Property<int>("MaxUpcomingPerPhone")
+                                .HasColumnType("int")
+                                .HasColumnName("BookingMaxUpcomingPerPhone");
 
                             b1.HasKey("TenantId");
 
@@ -1028,8 +1103,15 @@ namespace Zamanla.Infrastructure.Migrations
                                 .HasForeignKey("TenantId");
                         });
 
+                    b.Navigation("Address");
+
+                    b.Navigation("BookingPolicy")
+                        .IsRequired();
+
                     b.Navigation("Name")
                         .IsRequired();
+
+                    b.Navigation("PhoneNumber");
 
                     b.Navigation("Slug")
                         .IsRequired();

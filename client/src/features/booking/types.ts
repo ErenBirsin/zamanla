@@ -1,4 +1,5 @@
 import type { AppointmentStatus } from '@/features/calendar/types'
+import type { Address } from '@/features/settings/types'
 import type { StaffColor } from '@/features/staff/staffOptions'
 import type { WorkingHour } from '@/features/staff/types'
 
@@ -21,9 +22,12 @@ export interface PublicStaff {
 
 export interface PublicSalon {
   name: string
+  address: Address | null
+  phoneNumber: string | null
   bookingDaysAhead: number
   services: PublicService[]
   staff: PublicStaff[]
+  cancelHoursBefore: number
 }
 
 export interface PublicBookingBody {

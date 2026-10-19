@@ -71,6 +71,7 @@ app.MapSalonService();
 app.MapStaff();
 app.MapCustomer();
 app.MapAppointment();
+app.MapSettings();
 app.MapPublic();
 if (app.Environment.IsDevelopment())
 {

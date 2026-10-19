@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Services;
+using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
 using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.Customers;
 using Zamanla.Domain.SalonServices;
 using Zamanla.Domain.Staffs;
+using Zamanla.Domain.Tenants;
 
 namespace Zamanla.Application.Public;
 
@@ -39,6 +42,8 @@ internal sealed class PublicAppointmentGetQueryHandler(
     ICustomerRepository customerRepository,
     IStaffRepository staffRepository,
     ISalonServiceRepository salonServiceRepository,
+    ITenantRepository tenantRepository,
+    ITenantContext tenantContext,
     TimeProvider timeProvider) : IRequestHandler<PublicAppointmentGetQuery, Result<PublicAppointmentDto>>
 {
     public async Task<Result<PublicAppointmentDto>> Handle(PublicAppointmentGetQuery request, CancellationToken cancellationToken)
@@ -65,7 +70,8 @@ internal sealed class PublicAppointmentGetQueryHandler(
 
         var now = timeProvider.GetUtcNow();
         var isOpen = appointment.Status == Status.Confirmed;
-        var cancelDeadline = appointment.Time.Start.AddHours(-OnlineBooking.CancelHoursBefore);
+        var policy = await tenantRepository.GetBookingPolicyAsync(tenantContext.GetTenantId(), cancellationToken);
+        var cancelDeadline = appointment.Time.Start.AddHours(-policy.CancelHoursBefore);
 
         return new PublicAppointmentDto
         {

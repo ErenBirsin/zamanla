@@ -1,4 +1,5 @@
 import { TIME_ZONE, formatClock, toDateKey } from '@/features/calendar/time'
+import type { Address } from '@/features/settings/types'
 
 // günün ortası; saat dilimi yüzünden bir önceki güne kaymasın
 const noon = (dateKey: string) => new Date(`${dateKey}T12:00:00+03:00`)
@@ -41,6 +42,10 @@ export function formatTimeRange(startAt: string, endAt: string) {
   const dateKey = toDateKey(startAt)
   return `${weekdayLong.format(noon(dateKey))}, ${formatClock(startAt)} – ${formatClock(endAt)}`
 }
+
+// "Moda Cad. No: 12, Kadıköy / İstanbul"
+export const formatAddress = (address: Address) =>
+  `${address.fullAddress}, ${address.district} / ${address.city}`
 
 export const minutesBetween = (startAt: string, endAt: string) =>
   Math.round((new Date(endAt).getTime() - new Date(startAt).getTime()) / 60_000)

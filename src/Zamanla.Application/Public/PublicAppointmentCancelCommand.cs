@@ -1,7 +1,10 @@
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Appointments;
+using Zamanla.Application.Services;
+using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
+using Zamanla.Domain.Tenants;
 
 namespace Zamanla.Application.Public;
 
@@ -10,6 +13,8 @@ public sealed record PublicAppointmentCancelCommand(string Token) : IRequest<Res
 
 internal sealed class PublicAppointmentCancelCommandHandler(
     IAppointmentRepository appointmentRepository,
+    ITenantRepository tenantRepository,
+    ITenantContext tenantContext,
     ISender sender,
     TimeProvider timeProvider) : IRequestHandler<PublicAppointmentCancelCommand, Result<string>>
 {
@@ -26,10 +31,11 @@ internal sealed class PublicAppointmentCancelCommandHandler(
             return Result<string>.Failure(400, "Bu randevu kapanmış, değiştirilemez");
         }
 
-        var cancelDeadline = appointment.Time.Start.AddHours(-OnlineBooking.CancelHoursBefore);
+        var policy = await tenantRepository.GetBookingPolicyAsync(tenantContext.GetTenantId(), cancellationToken);
+        var cancelDeadline = appointment.Time.Start.AddHours(-policy.CancelHoursBefore);
         if (timeProvider.GetUtcNow() >= cancelDeadline)
         {
-            return Result<string>.Failure(400, $"Randevuya {OnlineBooking.CancelHoursBefore} saatten az kaldığı için linkten iptal edilemiyor, lütfen salonu arayın");
+            return Result<string>.Failure(400, $"Randevuya {policy.CancelHoursBefore} saatten az kaldığı için linkten iptal edilemiyor, lütfen salonu arayın");
         }
 
         return await sender.Send(new AppointmentCancelCommand(appointment.Id, "Müşteri linkten iptal etti"), cancellationToken);

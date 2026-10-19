@@ -1,5 +1,24 @@
 # Değişiklik günlüğü
 
+## [0.7.0] - 2026-10-19
+
+Aşama 5.1: Salon ayarları.
+
+### Eklendi
+
+- Salonun adresi, telefonu ve online randevu kuralları için ayarlar eklendi. En fazla kaç gün sonrası için randevu alınabileceği, randevuya kaç saat kalana kadar linkten iptal edilebileceği ve aynı telefon numarasıyla en fazla kaç ileri tarihli online randevu alınabileceği ayarlanabiliyor. Mevcut salonlar 60 gün, 3 saat ve 5 randevu varsayılanlarıyla devam ediyor.
+- Ayarları görüntülemek ve güncellemek için `GET` ve `PUT /api/settings` uçları eklendi. Girilebilecek değerler de sınırlandırıldı: 1–180 gün, 0–72 saat ve 1–20 randevu. Daha önce müşterilerle paylaşılmış linklerin değişmemesi için salonun kısa linki ayarlar üzerinden değiştirilemiyor.
+- Randevu alırken ve boş saatleri listelerken salonun kendi kuralları kullanılmaya başlandı. İptal ve saat değiştirme işlemleri de aynı ayarlara göre çalışıyor.
+- Panele Ayarlar sayfası eklendi. Salon adı, telefon, adres ve online randevu kuralları buradan değiştirilebiliyor. Değişiklik yapılmadığında Kaydet düğmesi aktif olmuyor. Kayıt sonrasında yan menüdeki salon adı da güncelleniyor.
+- Salonun adres ve telefon bilgileri girilmişse online randevu sayfasında da gösteriliyor. Başlıkta ilçe ve il bilgisi, randevu linkinin sayfasında açık adres yer alıyor. Telefon numarasına tıklanınca arama başlatılabiliyor. Takvime eklenen `.ics` dosyasına da adres bilgisi eklendi.
+- Demo salon için örnek adres ve telefon bilgileri tanımlandı.
+- Ayarlar için entegrasyon testleri eklendi. Bir salonun ayarlarının diğer salonları etkilemediği ve online randevu sayfasının ilgili salonun kurallarına göre çalıştığı da kontrol ediliyor. Toplam test sayısı 86 oldu.
+
+### Düzeltildi
+
+- Hizmetler sayfasında başlıktaki bir yazım hatası nedeniyle "Hizmet ekle" düğmesi sağa hizalanmıyordu. Bu sorun düzeltildi.
+- Randevu formunda iptal süresi her salon için sabit olarak 3 saat gösteriliyordu. Artık salonun belirlediği süre gösteriliyor. Süre 0 saat olduğunda ise "randevu saatine kadar" yazıyor.
+
 ## [0.6.0] - 2026-10-18
 
 MVP: Kurulum rehberi ve demo verisi.

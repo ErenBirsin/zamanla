@@ -17,6 +17,7 @@ interface InfoStepProps {
   endAt: string
   servicesTitle: string
   totalPrice: number
+  cancelHoursBefore: number
 }
 
 export const BOOKING_FORM_ID = 'booking-form'
@@ -29,6 +30,7 @@ export function InfoStep({
   endAt,
   servicesTitle,
   totalPrice,
+  cancelHoursBefore,
 }: InfoStepProps) {
   const phoneId = useId()
   const noteId = useId()
@@ -137,7 +139,10 @@ export function InfoStep({
             <circle cx="12" cy="12" r="10" />
             <path d="M12 16v-4M12 8h.01" />
           </svg>
-          Randevudan 3 saat öncesine kadar ücretsiz iptal edebilirsin. Ödeme salonda yapılır.
+          {cancelHoursBefore > 0
+            ? `Randevudan ${cancelHoursBefore} saat öncesine kadar ücretsiz iptal edebilirsin.`
+            : 'Randevu saatine kadar ücretsiz iptal edebilirsin.'}{' '}
+          Ödeme salonda yapılır.
         </p>
 
         <FormError error={error} />
