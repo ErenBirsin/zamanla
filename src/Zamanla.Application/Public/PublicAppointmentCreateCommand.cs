@@ -75,9 +75,10 @@ internal sealed class PublicAppointmentCreateCommandHandler(
         var timeZone = await tenantRepository.GetTimeZoneAsync(tenantContext.GetTenantId(), cancellationToken);
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, timeZone).DateTime);
         var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(request.StartAt, timeZone).DateTime);
-        if (day > today.AddDays(OnlineBooking.MaxDaysAhead))
+        var policy = await tenantRepository.GetBookingPolicyAsync(tenantContext.GetTenantId(), cancellationToken);
+        if (day > today.AddDays(policy.MaxDaysAhead))
         {
-            return Result<PublicAppointmentCreatedDto>.Failure(400, $"Online randevu en fazla {OnlineBooking.MaxDaysAhead} gün sonrası için alınabilir");
+            return Result<PublicAppointmentCreatedDto>.Failure(400, $"Online randevu en fazla {policy.MaxDaysAhead} gün sonrası için alınabilir");
         }
         #endregion
 
@@ -95,9 +96,9 @@ internal sealed class PublicAppointmentCreateCommandHandler(
             && a.Source.Value == online
             && a.Status.Value == confirmed
             && a.Time.Start > now, cancellationToken);
-        if (upcomingCount >= OnlineBooking.MaxUpcomingPerPhone)
+        if (upcomingCount >= policy.MaxUpcomingPerPhone)
         {
-            return Result<PublicAppointmentCreatedDto>.Failure(400, $"Bu telefonla en fazla {OnlineBooking.MaxUpcomingPerPhone} ileri tarihli online randevu alınabilir, salonu arayabilirsiniz");
+            return Result<PublicAppointmentCreatedDto>.Failure(400, $"Bu telefonla en fazla {policy.MaxUpcomingPerPhone} ileri tarihli online randevu alınabilir, salonu arayabilirsiniz");
         }
         #endregion
 

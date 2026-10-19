@@ -7,6 +7,7 @@ using Zamanla.Application.Public;
 using Zamanla.Application.SalonServices;
 using Zamanla.Application.Staffs;
 using Zamanla.Domain.Staffs.ValueObjects;
+using Zamanla.Domain.Tenants.ValueObjects;
 using Zamanla.WebAPI.IntegrationTests.Infrastructure;
 
 namespace Zamanla.WebAPI.IntegrationTests.Public;
@@ -76,7 +77,7 @@ public sealed class PublicSalonTests(ZamanlaApiFactory factory) : IntegrationTes
     {
         using var owner = await CreateOwnerClientAsync("salon-a", "a@test.com");
 
-        var date = DateTime.UtcNow.AddDays(OnlineBooking.MaxDaysAhead + 2).ToString("yyyy-MM-dd");
+        var date = DateTime.UtcNow.AddDays(BookingPolicy.Default.MaxDaysAhead + 2).ToString("yyyy-MM-dd");
         var response = await Client.GetAsync(
             $"/api/public/salon-a/availability?date={date}&salonServiceIds={Guid.NewGuid()}", CancellationToken);
 

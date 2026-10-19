@@ -61,9 +61,10 @@ internal sealed class PublicAppointmentRescheduleCommandHandler(
         var timeZone = await tenantRepository.GetTimeZoneAsync(tenantContext.GetTenantId(), cancellationToken);
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, timeZone).DateTime);
         var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(request.StartAt, timeZone).DateTime);
-        if (day > today.AddDays(OnlineBooking.MaxDaysAhead))
+        var policy = await tenantRepository.GetBookingPolicyAsync(tenantContext.GetTenantId(), cancellationToken);
+        if (day > today.AddDays(policy.MaxDaysAhead))
         {
-            return Result<string>.Failure(400, $"Online randevu en fazla {OnlineBooking.MaxDaysAhead} gün sonrası için alınabilir");
+            return Result<string>.Failure(400, $"Online randevu en fazla {policy.MaxDaysAhead} gün sonrası için alınabilir");
         }
 
         return await sender.Send(

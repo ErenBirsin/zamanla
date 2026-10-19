@@ -4,6 +4,7 @@ using TS.Result;
 using Zamanla.Application.Services;
 using Zamanla.Application.Staffs;
 using Zamanla.Domain.SalonServices;
+using Zamanla.Domain.Shared;
 using Zamanla.Domain.Staffs;
 using Zamanla.Domain.Tenants;
 
@@ -15,6 +16,8 @@ public sealed record PublicSalonGetQuery() : IRequest<Result<PublicSalonDto>>;
 public sealed class PublicSalonDto
 {
     public string Name { get; set; } = default!;
+    public Address? Address { get; set; }
+    public string? PhoneNumber { get; set; }
     public int BookingDaysAhead { get; set; }
     public List<PublicSalonServiceDto> Services { get; set; } = new();
     public List<PublicStaffDto> Staff { get; set; } = new();
@@ -48,10 +51,18 @@ internal sealed class PublicSalonGetQueryHandler(
     public async Task<Result<PublicSalonDto>> Handle(PublicSalonGetQuery request, CancellationToken cancellationToken)
     {
         var tenantId = tenantContext.GetTenantId();
-        var name = await tenantRepository
+        var salon = await tenantRepository
             .Where(t => t.Id == tenantId)
-            .Select(t => t.Name.Value)
-            .FirstAsync(cancellationToken);
+            .Select(t => new
+    {
+                Name = t.Name.Value,
+                Address = t.Address != null
+                    ? new Address(t.Address.City, t.Address.District, t.Address.FullAddress)
+                    : null,
+                PhoneNumber = t.PhoneNumber != null ? t.PhoneNumber.Value : null,
+                t.BookingPolicy.MaxDaysAhead
+    })
+    .FirstAsync(cancellationToken);
 
         var staffs = await staffRepository
             .Where(s => s.IsActive)
@@ -70,8 +81,10 @@ internal sealed class PublicSalonGetQueryHandler(
 
         return new PublicSalonDto
         {
-            Name = name,
-            BookingDaysAhead = OnlineBooking.MaxDaysAhead,
+            Name = salon.Name,
+            Address = salon.Address,
+            PhoneNumber = salon.PhoneNumber,
+            BookingDaysAhead = salon.MaxDaysAhead,
             Services = bookableServices
                 .Select(s => new PublicSalonServiceDto
                 {

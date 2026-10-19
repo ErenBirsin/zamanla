@@ -24,9 +24,10 @@ internal sealed class PublicAvailabilityGetQueryHandler(
         var timeZone = await tenantRepository.GetTimeZoneAsync(tenantContext.GetTenantId(), cancellationToken);
         var localNow = TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), timeZone);
         var today = DateOnly.FromDateTime(localNow.DateTime);
-        if (request.Date > today.AddDays(OnlineBooking.MaxDaysAhead))
+        var policy = await tenantRepository.GetBookingPolicyAsync(tenantContext.GetTenantId(), cancellationToken);
+        if (request.Date > today.AddDays(policy.MaxDaysAhead))
         {
-            return Result<List<AvailabilitySlotDto>>.Failure(400, $"Online randevu en fazla {OnlineBooking.MaxDaysAhead} gün sonrası için alınabilir");
+            return Result<List<AvailabilitySlotDto>>.Failure(400, $"Online randevu en fazla {policy.MaxDaysAhead} gün sonrası için alınabilir");
         }
 
         return await sender.Send(
