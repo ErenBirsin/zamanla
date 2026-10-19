@@ -244,6 +244,39 @@ namespace Zamanla.Infrastructure.Migrations
                     b.ToTable("Tenants", (string)null);
                 });
 
+            modelBuilder.Entity("Zamanla.Domain.TimeOffs.TimeOff", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StaffId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("TimeOffs", (string)null);
+                });
+
             modelBuilder.Entity("Zamanla.Domain.Users.AppUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -312,6 +345,29 @@ namespace Zamanla.Infrastructure.Migrations
                                 .HasColumnName("Note");
 
                             b1.HasKey("AppointmentId");
+
+                            b1.ToTable("Appointments");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppointmentId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Appointments.ValueObjects.DateTimeRange", "Time", b1 =>
+                        {
+                            b1.Property<Guid>("AppointmentId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTimeOffset>("End")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("EndAt");
+
+                            b1.Property<DateTimeOffset>("Start")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("StartAt");
+
+                            b1.HasKey("AppointmentId");
+
+                            b1.HasIndex("Start");
 
                             b1.ToTable("Appointments");
 
@@ -418,29 +474,6 @@ namespace Zamanla.Infrastructure.Migrations
                             b1.HasKey("AppointmentId", "Id");
 
                             b1.ToTable("AppointmentSalonServices", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("AppointmentId");
-                        });
-
-                    b.OwnsOne("Zamanla.Domain.Appointments.ValueObjects.DateTimeRange", "Time", b1 =>
-                        {
-                            b1.Property<Guid>("AppointmentId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<DateTimeOffset>("End")
-                                .HasColumnType("datetimeoffset")
-                                .HasColumnName("EndAt");
-
-                            b1.Property<DateTimeOffset>("Start")
-                                .HasColumnType("datetimeoffset")
-                                .HasColumnName("StartAt");
-
-                            b1.HasKey("AppointmentId");
-
-                            b1.HasIndex("Start");
-
-                            b1.ToTable("Appointments");
 
                             b1.WithOwner()
                                 .HasForeignKey("AppointmentId");
@@ -1117,6 +1150,67 @@ namespace Zamanla.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("TimeZoneId")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Zamanla.Domain.TimeOffs.TimeOff", b =>
+                {
+                    b.HasOne("Zamanla.Domain.Staffs.Staff", null)
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Zamanla.Domain.Tenants.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Zamanla.Domain.Shared.Note", "Note", b1 =>
+                        {
+                            b1.Property<Guid>("TimeOffId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(250)
+                                .HasColumnType("nvarchar(250)")
+                                .HasColumnName("Note");
+
+                            b1.HasKey("TimeOffId");
+
+                            b1.ToTable("TimeOffs");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TimeOffId");
+                        });
+
+                    b.OwnsOne("Zamanla.Domain.Appointments.ValueObjects.DateTimeRange", "Time", b1 =>
+                        {
+                            b1.Property<Guid>("TimeOffId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTimeOffset>("End")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("EndAt");
+
+                            b1.Property<DateTimeOffset>("Start")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("StartAt");
+
+                            b1.HasKey("TimeOffId");
+
+                            b1.HasIndex("Start");
+
+                            b1.ToTable("TimeOffs");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TimeOffId");
+                        });
+
+                    b.Navigation("Note");
+
+                    b.Navigation("Time")
                         .IsRequired();
                 });
 
