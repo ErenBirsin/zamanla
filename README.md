@@ -23,6 +23,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Randevuyu görüntüleme, iptal etme ve saatini değiştirme için kişiye özel yönetim linki.
 - Randevuyu telefonun takvimine ekleme (.ics, 1 saat önce hatırlatma).
 - Salon adres ve telefon girdiyse randevu sayfasında ve randevu linkinde gösterilir; telefon tıklanınca arama başlar.
+- Randevu alınınca onay, randevudan 24 saat önce hatırlatma gönderilir. E-posta girildiyse e-postayla, ayrıca SMS ile. Online randevunun onay e-postasında yönetim linki vardır.
 
 ### Kurallar ve güvenlik
 
@@ -31,7 +32,8 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Aynı saate aynı anda gelen iki randevudan yalnızca biri kaydedilir.
 - Online randevu kuralları her salon için ayarlardan değiştirilebilir: kaç gün ilerisi (varsayılan 60), linkten iptal için son süre (varsayılan 3 saat) ve aynı telefonla en fazla ileri tarihli randevu (varsayılan 5).
 - Yönetim linkindeki anahtar veritabanında açık haliyle değil, SHA-256 özetiyle saklanır.
-- JWT access token (15 dk) ve refresh token (14 gün). Kullanılmış bir refresh token tekrar gelirse açık oturumlar kapatılır.
+- JWT access token (15 dk) ve refresh token (14 gün). Kullanılmış bir refresh token tekrar gelirse açık oturumlar kapatılır. Süresi dolan token'lar günde bir silinir.
+- E-posta ya da SMS gönderilemezse randevu yine oluşturulur. Hatırlatma bir sonraki turda tekrar denenir.
 - Giriş, kayıt ve herkese açık uçlarda IP bazlı istek sınırı.
 
 ## Mimari ve teknolojiler
@@ -48,6 +50,8 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - **FluentValidation:** istek doğrulama için
 - **Scrutor:** servislerin otomatik kaydı için
 - **JWT Bearer:** kimlik doğrulama için
+- **FluentEmail (SMTP):** e-posta gönderimi için
+- **BackgroundService:** hatırlatmalar ve token temizliği için arka plan işleri
 - **Scalar:** API dokümantasyonu ve deneme için
 
 ### Frontend
@@ -137,6 +141,17 @@ npm run dev
 
 Uygulama `http://localhost:5173` adresinde açılır. Vite, `/api` isteklerini API'ye yönlendirir; bu yüzden API'nin de çalışıyor olması gerekir.
 
+### 7. E-postaları görmek (isteğe bağlı)
+
+Geliştirmede e-postalar `localhost:25`'e gönderilir. Gerçekten gönderilmeden görmek için [smtp4dev](https://github.com/rnwood/smtp4dev) kullanılabilir:
+
+```bash
+dotnet tool install --global Rnwood.Smtp4dev --version 3.15.0
+smtp4dev
+```
+
+Gelen kutusu `http://localhost:5000` adresinde açılır. smtp4dev çalışmıyorsa randevular yine oluşturulur, gönderim hatası log'a yazılır. SMS için henüz bir sağlayıcı yok; mesajlar API'nin log'una yazılır.
+
 ## Demo
 
 Geliştirme ortamında API ilk açıldığında "Demo Kuaför" adında dolu bir salon oluşturulur: 6 hizmet, 3 personel, 8 müşteri ve bugünden başlayan bir haftalık randevu. Demo salon zaten varsa tekrar eklenmez.
@@ -195,7 +210,7 @@ client/
 - [ ] Aşama 5: v1 katmanı
   - [x] 5.1 Salon ayarları
   - [x] 5.2 Personel izni ve kapalı günler
-  - [ ] 5.3 Hatırlatmalar (Hangfire, e-posta)
+  - [x] 5.3 Hatırlatmalar (e-posta ve SMS)
   - [ ] 5.4 Canlı takvim ve bildirim zili (SignalR)
   - [ ] 5.5 Günlük özet
   - [ ] 5.6 Personel hesapları ve yetkiler
