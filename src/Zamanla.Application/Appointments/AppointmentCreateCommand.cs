@@ -37,6 +37,7 @@ public sealed class AppointmentCreateCommandValidator : AbstractValidator<Appoin
 internal sealed class AppointmentCreateCommandHandler(
     ICustomerRepository customerRepository,
     AppointmentBookingService bookingService,
+    IAppointmentNotificationService notificationService,
     TimeProvider timeProvider,
     IUnitOfWork unitOfWork) : IRequestHandler<AppointmentCreateCommand, Result<string>>
 {
@@ -77,6 +78,8 @@ internal sealed class AppointmentCreateCommandHandler(
             return Result<string>.Failure(409, "Aynı anda başka bir randevu kaydedildi, lütfen tekrar deneyin");
         }
 
+        // kayıttan sonra; e-posta gitmese de randevu alınmış olur
+        await notificationService.SendConfirmationAsync(booking.Data!.Id, null, cancellationToken);
         return "Randevu oluşturuldu";
     }
 }

@@ -108,7 +108,7 @@ public sealed class PublicBookingTests(ZamanlaApiFactory factory) : IntegrationT
     private Task<HttpResponseMessage> BookAsync(string slug, SalonData salon, string firstName, string lastName, DateTimeOffset startAt)
     {
         var command = new PublicAppointmentCreateCommand(
-            firstName, lastName, Phone, salon.StaffId, [salon.ServiceId], startAt, null);
+            firstName, lastName, Phone, null, salon.StaffId, [salon.ServiceId], startAt, null);
         return Client.PostAsJsonAsync($"/api/public/{slug}/appointments", command, CancellationToken);
     }
 
