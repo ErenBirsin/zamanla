@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Respawn;
+using Zamanla.Application.Services;
 using Zamanla.Infrastructure.Context;
 
 namespace Zamanla.WebAPI.IntegrationTests.Infrastructure;
@@ -17,7 +19,7 @@ public sealed class ZamanlaApiFactory : WebApplicationFactory<Program>, IAsyncLi
         ?? @"Server=.\SQLEXPRESS;Database=Zamanla_Test;Trusted_Connection=True;TrustServerCertificate=True;";
 
     private Respawner _respawner = default!;
-
+    public FakeMailService MailService { get; } = new();
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -38,6 +40,9 @@ public sealed class ZamanlaApiFactory : WebApplicationFactory<Program>, IAsyncLi
             {
                 services.Remove(descriptor);
             }
+
+            services.RemoveAll<IMailService>();
+            services.AddSingleton<IMailService>(MailService);
         });
     }
 
