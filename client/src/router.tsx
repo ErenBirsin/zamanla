@@ -63,6 +63,12 @@ export const router = createBrowserRouter([
                 }),
               },
               {
+                path: 'time-offs',
+                lazy: async () => ({
+                  Component: (await import('@/features/time-offs/TimeOffsPage')).TimeOffsPage,
+                }),
+              },
+              {
                 path: 'customers',
                 lazy: async () => ({
                   Component: (await import('@/features/customers/CustomersPage')).CustomersPage,
