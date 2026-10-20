@@ -15,8 +15,12 @@ public abstract class IntegrationTestBase(ZamanlaApiFactory factory) : IAsyncLif
     protected HttpClient Client { get; } = factory.CreateClient();
     protected static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
 
-    // her test boş veritabanıyla başlar
-    public async ValueTask InitializeAsync() => await Factory.ResetDatabaseAsync();
+    // her test boş veritabanıyla ve boş e-posta listesiyle başlar
+    public async ValueTask InitializeAsync()
+    {
+        await Factory.ResetDatabaseAsync();
+        Factory.MailService.Reset();
+    }
 
     public ValueTask DisposeAsync()
     {

@@ -34,6 +34,7 @@ export interface PublicBookingBody {
   firstName: string
   lastName: string
   phoneNumber: string
+  email: string | null // boşsa onay ve hatırlatma sadece SMS ile gider
   staffId: string
   salonServiceIds: string[]
   startAt: string

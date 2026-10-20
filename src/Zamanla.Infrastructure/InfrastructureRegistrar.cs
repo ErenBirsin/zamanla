@@ -49,6 +49,24 @@ public static class InfrastructureRegistrar
         services.AddAuthorization();
         services.AddScoped<IJwtProvider, JwtProvider>();
 
+        // geliştirmede smtp4dev (localhost:25); gerçek sunucunun kullanıcı adı ve şifresi User Secrets'ta
+        var mailSettings = configuration.GetSection("MailSettings").Get<MailSettingOptions>()
+            ?? throw new InvalidOperationException("'MailSettings' ayarı bulunamadı.");
+        if (string.IsNullOrEmpty(mailSettings.UserId))
+        {
+            services.AddFluentEmail(mailSettings.Email)
+                .AddSmtpSender(mailSettings.Smtp, mailSettings.Port);
+        }
+        else
+        {
+            services.AddFluentEmail(mailSettings.Email)
+                .AddSmtpSender(mailSettings.Smtp, mailSettings.Port, mailSettings.UserId, mailSettings.Password);
+        }
+        services.AddScoped<IMailService, MailService>();
+        services.AddScoped<ISmsService, FakeSmsService>();
+        services.Configure<ClientOptions>(configuration.GetSection("Client"));
+        services.AddScoped<IAppointmentNotificationService, AppointmentNotificationService>();
+
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");
 

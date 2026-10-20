@@ -51,6 +51,8 @@ public sealed class Appointment : Entity, ITenantEntity
     public Note? Note { get; private set; }
     // yalnızca online randevularda; panelden girilenlerde boş
     public ManageToken? ManageToken { get; private set; }
+    // boşsa hatırlatma henüz gitmedi; saati değişen randevuya yeniden gider
+    public DateTimeOffset? ReminderSentAt { get; private set; }
     public IReadOnlyCollection<AppointmentHistory> Histories => _histories;
 
     // tamamlanan, gelinmeyen ya da iptal edilen randevu tekrar değiştirilemez
@@ -97,6 +99,10 @@ public sealed class Appointment : Entity, ITenantEntity
         ManageToken = manageToken;
     }
 
+    public void SetReminderSentAt(DateTimeOffset? reminderSentAt)
+    {
+        ReminderSentAt = reminderSentAt;
+    }
     public void Reschedule(Guid staffId, DateTimeOffset startAt, DateTimeOffset now)
     {
         var description = staffId == StaffId
@@ -105,6 +111,7 @@ public sealed class Appointment : Entity, ITenantEntity
 
         SetStaffId(staffId);
         SetTime(startAt);
+        SetReminderSentAt(null);
         AddHistory(new AppointmentHistory("Randevu saati değiştirildi", description, now));
     }
 

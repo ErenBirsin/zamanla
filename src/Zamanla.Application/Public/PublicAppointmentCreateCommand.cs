@@ -20,6 +20,7 @@ public sealed record PublicAppointmentCreateCommand(
     string FirstName,
     string LastName,
     string PhoneNumber,
+    string? Email, // isteğe bağlı; girilirse onay ve hatırlatma e-postayla da gider
     Guid StaffId,
     List<Guid> SalonServiceIds,
     DateTimeOffset StartAt,
@@ -47,6 +48,10 @@ public sealed class PublicAppointmentCreateCommandValidator : AbstractValidator<
         RuleFor(p => p.PhoneNumber)
             .NotEmpty().WithMessage("Geçerli bir telefon numarası girin")
             .Must(PhoneNumber.IsValid).WithMessage("Geçerli bir telefon numarası girin");
+        RuleFor(p => p.Email)
+            .EmailAddress().WithMessage("Geçerli bir mail adresi girin")
+            .MaximumLength(254).WithMessage("Mail adresi en fazla 254 karakter olabilir")
+            .When(p => !string.IsNullOrWhiteSpace(p.Email));
         RuleFor(p => p.StaffId)
             .NotEmpty().WithMessage("Personel seçin");
         RuleFor(p => p.SalonServiceIds)
@@ -64,6 +69,7 @@ internal sealed class PublicAppointmentCreateCommandHandler(
     ITenantRepository tenantRepository,
     ITenantContext tenantContext,
     AppointmentBookingService bookingService,
+    IAppointmentNotificationService notificationService,
     TimeProvider timeProvider,
     IUnitOfWork unitOfWork) : IRequestHandler<PublicAppointmentCreateCommand, Result<PublicAppointmentCreatedDto>>
 {
@@ -112,11 +118,18 @@ internal sealed class PublicAppointmentCreateCommandHandler(
             c.FirstName.Value == firstName &&
             c.LastName.Value == lastName,
             cancellationToken);
+        Email? email = string.IsNullOrWhiteSpace(request.Email) ? null : new Email(request.Email);
         if (customer is null)
         {
             // randevuyla birlikte kaydedilir; randevu alınamazsa müşteri de açılmaz
-            customer = new Customer(new FirstName(firstName), new LastName(lastName), phoneNumber, null, null);
+            customer = new Customer(new FirstName(firstName), new LastName(lastName), phoneNumber, email, null);
             customerRepository.Add(customer);
+        }
+        else if (email is not null && customer.Email != email)
+        {
+            // müşterinin son girdiği adres geçerli
+            customer.SetEmail(email);
+            customerRepository.Update(customer);
         }
         #endregion
 
@@ -149,6 +162,9 @@ internal sealed class PublicAppointmentCreateCommandHandler(
         {
             return Result<PublicAppointmentCreatedDto>.Failure(409, "Aynı anda başka bir randevu kaydedildi, lütfen tekrar deneyin");
         }
+
+        // yönetim linkinin açık hali sadece burada var, bu yüzden onay bu istekte gönderilir
+        await notificationService.SendConfirmationAsync(appointment.Id, manageToken, cancellationToken);
 
         return new PublicAppointmentCreatedDto
         {

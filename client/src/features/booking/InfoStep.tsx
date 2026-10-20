@@ -107,6 +107,17 @@ export function InfoStep({
           )}
         </div>
 
+        <FormField
+          label="E-posta"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          placeholder="ornek@mail.com"
+          hint="İsteğe bağlı. Girersen onay ve randevudan bir gün önce hatırlatma gönderilir."
+          error={errors.email?.message}
+          {...register('email')}
+        />
+
         <div className="flex flex-col gap-1.5">
           <label htmlFor={noteId} className="text-[13px] font-semibold">
             {slot.staffFullName.split(' ')[0]} için not{' '}

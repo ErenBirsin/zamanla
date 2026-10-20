@@ -199,7 +199,7 @@ public sealed class PublicManageTests(ZamanlaApiFactory factory) : IntegrationTe
     private async Task<string> BookAsync(string slug, SalonData salon, DateTimeOffset startAt, string firstName = "Ayse")
     {
         var command = new PublicAppointmentCreateCommand(
-            firstName, "Yilmaz", "0532 111 22 33", salon.StaffId, [salon.ServiceId], startAt, null);
+            firstName, "Yilmaz", "0532 111 22 33", null, salon.StaffId, [salon.ServiceId], startAt, null);
         var response = await Client.PostAsJsonAsync($"/api/public/{slug}/appointments", command, CancellationToken);
         response.EnsureSuccessStatusCode();
 

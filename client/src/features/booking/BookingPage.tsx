@@ -34,7 +34,7 @@ export function BookingPage() {
   // form sayfada tutulur; saat değiştirmek için geri dönülse de yazılanlar kaybolmaz
   const form = useForm<BookingValues>({
     resolver: zodResolver(bookingSchema),
-    defaultValues: { firstName: '', lastName: '', phoneNumber: '', note: '' },
+    defaultValues: { firstName: '', lastName: '', phoneNumber: '', email: '', note: '' },
   })
 
   const goTo = (next: number, replace = false) =>
@@ -44,6 +44,7 @@ export function BookingPage() {
     mutationFn: (values: BookingValues) =>
       createPublicAppointment(slug, {
         ...values,
+        email: values.email || null,
         staffId: slot!.staffId,
         salonServiceIds,
         startAt: slot!.startAt,

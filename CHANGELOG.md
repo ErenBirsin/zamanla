@@ -1,5 +1,19 @@
 # Değişiklik günlüğü
 
+## [0.9.0] - 2026-10-20
+
+Aşama 5.3: Hatırlatmalar.
+
+### Eklendi
+
+- Randevu oluşturulduğunda müşteriye onay e-postası ve SMS bildirimi eklendi. E-postada randevu tarihi, hizmet, personel, randevu numarası ve salonun iletişim bilgileri yer alıyor. Online randevularda müşterinin randevusunu görüntüleyebileceği, saatini değiştirebileceği veya iptal edebileceği link de e-postaya ekleniyor.
+- E-posta gönderimi için FluentEmail ve SMTP kullanıldı. Geliştirme ortamında gönderilen e-postaları kontrol etmek için smtp4dev kullanılıyor. SMS için henüz bir servis seçilmediğinden mesajlar log'a yazılıyor; telefon numarasının bir kısmı gizleniyor.
+- Bildirim gönderilirken hata oluşsa bile randevu oluşturma işlemi devam ediyor. Oluşan hata log'a kaydediliyor.
+- Randevudan 24 saat önce hatırlatma e-postası ve SMS gönderilmesi sağlandı. Arka plan servisi dakikada bir randevuları kontrol ediyor. Randevuya 24 saatten az kala oluşturulan randevular için hatırlatma gönderilmiyor. Randevu saati değiştirilirse hatırlatma yeni saate göre planlanıyor. E-posta gönderilemediğinde ise sonraki kontrolde tekrar deneniyor.
+- Online randevu formuna isteğe bağlı e-posta alanı eklendi. Müşteri e-posta adresini girerse bu bilgi müşteri kaydına da kaydediliyor.
+- Süresi dolmuş refresh token'ları temizlemek için günlük bir işlem eklendi. Kullanılmış ancak henüz süresi dolmamış token'lar, tekrar kullanım kontrolünün yapılabilmesi için saklanmaya devam ediyor.
+- Bildirimlerle ilgili entegrasyon testleri yazıldı. Testlerde gerçek e-posta gönderimi yerine sahte bir servis kullanılıyor ve arka plan servisleri çalıştırılmıyor. Toplam test sayısı 109'a ulaştı.
+
 ## [0.8.0] - 2026-10-20
 
 Aşama 5.2: Personel izinleri ve kapalı günler.

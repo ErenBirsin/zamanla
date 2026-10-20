@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Respawn;
+using Zamanla.Application.Services;
 using Zamanla.Infrastructure.Context;
 
 namespace Zamanla.WebAPI.IntegrationTests.Infrastructure;
@@ -15,7 +19,7 @@ public sealed class ZamanlaApiFactory : WebApplicationFactory<Program>, IAsyncLi
         ?? @"Server=.\SQLEXPRESS;Database=Zamanla_Test;Trusted_Connection=True;TrustServerCertificate=True;";
 
     private Respawner _respawner = default!;
-
+    public FakeMailService MailService { get; } = new();
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -23,6 +27,23 @@ public sealed class ZamanlaApiFactory : WebApplicationFactory<Program>, IAsyncLi
         builder.UseSetting("Jwt:SecretKey", "zamanla-integration-test-only-secret-key-never-use-in-production-0001");
         builder.UseSetting("RateLimiting:LoginPermitLimit", "1000");
         builder.UseSetting("RateLimiting:PublicPermitLimit", "1000");
+
+        // testler hatırlatma servisini doğrudan çağırır; arka plandaki döngü test verisine karışmasın
+        builder.ConfigureTestServices(services =>
+        {
+            var backgroundServices = services
+            .Where(s => s.ServiceType == typeof(IHostedService)
+                && (s.ImplementationType == typeof(AppointmentReminderBackgroundService)
+                    || s.ImplementationType == typeof(RefreshTokenCleanupBackgroundService)))
+            .ToList();
+            foreach (var descriptor in backgroundServices)
+            {
+                services.Remove(descriptor);
+            }
+
+            services.RemoveAll<IMailService>();
+            services.AddSingleton<IMailService>(MailService);
+        });
     }
 
     public async ValueTask InitializeAsync()
