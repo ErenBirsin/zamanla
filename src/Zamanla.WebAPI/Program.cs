@@ -15,6 +15,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddHostedService<AppointmentReminderBackgroundService>();
+builder.Services.AddHostedService<RefreshTokenCleanupBackgroundService>();
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
 var loginPermitLimit = builder.Configuration.GetValue("RateLimiting:LoginPermitLimit", 5);
 var publicPermitLimit = builder.Configuration.GetValue("RateLimiting:PublicPermitLimit", 60);

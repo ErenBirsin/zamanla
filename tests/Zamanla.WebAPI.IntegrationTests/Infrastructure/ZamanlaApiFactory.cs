@@ -30,9 +30,10 @@ public sealed class ZamanlaApiFactory : WebApplicationFactory<Program>, IAsyncLi
         builder.ConfigureTestServices(services =>
         {
             var backgroundServices = services
-                .Where(s => s.ServiceType == typeof(IHostedService)
-                    && s.ImplementationType == typeof(AppointmentReminderBackgroundService))
-                .ToList();
+            .Where(s => s.ServiceType == typeof(IHostedService)
+                && (s.ImplementationType == typeof(AppointmentReminderBackgroundService)
+                    || s.ImplementationType == typeof(RefreshTokenCleanupBackgroundService)))
+            .ToList();
             foreach (var descriptor in backgroundServices)
             {
                 services.Remove(descriptor);
