@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router'
 import { useCurrentUser } from '@/features/auth/useCurrentUser'
 import { useSession } from '@/shared/auth/session'
 import { Logo } from '@/shared/ui/Logo'
+import { useRealtimeUpdates } from '@/shared/realtime/useRealtimeUpdates'
 
 const navItems = [
   { to: '/app', label: 'Genel bakış', end: true },
@@ -22,6 +23,7 @@ export function PanelLayout() {
   const { data: user } = useCurrentUser()
   const clearSession = useSession((state) => state.clear)
   const queryClient = useQueryClient()
+  useRealtimeUpdates()
 
   const logout = () => {
     queryClient.clear()

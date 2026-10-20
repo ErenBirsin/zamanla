@@ -49,6 +49,29 @@ http.interceptors.response.use(undefined, async (error: unknown) => {
   return http(request)
 })
 
+// SignalR istekleri axios'tan geçmez; bağlanırken token'ı buradan alır, süresi dolmak üzereyse önce yenilenir
+export async function getFreshAccessToken() {
+  const { accessToken, refreshToken } = useSession.getState()
+  if (accessToken && !isExpiringSoon(accessToken)) {
+    return accessToken
+  }
+  if (!refreshToken) {
+    return ''
+  }
+
+  refreshPromise ??= refreshAccessToken(refreshToken).finally(() => {
+    refreshPromise = null
+  })
+  return refreshPromise
+}
+
+// token'ın ortasındaki kısım base64 JSON; exp saniye cinsinden bitiş zamanı
+function isExpiringSoon(accessToken: string) {
+  const payload = accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+  const { exp } = JSON.parse(atob(payload)) as { exp: number }
+  return exp * 1000 - Date.now() < 30_000
+}
+
 async function refreshAccessToken(refreshToken: string) {
   try {
     const { data } = await http.post<Result<AuthTokens>>('/auth/refresh', { refreshToken })
