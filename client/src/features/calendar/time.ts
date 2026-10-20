@@ -25,6 +25,11 @@ export function dayRange(dateKey: string) {
   return { start: start.toISOString(), end: end.toISOString() }
 }
 
+// formdaki gün ve saat işletmenin saatine göre: "2026-10-30" + "15:00"
+export function toIsoString(dateKey: string, time: string) {
+  return new Date(`${dateKey}T${time}:00${OFFSET}`).toISOString()
+}
+
 const titleFormat = new Intl.DateTimeFormat('tr-TR', {
   timeZone: TIME_ZONE,
   weekday: 'long',

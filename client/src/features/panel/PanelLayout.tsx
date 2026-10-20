@@ -11,6 +11,7 @@ const navItems = [
   { to: '/app/staff', label: 'Personel', end: false },
   { to: '/app/customers', label: 'Müşteriler', end: false },
   { to: '/app/settings', label: 'Ayarlar', end: false },
+  { to: '/app/time-offs', label: 'İzinler', end: false },
 ]
 
 const upcomingItems = ['Randevular']

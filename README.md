@@ -12,8 +12,9 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Hizmetler: süre, hazırlık payı, fiyat ve kategori.
 - Personel: verdiği hizmetler ve haftalık çalışma saatleri. Aynı güne öğle arası gibi birden fazla aralık girilebilir.
 - Müşteriler: isim ya da telefonla arama. Silinen müşterinin kişisel bilgileri KVKK'ya uygun şekilde anonimleştirilir.
-- Günlük takvim: personel sütunları, mola ve kapalı saatler, "şu an" çizgisi.
+- Günlük takvim: personel sütunları, mola ve kapalı saatler, izinler, "şu an" çizgisi.
 - Randevular: birden fazla hizmet, tamamlandı / gelmedi / iptal / yeniden planlama ve randevu geçmişi.
+- İzinler: personel izni ve bayram gibi salonun kapalı olduğu günler, tüm gün ya da saat aralığıyla.
 - Ayarlar: salon adı, adres, telefon ve online randevu kuralları.
 
 ### Müşteri tarafı
@@ -25,7 +26,8 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 
 ### Kurallar ve güvenlik
 
-- Boş saatler çalışma saatlerine, molalara ve diğer randevulara göre 15 dakikalık adımlarla hesaplanır.
+- Boş saatler çalışma saatlerine, molalara, izinlere ve diğer randevulara göre 15 dakikalık adımlarla hesaplanır.
+- Onaylı randevusu olan bir aralığa izin ya da kapalı gün girilemez; etkilenen randevular listelenir.
 - Aynı saate aynı anda gelen iki randevudan yalnızca biri kaydedilir.
 - Online randevu kuralları her salon için ayarlardan değiştirilebilir: kaç gün ilerisi (varsayılan 60), linkten iptal için son süre (varsayılan 3 saat) ve aynı telefonla en fazla ileri tarihli randevu (varsayılan 5).
 - Yönetim linkindeki anahtar veritabanında açık haliyle değil, SHA-256 özetiyle saklanır.
@@ -192,7 +194,7 @@ client/
 - [x] MVP: Kurulum rehberi ve demo verisi
 - [ ] Aşama 5: v1 katmanı
   - [x] 5.1 Salon ayarları
-  - [ ] 5.2 Personel izni ve kapalı günler
+  - [x] 5.2 Personel izni ve kapalı günler
   - [ ] 5.3 Hatırlatmalar (Hangfire, e-posta)
   - [ ] 5.4 Canlı takvim ve bildirim zili (SignalR)
   - [ ] 5.5 Günlük özet

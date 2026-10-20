@@ -1,5 +1,18 @@
 # Değişiklik günlüğü
 
+## [0.8.0] - 2026-10-20
+
+Aşama 5.2: Personel izinleri ve kapalı günler.
+
+### Eklendi
+
+- Personel izinleri ve salonun kapalı olduğu günler için izin sistemi eklendi. İzin belirli bir personele veya tüm salona verilebiliyor. Tam gün izin girilebildiği gibi belirli saatler için de izin oluşturulabiliyor. Bir izin en fazla 90 gün sürebiliyor.
+- İzin ekleme, silme ve listeleme işlemleri için `POST /api/time-offs`, `DELETE /api/time-offs/{id}` ve OData üzerinden `timeOffs` uçları eklendi. Geçmiş tarihlere izin girilemiyor ve aynı personel için çakışan izinler kaydedilemiyor. İzin verilecek aralıkta onaylanmış randevular varsa işlem engelleniyor ve etkilenen randevular gösteriliyor.
+- Boş saat hesaplamasına izinler de dahil edildi. Hem panelden hem de online randevu sayfasından, izinli bir personele veya salonun kapalı olduğu bir güne randevu oluşturulamıyor. Mevcut bir randevunun saati değiştirilirken de aynı kontrol yapılıyor.
+- Panele İzinler sayfası eklendi. Yaklaşan izinler burada listeleniyor. İzin eklerken tüm gün seçeneğiyle tarih aralığı girilebiliyor veya tek bir gün için saat aralığı belirlenebiliyor. Randevuyla çakışma varsa uyarı form üzerinde gösteriliyor.
+- Takvimde personel izinleri "İzinli", salonun kapalı olduğu günler ise "Salon kapalı" etiketiyle taralı bloklar şeklinde gösteriliyor. İzin açıklaması varsa blokta yer alıyor. Salonun kapalı olduğu günün özetinde de "Salon kapalı" rozeti gösteriliyor.
+- İzinlerle ilgili entegrasyon testleri eklendi. Başka bir salonun izin kayıtlarına erişilemediği ve bir salonun kapalı günlerinin diğer salonların müsait saatlerini etkilemediği de test edildi. Toplam test sayısı 98'e ulaştı.
+
 ## [0.7.0] - 2026-10-19
 
 Aşama 5.1: Salon ayarları.
