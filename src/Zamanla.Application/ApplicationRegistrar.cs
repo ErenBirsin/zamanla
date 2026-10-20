@@ -20,6 +20,7 @@ public static class ApplicationRegistrar
 
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
         services.AddScoped<AppointmentBookingService>();
+        services.AddScoped<AppointmentReminderService>();
 
         return services;
     }

@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Respawn;
 using Zamanla.Infrastructure.Context;
 
@@ -23,6 +25,19 @@ public sealed class ZamanlaApiFactory : WebApplicationFactory<Program>, IAsyncLi
         builder.UseSetting("Jwt:SecretKey", "zamanla-integration-test-only-secret-key-never-use-in-production-0001");
         builder.UseSetting("RateLimiting:LoginPermitLimit", "1000");
         builder.UseSetting("RateLimiting:PublicPermitLimit", "1000");
+
+        // testler hatırlatma servisini doğrudan çağırır; arka plandaki döngü test verisine karışmasın
+        builder.ConfigureTestServices(services =>
+        {
+            var backgroundServices = services
+                .Where(s => s.ServiceType == typeof(IHostedService)
+                    && s.ImplementationType == typeof(AppointmentReminderBackgroundService))
+                .ToList();
+            foreach (var descriptor in backgroundServices)
+            {
+                services.Remove(descriptor);
+            }
+        });
     }
 
     public async ValueTask InitializeAsync()

@@ -1,9 +1,10 @@
-using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Globalization;
 using Zamanla.Application.Services;
 using Zamanla.Domain.Appointments;
+using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.Customers;
 using Zamanla.Domain.SalonServices;
 using Zamanla.Domain.Staffs;
@@ -46,7 +47,8 @@ internal sealed class AppointmentNotificationService(
                 footer);
             var sms = $"{details.SalonName}: Randevunuz {details.LocalStart.ToString("d MMMM HH:mm", Culture)}. Randevu no: {details.AppointmentNumber}";
 
-            await SendAsync(details, subject, body, sms, cancellationToken);
+            await TrySendMailAsync(details, subject, body, cancellationToken);
+            await SendSmsAsync(details, sms, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -54,20 +56,64 @@ internal sealed class AppointmentNotificationService(
         }
     }
 
-    private async Task SendAsync(NotificationDetails details, string subject, string body, string sms, CancellationToken cancellationToken)
+    public async Task<bool> SendReminderAsync(Guid appointmentId, CancellationToken cancellationToken = default)
     {
-        if (details.Email is not null)
+        try
         {
-            try
+            var details = await GetDetailsAsync(appointmentId, cancellationToken);
+
+            var footer = details.IsOnline
+                ? "Randevunuzu değiştirmeniz gerekirse onay e-postasındaki linki kullanabilir ya da salonu arayabilirsiniz."
+                : "Gelemeyecekseniz lütfen salonu arayarak haber verin.";
+
+            var subject = $"Randevu hatırlatması · {details.SalonName}";
+            var body = string.Join("\n",
+                $"Merhaba {details.CustomerFirstName},",
+                "",
+                $"{details.SalonName} randevunuzu hatırlatmak istedik.",
+                "",
+                BuildSummary(details),
+                "",
+                footer);
+            var sms = $"{details.SalonName}: Randevunuzu hatırlatırız, {details.LocalStart.ToString("d MMMM HH:mm", Culture)}. Gelemeyecekseniz lütfen haber verin.";
+
+            // e-posta gitmezse SMS de gönderilmez; ikisi bir sonraki turda birlikte denenir
+            if (!await TrySendMailAsync(details, subject, body, cancellationToken))
             {
-                await mailService.SendAsync(details.Email, subject, body, cancellationToken);
+                return false;
             }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "{AppointmentNumber} için e-posta gönderilemedi", details.AppointmentNumber);
-            }
+            await SendSmsAsync(details, sms, cancellationToken);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Randevu hatırlatması gönderilemedi: {AppointmentId}", appointmentId);
+            return false;
+        }
+    }
+
+    // e-postası olmayan müşteride gönderilecek bir şey yok, başarılı sayılır
+    private async Task<bool> TrySendMailAsync(NotificationDetails details, string subject, string body, CancellationToken cancellationToken)
+    {
+        if (details.Email is null)
+        {
+            return true;
         }
 
+        try
+        {
+            await mailService.SendAsync(details.Email, subject, body, cancellationToken);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "{AppointmentNumber} için e-posta gönderilemedi", details.AppointmentNumber);
+            return false;
+        }
+    }
+
+    private async Task SendSmsAsync(NotificationDetails details, string sms, CancellationToken cancellationToken)
+    {
         if (details.PhoneNumber is not null)
         {
             await smsService.SendAsync(details.PhoneNumber, sms, cancellationToken);
@@ -103,6 +149,7 @@ internal sealed class AppointmentNotificationService(
 
     private async Task<NotificationDetails> GetDetailsAsync(Guid appointmentId, CancellationToken cancellationToken)
     {
+        var online = Source.Online.Value;
         var appointment = await appointmentRepository
             .Where(a => a.Id == appointmentId)
             .Select(a => new
@@ -111,6 +158,7 @@ internal sealed class AppointmentNotificationService(
                 a.CustomerId,
                 a.StaffId,
                 AppointmentNumber = a.AppointmentNumber.Value,
+                IsOnline = a.Source.Value == online,
                 a.Time.Start,
                 SalonServiceIds = a.SalonServices.Select(s => s.SalonServiceId).ToList()
             })
@@ -151,6 +199,7 @@ internal sealed class AppointmentNotificationService(
 
         return new NotificationDetails(
             appointment.AppointmentNumber,
+            appointment.IsOnline,
             TimeZoneInfo.ConvertTime(appointment.Start, timeZone),
             appointment.SalonServiceIds.Select(id => serviceNames[id]).ToList(),
             staffFullName,
@@ -165,6 +214,7 @@ internal sealed class AppointmentNotificationService(
 
     private sealed record NotificationDetails(
         string AppointmentNumber,
+        bool IsOnline,
         DateTimeOffset LocalStart,
         List<string> ServiceNames,
         string StaffFullName,

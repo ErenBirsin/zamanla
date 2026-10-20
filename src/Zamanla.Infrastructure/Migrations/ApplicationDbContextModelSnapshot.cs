@@ -40,6 +40,9 @@ namespace Zamanla.Infrastructure.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("ReminderSentAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<Guid>("StaffId")
                         .HasColumnType("uniqueidentifier");
 
