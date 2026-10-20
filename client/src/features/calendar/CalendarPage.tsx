@@ -7,6 +7,7 @@ import { AppointmentFormDialog } from './AppointmentFormDialog'
 import { DayGrid } from './DayGrid'
 import { addDays, formatDayTitle, todayKey } from './time'
 import { useDayAppointments } from './useDayAppointments'
+import { useDayTimeOffs } from '@/features/time-offs/useTimeOffs'
 
 const iconButton =
   'flex size-10 cursor-pointer items-center justify-center rounded-full border border-line bg-surface hover:bg-sand-soft'
@@ -36,7 +37,9 @@ export function CalendarPage() {
 
   const { data: staff = [], isPending: staffPending } = useStaff()
   const { data: appointments = [], isPending: appointmentsPending } = useDayAppointments(dateKey)
+  const { data: timeOffs = [] } = useDayTimeOffs(dateKey)
   const activeStaff = staff.filter((member) => member.isActive)
+  const salonClosed = timeOffs.find((timeOff) => timeOff.staffId === null)
   // null: kapalı; boş alana tıklanınca personel ve saat dolu gelir
   const [formStart, setFormStart] = useState<{ staffId?: string; minutes?: number } | null>(null)
 
@@ -115,6 +118,11 @@ export function CalendarPage() {
         <span className="rounded-full border border-line bg-surface px-3.5 py-2">
           <strong className="text-ink">{formatPrice(expectedRevenue)}</strong> beklenen ciro
         </span>
+        {salonClosed && (
+          <span className="rounded-full border border-clay/30 bg-clay-soft px-3.5 py-2 font-semibold text-clay-dark">
+            Salon kapalı{salonClosed.note && ` · ${salonClosed.note}`}
+          </span>
+        )}
         {noShowCount > 0 && (
           <span className="flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2">
             <span className="size-2 rounded-full bg-clay" />
@@ -143,6 +151,7 @@ export function CalendarPage() {
               dateKey={dateKey}
               staff={activeStaff}
               appointments={appointments}
+              timeOffs={timeOffs}
               // geçmiş günlere randevu eklenmez
               onEmptyClick={
                 dateKey < todayKey()

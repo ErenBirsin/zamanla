@@ -1,10 +1,11 @@
 import { staffColorClasses } from '@/features/staff/staffOptions'
 import type { Staff } from '@/features/staff/types'
 import { AppointmentCard } from './AppointmentCard'
-import { dayOfWeek, minutesOfDay, minutesToLabel, timeToMinutes, todayKey } from './time'
+import { dayOfWeek, dayRange, minutesOfDay, minutesToLabel, timeToMinutes, todayKey } from './time'
 import type { Appointment } from './types'
 import { useNow } from './useNow'
 import type { MouseEvent } from 'react'
+import type { TimeOff } from '@/features/time-offs/types'
 
 const HOUR_HEIGHT = 96
 const PX_PER_MINUTE = HOUR_HEIGHT / 60
@@ -31,6 +32,7 @@ interface DayGridProps {
   onEmptyClick?: (staffId: string, minutes: number) => void
   selectedId: string | null
   onSelect: (id: string) => void
+  timeOffs: TimeOff[]
 }
 
 // takvim o gün en erken açılan ve en geç kapanan personele göre çizilir
@@ -67,6 +69,27 @@ function closedBlocks(ranges: Range[], bounds: Range) {
   return blocks
 }
 
+// izinler ve salonun kapalı olduğu saatler; önceki ya da sonraki güne taşan kısım kesilir
+function timeOffBlocks(timeOffs: TimeOff[], staffId: string, dateKey: string, bounds: Range) {
+  const day = dayRange(dateKey)
+  return timeOffs
+    .filter((timeOff) => timeOff.staffId === null || timeOff.staffId === staffId)
+    .map((timeOff) => {
+      const start =
+        Date.parse(timeOff.startAt) <= Date.parse(day.start) ? 0 : minutesOfDay(timeOff.startAt)
+      const end =
+        Date.parse(timeOff.endAt) >= Date.parse(day.end) ? 24 * 60 : minutesOfDay(timeOff.endAt)
+      return {
+        id: timeOff.id,
+        start: Math.max(start, bounds.start),
+        end: Math.min(end, bounds.end),
+        label: timeOff.staffId === null ? 'Salon kapalı' : 'İzinli',
+        note: timeOff.note,
+      }
+    })
+    .filter((block) => block.end > block.start)
+}
+
 function initials(name: string) {
   return name
     .split(' ')
@@ -80,6 +103,7 @@ export function DayGrid({
   dateKey,
   staff,
   appointments,
+  timeOffs,
   onEmptyClick,
   selectedId,
   onSelect,
@@ -182,6 +206,22 @@ export function DayGrid({
                   }}
                 >
                   {block.label}
+                </div>
+              ))}
+
+              {timeOffBlocks(timeOffs, column.id, dateKey, bounds).map((block) => (
+                <div
+                  key={block.id}
+                  className="absolute inset-x-1 flex flex-col gap-0.5 overflow-hidden rounded-[10px] border border-clay/20 px-2.5 py-2 text-xs text-clay-dark"
+                  style={{
+                    top: toTop(block.start) + 1,
+                    height: (block.end - block.start) * PX_PER_MINUTE - 2,
+                    backgroundImage:
+                      'repeating-linear-gradient(135deg, var(--color-clay-soft) 0, var(--color-clay-soft) 6px, var(--color-sand-soft) 6px, var(--color-sand-soft) 12px)',
+                  }}
+                >
+                  <span className="font-semibold">{block.label}</span>
+                  {block.note && <span className="truncate">{block.note}</span>}
                 </div>
               ))}
 
