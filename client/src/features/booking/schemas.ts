@@ -5,6 +5,7 @@ export const bookingSchema = customerSchema.pick({
   firstName: true,
   lastName: true,
   phoneNumber: true,
+  email: true,
   note: true,
 })
 
