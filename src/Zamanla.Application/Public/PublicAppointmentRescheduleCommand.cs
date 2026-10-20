@@ -1,10 +1,13 @@
 using FluentValidation;
+using GenericRepository;
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Appointments;
 using Zamanla.Application.Services;
 using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
+using Zamanla.Domain.Notifications;
+using Zamanla.Domain.Notifications.ValueObjects;
 using Zamanla.Domain.Tenants;
 
 namespace Zamanla.Application.Public;
@@ -30,7 +33,9 @@ internal sealed class PublicAppointmentRescheduleCommandHandler(
     IAppointmentRepository appointmentRepository,
     ITenantRepository tenantRepository,
     ITenantContext tenantContext,
+    INotificationRepository notificationRepository,
     ISender sender,
+    IUnitOfWork unitOfWork,
     TimeProvider timeProvider) : IRequestHandler<PublicAppointmentRescheduleCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(PublicAppointmentRescheduleCommand request, CancellationToken cancellationToken)
@@ -67,8 +72,15 @@ internal sealed class PublicAppointmentRescheduleCommandHandler(
             return Result<string>.Failure(400, $"Online randevu en fazla {policy.MaxDaysAhead} gün sonrası için alınabilir");
         }
 
-        return await sender.Send(
-            new AppointmentRescheduleCommand(appointment.Id, request.StaffId, request.StartAt),
-            cancellationToken);
+        var result = await sender.Send(
+         new AppointmentRescheduleCommand(appointment.Id, request.StaffId, request.StartAt),
+         cancellationToken);
+            if (result.IsSuccessful)
+            {
+                notificationRepository.Add(new Notification(NotificationType.AppointmentRescheduled, appointment.Id));
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+
+        return result;
     }
 }

@@ -75,6 +75,7 @@ app.MapCustomer();
 app.MapAppointment();
 app.MapSettings();
 app.MapTimeOff();
+app.MapNotification();
 app.MapPublic();
 if (app.Environment.IsDevelopment())
 {

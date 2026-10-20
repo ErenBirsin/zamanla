@@ -1,8 +1,8 @@
-using System.Buffers.Text;
-using System.Security.Cryptography;
 using FluentValidation;
 using GenericRepository;
 using Microsoft.EntityFrameworkCore;
+using System.Buffers.Text;
+using System.Security.Cryptography;
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Services;
@@ -10,6 +10,8 @@ using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
 using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.Customers;
+using Zamanla.Domain.Notifications;
+using Zamanla.Domain.Notifications.ValueObjects;
 using Zamanla.Domain.Shared;
 using Zamanla.Domain.Tenants;
 
@@ -70,6 +72,7 @@ internal sealed class PublicAppointmentCreateCommandHandler(
     ITenantContext tenantContext,
     AppointmentBookingService bookingService,
     IAppointmentNotificationService notificationService,
+    INotificationRepository notificationRepository,
     TimeProvider timeProvider,
     IUnitOfWork unitOfWork) : IRequestHandler<PublicAppointmentCreateCommand, Result<PublicAppointmentCreatedDto>>
 {
@@ -153,6 +156,7 @@ internal sealed class PublicAppointmentCreateCommandHandler(
         var appointment = booking.Data!;
         var manageToken = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(32));
         appointment.SetManageToken(ManageToken.FromPlainText(manageToken));
+        notificationRepository.Add(new Notification(NotificationType.AppointmentCreated, appointment.Id)); // randevuyla aynı kayıtta; randevu alınamazsa bildirim de oluşmaz
 
         try
         {
