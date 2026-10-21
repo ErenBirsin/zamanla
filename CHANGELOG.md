@@ -1,5 +1,23 @@
 # Değişiklik günlüğü
 
+## [0.10.0] - 2026-10-21
+
+Aşama 5.4: Bildirimler ve canlı takvim güncellemeleri.
+
+### Eklendi
+
+- Müşteri online randevu aldığında, randevusunu iptal ettiğinde veya saatini değiştirdiğinde salon paneline bildirim düşmesi sağlandı. Panel üzerinden yapılan randevu işlemleri bildirim oluşturmuyor.
+- Bildirimlerde müşteri adı ve randevu saati ayrıca saklanmıyor. Bu bilgiler listeleme sırasında randevudan alınıyor. Böylece randevu saati değiştiğinde bildirimde de güncel saat gösteriliyor, müşteri silindiğinde adı bildirimlerde kalmıyor.
+- Bildirimleri listelemek için OData `notifications` ucu, tek bir bildirimi okundu olarak işaretlemek için `PUT /api/notifications/{id}/read` ve tüm bildirimleri okundu yapmak için `PUT /api/notifications/read-all` uçları eklendi.
+- Canlı güncellemeler için `/api/hubs/notifications` adresinde bir SignalR hub oluşturuldu. Randevu veya izin değiştiğinde ve yeni bildirim geldiğinde açık olan ilgili salon panellerine haber gönderiliyor. Bu mesajlarda veri taşınmıyor; panel güncel bilgileri mevcut API uçlarından alıyor. Değişiklikleri yakalamak için her komuta ayrı kod eklemek yerine kayıt işlemi sırasında çalışan ortak bir mekanizma kullanıldı.
+- Takvimde randevu veya izin değiştiğinde sayfanın yenilenmesine gerek kalmıyor. Bağlantı kesilirse yeniden bağlanılıyor ve bağlantının koptuğu sırada kaçırılan değişiklikler tekrar yükleniyor.
+- Panele bildirim zili eklendi. Okunmamış bildirim sayısı gösteriliyor ve yeni bildirim geldiğinde sayı güncellenerek kısa bir uyarı veriliyor. Bildirime tıklandığında ilgili randevunun bulunduğu gün takvimde açılıyor. Bildirimler tek tek veya topluca okundu olarak işaretlenebiliyor.
+- Bildirimler ve canlı güncellemeler için entegrasyon testleri yazıldı. Testlerde SignalR hub'ına bağlanılarak olayların yalnızca ilgili salona gönderildiği de kontrol ediliyor. Toplam test sayısı 120 oldu.
+
+### Güvenlik
+
+- Testlerde kullanılan `Microsoft.AspNetCore.SignalR.Client` 10.0.12 paketindeki CVE-2026-70159 uyarısı geçici olarak susturuldu. Uyarının ilgili olduğu stateful reconnect özelliği hub'da kullanılmıyor. Paket yalnızca testlerde kullanılıyor. 10.0.13 sürümüne geçildiğinde bu istisnanın kaldırılması planlandı.
+
 ## [0.9.0] - 2026-10-20
 
 Aşama 5.3: Hatırlatmalar.

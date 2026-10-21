@@ -3,6 +3,8 @@ import { NavLink, Outlet } from 'react-router'
 import { useCurrentUser } from '@/features/auth/useCurrentUser'
 import { useSession } from '@/shared/auth/session'
 import { Logo } from '@/shared/ui/Logo'
+import { useRealtimeUpdates } from '@/shared/realtime/useRealtimeUpdates'
+import { NotificationBell } from '@/features/notifications/NotificationBell'
 
 const navItems = [
   { to: '/app', label: 'Genel bakış', end: true },
@@ -22,6 +24,7 @@ export function PanelLayout() {
   const { data: user } = useCurrentUser()
   const clearSession = useSession((state) => state.clear)
   const queryClient = useQueryClient()
+  useRealtimeUpdates()
 
   const logout = () => {
     queryClient.clear()
@@ -31,8 +34,9 @@ export function PanelLayout() {
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       <aside className="flex flex-col gap-6 border-b border-line bg-sand-soft px-4 py-5 md:w-64 md:shrink-0 md:border-r md:border-b-0 md:py-6">
-        <div className="px-2">
+        <div className="flex items-center justify-between px-2">
           <Logo />
+          <NotificationBell />
         </div>
 
         <div className="flex flex-col gap-0.5 rounded-xl border border-line bg-surface px-3 py-2.5">

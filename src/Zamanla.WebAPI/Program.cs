@@ -3,6 +3,7 @@ using Scalar.AspNetCore;
 using System.Threading.RateLimiting;
 using Zamanla.Application;
 using Zamanla.Infrastructure;
+using Zamanla.Infrastructure.Hubs;
 using Zamanla.WebAPI;
 using Zamanla.WebAPI.Controllers;
 using Zamanla.WebAPI.Modules;
@@ -75,6 +76,8 @@ app.MapCustomer();
 app.MapAppointment();
 app.MapSettings();
 app.MapTimeOff();
+app.MapNotification();
+app.MapHub<NotificationHub>("/api/hubs/notifications");
 app.MapPublic();
 if (app.Environment.IsDevelopment())
 {

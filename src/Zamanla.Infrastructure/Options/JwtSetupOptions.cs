@@ -18,5 +18,18 @@ internal sealed class JwtSetupOptions(
         options.TokenValidationParameters.ValidAudience = jwtOptions.Value.Audience;
         var signinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.SecretKey));
         options.TokenValidationParameters.IssuerSigningKey = signinKey;
+
+        // tarayıcı websocket isteğine Authorization header ekleyemez; SignalR token'ı adreste gönderir
+        options.Events ??= new JwtBearerEvents();
+        options.Events.OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            if (!string.IsNullOrEmpty(accessToken) && context.Request.Path.StartsWithSegments("/api/hubs"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        };
     }
 }

@@ -12,9 +12,10 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Hizmetler: süre, hazırlık payı, fiyat ve kategori.
 - Personel: verdiği hizmetler ve haftalık çalışma saatleri. Aynı güne öğle arası gibi birden fazla aralık girilebilir.
 - Müşteriler: isim ya da telefonla arama. Silinen müşterinin kişisel bilgileri KVKK'ya uygun şekilde anonimleştirilir.
-- Günlük takvim: personel sütunları, mola ve kapalı saatler, izinler, "şu an" çizgisi.
+- Günlük takvim: personel sütunları, mola ve kapalı saatler, izinler, "şu an" çizgisi. Randevu ya da izin değişince sayfa yenilenmeden güncellenir.
 - Randevular: birden fazla hizmet, tamamlandı / gelmedi / iptal / yeniden planlama ve randevu geçmişi.
 - İzinler: personel izni ve bayram gibi salonun kapalı olduğu günler, tüm gün ya da saat aralığıyla.
+- Bildirimler: müşteri online randevu alınca, linkten iptal edince ya da saatini değiştirince zil ile haber verilir; okunmamış sayısı ve okundu işareti tutulur.
 - Ayarlar: salon adı, adres, telefon ve online randevu kuralları.
 
 ### Müşteri tarafı
@@ -35,6 +36,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - JWT access token (15 dk) ve refresh token (14 gün). Kullanılmış bir refresh token tekrar gelirse açık oturumlar kapatılır. Süresi dolan token'lar günde bir silinir.
 - E-posta ya da SMS gönderilemezse randevu yine oluşturulur. Hatırlatma bir sonraki turda tekrar denenir.
 - Giriş, kayıt ve herkese açık uçlarda IP bazlı istek sınırı.
+- Canlı güncellemeler sadece salonun kendi paneline gider ve veri taşımaz; panel değişen veriyi yetkili uçlardan yeniden çeker.
 
 ## Mimari ve teknolojiler
 
@@ -52,6 +54,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - **JWT Bearer:** kimlik doğrulama için
 - **FluentEmail (SMTP):** e-posta gönderimi için
 - **BackgroundService:** hatırlatmalar ve token temizliği için arka plan işleri
+- **SignalR:** canlı takvim ve bildirimler için
 - **Scalar:** API dokümantasyonu ve deneme için
 
 ### Frontend
@@ -63,6 +66,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - **React Hook Form + Zod:** form ve doğrulama
 - **Zustand:** oturum durumu
 - **Axios:** API istekleri, token yenileme
+- **@microsoft/signalr:** canlı güncelleme bağlantısı
 
 ### Test ve CI
 
@@ -211,7 +215,7 @@ client/
   - [x] 5.1 Salon ayarları
   - [x] 5.2 Personel izni ve kapalı günler
   - [x] 5.3 Hatırlatmalar (e-posta ve SMS)
-  - [ ] 5.4 Canlı takvim ve bildirim zili (SignalR)
+  - [x] 5.4 Canlı takvim ve bildirim zili (SignalR)
   - [ ] 5.5 Günlük özet
   - [ ] 5.6 Personel hesapları ve yetkiler
 

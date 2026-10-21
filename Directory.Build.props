@@ -13,6 +13,8 @@
     <!-- Pkcs 9.0.11 comes in transitively; SignedCms/EnvelopedCms are not used. Remove after pinning 10.0.13. -->
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-846f-f764-76mx" />
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2fmv-rv2c-59x7" />
+    <!-- SignalR.Client 10.0.12 is only used by integration tests; the issue needs stateful reconnect, which the hub does not enable. Remove after moving to 10.0.13. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-334f-vvp4-7g6p" />
   </ItemGroup>
 
 </Project>

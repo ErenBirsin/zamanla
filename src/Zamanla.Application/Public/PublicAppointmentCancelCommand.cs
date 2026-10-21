@@ -1,9 +1,12 @@
+using GenericRepository;
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Appointments;
 using Zamanla.Application.Services;
 using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
+using Zamanla.Domain.Notifications;
+using Zamanla.Domain.Notifications.ValueObjects;
 using Zamanla.Domain.Tenants;
 
 namespace Zamanla.Application.Public;
@@ -15,8 +18,10 @@ internal sealed class PublicAppointmentCancelCommandHandler(
     IAppointmentRepository appointmentRepository,
     ITenantRepository tenantRepository,
     ITenantContext tenantContext,
+    INotificationRepository notificationRepository,
     ISender sender,
-    TimeProvider timeProvider) : IRequestHandler<PublicAppointmentCancelCommand, Result<string>>
+    TimeProvider timeProvider,
+    IUnitOfWork unitOfWork) : IRequestHandler<PublicAppointmentCancelCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(PublicAppointmentCancelCommand request, CancellationToken cancellationToken)
     {
@@ -38,6 +43,13 @@ internal sealed class PublicAppointmentCancelCommandHandler(
             return Result<string>.Failure(400, $"Randevuya {policy.CancelHoursBefore} saatten az kaldığı için linkten iptal edilemiyor, lütfen salonu arayın");
         }
 
-        return await sender.Send(new AppointmentCancelCommand(appointment.Id, "Müşteri linkten iptal etti"), cancellationToken);
+        var result = await sender.Send(new AppointmentCancelCommand(appointment.Id, "Müşteri linkten iptal etti"), cancellationToken);
+        if (result.IsSuccessful)
+        {
+            notificationRepository.Add(new Notification(NotificationType.AppointmentCancelled, appointment.Id));
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        return result;
     }
 }

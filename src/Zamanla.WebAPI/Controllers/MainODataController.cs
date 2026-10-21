@@ -7,6 +7,7 @@ using Microsoft.OData.ModelBuilder;
 using TS.MediatR;
 using Zamanla.Application.Appointments;
 using Zamanla.Application.Customers;
+using Zamanla.Application.Notifications;
 using Zamanla.Application.SalonServices;
 using Zamanla.Application.Staffs;
 using Zamanla.Application.TimeOffs;
@@ -28,6 +29,7 @@ public class MainODataController : ODataController
         builder.EntitySet<CustomerDto>("customers");
         builder.EntitySet<AppointmentDto>("appointments");
         builder.EntitySet<TimeOffDto>("timeOffs");
+        builder.EntitySet<NotificationDto>("notifications");
         return builder.GetEdmModel();
     }
 
@@ -47,8 +49,11 @@ public class MainODataController : ODataController
     public IQueryable<AppointmentDto> Appointments(ISender sender, CancellationToken cancellationToken = default)
     => sender.Send(new AppointmentGetAllQuery(), cancellationToken).Result;
 
-
     [HttpGet("timeOffs")]
     public IQueryable<TimeOffDto> TimeOffs(ISender sender, CancellationToken cancellationToken = default)
     => sender.Send(new TimeOffGetAllQuery(), cancellationToken).Result;
+
+    [HttpGet("notifications")]
+    public IQueryable<NotificationDto> Notifications(ISender sender, CancellationToken cancellationToken = default)
+    => sender.Send(new NotificationGetAllQuery(), cancellationToken).Result;
 }

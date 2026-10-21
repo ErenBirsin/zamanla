@@ -26,13 +26,15 @@ public static class InfrastructureRegistrar
         services.AddScoped<ITenantContext, TenantContext>();
         services.AddScoped<AuditInterceptor>();
         services.AddScoped<TenantInterceptor>();
+        services.AddScoped<RealtimeInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
             options
                 .UseSqlServer(connectionString)
                 .AddInterceptors(
                     serviceProvider.GetRequiredService<AuditInterceptor>(),
-                    serviceProvider.GetRequiredService<TenantInterceptor>()));
+                    serviceProvider.GetRequiredService<TenantInterceptor>(),
+                    serviceProvider.GetRequiredService<RealtimeInterceptor>()));
 
         services.AddScoped<IUnitOfWork>(serviceProvider =>
             serviceProvider.GetRequiredService<ApplicationDbContext>());
@@ -47,6 +49,7 @@ public static class InfrastructureRegistrar
         services.ConfigureOptions<JwtSetupOptions>();
         services.AddAuthentication().AddJwtBearer();
         services.AddAuthorization();
+        services.AddSignalR();
         services.AddScoped<IJwtProvider, JwtProvider>();
 
         // geliştirmede smtp4dev (localhost:25); gerçek sunucunun kullanıcı adı ve şifresi User Secrets'ta
