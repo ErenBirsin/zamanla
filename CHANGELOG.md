@@ -1,5 +1,17 @@
 # Değişiklik günlüğü
 
+## [0.11.0] - 2026-10-21
+
+Aşama 5.5: Günlük özet.
+
+### Eklendi
+
+- Genel bakış sayfasında kullanılmak üzere `GET /api/dashboard` ucu eklendi. Bu uç bugünkü randevu sayısını, beklenen ciroyu, tamamlanan, gelmeyen ve iptal edilen randevuları, bugün sıradaki en fazla 5 randevuyu ve son 7 günün randevu ve ciro bilgilerini tek istekte getiriyor. Günler salonun saat dilimine göre hesaplanıyor. Randevu olmayan günler de sonuçlarda sıfır değerle yer alıyor.
+- Randevu ve ciro hesaplamaları durumlarına göre ayrıldı. İptal edilen randevular toplam sayıya dahil edilmiyor. Beklenen ciro hesaplanırken gelmeyen randevular sayılmıyor; gerçekleşen ciro ise tamamlanan randevular üzerinden hesaplanıyor.
+- Genel bakış sayfasına bugünün bilgilerini gösteren özet kartları ve sıradaki randevuların listesi eklendi. Takvimde bir değişiklik olduğunda bu bilgiler sayfayı yenilemeden güncelleniyor. Saati geçen randevular da dakikada bir yapılan kontrolle listeden kaldırılıyor.
+- Son 7 günün randevu ve ciro bilgilerini gösteren sütun grafiği eklendi. İki veri arasında geçiş yapılabiliyor ve bugünün sütunu farklı renkte gösteriliyor. Grafik için Chart.js kullanıldı.
+- Özet ekranı için entegrasyon testleri yazıldı. Randevuların durumlarına göre doğru sayılması, son 7 günün doğru gruplanması ve başka bir salonun randevularının sonuçlara dahil edilmemesi kontrol ediliyor. Toplam test sayısı 124'e ulaştı.
+
 ## [0.10.0] - 2026-10-21
 
 Aşama 5.4: Bildirimler ve canlı takvim güncellemeleri.

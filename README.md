@@ -9,6 +9,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 ### Salon paneli
 
 - İşletme kaydı ve giriş. Her salonun verisi diğerlerinden ayrı tutulur.
+- Genel bakış: bugünün randevu sayısı, beklenen ciro, tamamlanan, gelmeyen ve iptal edilen randevular, sıradaki randevular ve son 7 günün randevu ve ciro grafiği. Takvim değişince sayfa yenilenmeden güncellenir.
 - Hizmetler: süre, hazırlık payı, fiyat ve kategori.
 - Personel: verdiği hizmetler ve haftalık çalışma saatleri. Aynı güne öğle arası gibi birden fazla aralık girilebilir.
 - Müşteriler: isim ya da telefonla arama. Silinen müşterinin kişisel bilgileri KVKK'ya uygun şekilde anonimleştirilir.
@@ -67,6 +68,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - **Zustand:** oturum durumu
 - **Axios:** API istekleri, token yenileme
 - **@microsoft/signalr:** canlı güncelleme bağlantısı
+- **Chart.js (react-chartjs-2):** genel bakıştaki grafik
 
 ### Test ve CI
 
@@ -216,7 +218,7 @@ client/
   - [x] 5.2 Personel izni ve kapalı günler
   - [x] 5.3 Hatırlatmalar (e-posta ve SMS)
   - [x] 5.4 Canlı takvim ve bildirim zili (SignalR)
-  - [ ] 5.5 Günlük özet
+  - [x] 5.5 Günlük özet
   - [ ] 5.6 Personel hesapları ve yetkiler
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).
