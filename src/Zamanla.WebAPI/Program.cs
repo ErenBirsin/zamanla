@@ -77,6 +77,7 @@ app.MapAppointment();
 app.MapSettings();
 app.MapTimeOff();
 app.MapNotification();
+app.MapDashboard();
 app.MapHub<NotificationHub>("/api/hubs/notifications");
 app.MapPublic();
 if (app.Environment.IsDevelopment())
