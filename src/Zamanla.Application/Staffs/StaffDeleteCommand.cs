@@ -23,6 +23,7 @@ internal sealed class StaffDeleteCommandHandler(
     ITenantRepository tenantRepository,
     ITenantContext tenantContext,
     TimeProvider timeProvider,
+    StaffAccountService staffAccountService,
     IUnitOfWork unitOfWork) : IRequestHandler<StaffDeleteCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(StaffDeleteCommand request, CancellationToken cancellationToken)
@@ -43,6 +44,7 @@ internal sealed class StaffDeleteCommandHandler(
 
         staff.Delete();
         staffRepository.Update(staff);
+        await staffAccountService.CloseForStaffAsync(staff.Id, cancellationToken);
 
         try
         {

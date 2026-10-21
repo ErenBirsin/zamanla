@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TS.MediatR;
 using Zamanla.Application.Behaviors;
 using Zamanla.Application.Services;
+using Zamanla.Application.Staffs;
 
 namespace Zamanla.Application;
 
@@ -23,6 +24,7 @@ public static class ApplicationRegistrar
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
         services.AddScoped<AppointmentBookingService>();
         services.AddScoped<AppointmentReminderService>();
+        services.AddScoped<StaffAccountService>();
 
         return services;
     }

@@ -20,5 +20,13 @@ public static class InvitationModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<InvitationCreatedDto>>();
+
+        app.MapDelete("{staffId}",
+            async (Guid staffId, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new InvitationDeleteCommand(staffId), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<string>>();
     }
 }
