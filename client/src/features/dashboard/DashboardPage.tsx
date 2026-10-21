@@ -7,6 +7,7 @@ import { TodaySummary } from './TodaySummary'
 import { UpcomingList } from './UpcomingList'
 import { useDashboard } from './useDashboard'
 import { useSetupProgress } from './useSetupProgress'
+import { WeeklyChart } from './WeeklyChart'
 
 export function DashboardPage() {
   const { data: user } = useCurrentUser()
@@ -36,8 +37,9 @@ export function DashboardPage() {
         dashboard && (
           <>
             <TodaySummary today={dashboard.today} />
-            <div className="max-w-3xl">
+            <div className="grid gap-5 lg:grid-cols-2">
               <UpcomingList appointments={dashboard.upcoming} />
+              <WeeklyChart days={dashboard.lastSevenDays} />
             </div>
           </>
         )
