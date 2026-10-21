@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
@@ -20,7 +21,7 @@ public sealed class DashboardTodayDto
     // iptal edilenler hariç
     public int AppointmentCount { get; set; }
     // gelmeyenler hariç, takvimdeki "beklenen ciro" ile aynı
-    public decimal ExpectedRevenue { get; set; }
+    public decimal? ExpectedRevenue { get; set; }
     public int CompletedCount { get; set; }
     public int NoShowCount { get; set; }
     public int CancelledCount { get; set; }
@@ -43,7 +44,7 @@ public sealed class DashboardDayDto
     // iptal edilenler hariç
     public int AppointmentCount { get; set; }
     // sadece tamamlananlar; gerçekleşen ciro
-    public decimal Revenue { get; set; }
+    public decimal? Revenue { get; set; }
 }
 
 public sealed class DashboardDto
@@ -60,7 +61,8 @@ internal sealed class DashboardGetQueryHandler(
     ISalonServiceRepository salonServiceRepository,
     ITenantRepository tenantRepository,
     ITenantContext tenantContext,
-    TimeProvider timeProvider) : IRequestHandler<DashboardGetQuery, Result<DashboardDto>>
+    TimeProvider timeProvider,
+    AccessService accessService) : IRequestHandler<DashboardGetQuery, Result<DashboardDto>>
 {
     private const int Days = 7;
     private const int UpcomingLimit = 5;
@@ -70,6 +72,7 @@ internal sealed class DashboardGetQueryHandler(
         #region Günler
         // günler salonun saat dilimine göre; UTC gece yarısı Türkiye'de sabah 03:00
         var now = timeProvider.GetUtcNow();
+        var canViewRevenue = await accessService.CanViewRevenueAsync(cancellationToken);
         var timeZone = await tenantRepository.GetTimeZoneAsync(tenantContext.GetTenantId(), cancellationToken);
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, timeZone).DateTime);
         var firstDay = today.AddDays(-(Days - 1));
@@ -107,7 +110,7 @@ internal sealed class DashboardGetQueryHandler(
         DashboardTodayDto todayDto = new()
         {
             AppointmentCount = active.Count,
-            ExpectedRevenue = active.Where(a => a.Status != noShow).Sum(a => a.Total),
+            ExpectedRevenue = canViewRevenue ? active.Where(a => a.Status != noShow).Sum(a => a.Total) : null,
             CompletedCount = active.Count(a => a.Status == completed),
             NoShowCount = active.Count(a => a.Status == noShow),
             CancelledCount = todayAppointments.Count - active.Count
@@ -160,7 +163,7 @@ internal sealed class DashboardGetQueryHandler(
                 {
                     Date = date,
                     AppointmentCount = dayAppointments.Count,
-                    Revenue = dayAppointments.Where(a => a.Status == completed).Sum(a => a.Total)
+                    Revenue = canViewRevenue ? dayAppointments.Where(a => a.Status == completed).Sum(a => a.Total) : null
                 };
             })
             .ToList();

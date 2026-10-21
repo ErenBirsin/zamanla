@@ -2,6 +2,7 @@ using FluentValidation;
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Permissions;
 using Zamanla.Domain.Appointments;
 
 namespace Zamanla.Application.Appointments;
@@ -20,6 +21,7 @@ public sealed class AppointmentCancelCommandValidator : AbstractValidator<Appoin
 internal sealed class AppointmentCancelCommandHandler(
     IAppointmentRepository appointmentRepository,
     TimeProvider timeProvider,
+    AccessService accessService,
     IUnitOfWork unitOfWork) : IRequestHandler<AppointmentCancelCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(AppointmentCancelCommand request, CancellationToken cancellationToken)
@@ -29,6 +31,8 @@ internal sealed class AppointmentCancelCommandHandler(
         {
             return Result<string>.Failure(404, "Randevu bulunamadı");
         }
+
+        await accessService.EnsureCanManageAppointmentAsync(appointment.StaffId, cancellationToken);
 
         if (appointment.IsFinished)
         {

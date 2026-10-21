@@ -3,6 +3,7 @@ using GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Domain.Appointments.ValueObjects;
 using Zamanla.Domain.Customers;
@@ -39,6 +40,7 @@ internal sealed class AppointmentCreateCommandHandler(
     AppointmentBookingService bookingService,
     IAppointmentNotificationService notificationService,
     TimeProvider timeProvider,
+    AccessService accessService,
     IUnitOfWork unitOfWork) : IRequestHandler<AppointmentCreateCommand, Result<string>>
 {
     // içeri girmiş müşterinin randevusu panelden birkaç dakika geriden girilebilsin
@@ -46,6 +48,8 @@ internal sealed class AppointmentCreateCommandHandler(
 
     public async Task<Result<string>> Handle(AppointmentCreateCommand request, CancellationToken cancellationToken)
     {
+        await accessService.EnsureCanManageAppointmentAsync(request.StaffId, cancellationToken);
+
         var isCustomerExists = await customerRepository.AnyAsync(
             c => c.Id == request.CustomerId && !c.IsAnonymized, cancellationToken);
         if (!isCustomerExists)

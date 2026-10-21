@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using TS.MediatR;
 using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Application.Staffs;
 
@@ -25,6 +26,7 @@ public static class ApplicationRegistrar
         services.AddScoped<AppointmentBookingService>();
         services.AddScoped<AppointmentReminderService>();
         services.AddScoped<StaffAccountService>();
+        services.AddScoped<AccessService>();
 
         return services;
     }
