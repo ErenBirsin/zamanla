@@ -3,6 +3,8 @@ using GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Application.Staffs;
 using Zamanla.Application.Tenants;
@@ -16,6 +18,7 @@ using Zamanla.Domain.TimeOffs;
 
 namespace Zamanla.Application.TimeOffs;
 
+[Permission(PermissionCatalog.TimeOffsManage)]
 // staffId boşsa bütün salon kapalı; tam gün izinde istemci gece yarısından gece yarısına gönderir
 public sealed record TimeOffCreateCommand(
     Guid? StaffId,

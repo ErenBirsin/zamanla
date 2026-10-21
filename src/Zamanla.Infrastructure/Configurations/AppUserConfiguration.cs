@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Zamanla.Domain.Staffs;
 using Zamanla.Domain.Tenants;
 using Zamanla.Domain.Users;
 
@@ -34,6 +35,19 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         });
 
         builder.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
+
+        builder.OwnsMany(u => u.Permissions, permission =>
+        {
+            permission.ToTable("AppUserPermissions");
+            permission.Property(p => p.Value).HasColumnName("Value").HasMaxLength(50);
+        });
+
+        // bir personelin en fazla bir hesabı olur
+        builder.HasIndex(u => u.StaffId).IsUnique();
+        builder.HasOne<Staff>()
+            .WithMany()
+            .HasForeignKey(u => u.StaffId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<Tenant>()
             .WithMany()

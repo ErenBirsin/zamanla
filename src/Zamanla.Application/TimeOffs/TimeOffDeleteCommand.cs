@@ -1,10 +1,13 @@
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Domain.TimeOffs;
 
 namespace Zamanla.Application.TimeOffs;
 
+[Permission(PermissionCatalog.TimeOffsManage)]
 public sealed record TimeOffDeleteCommand(Guid Id) : IRequest<Result<string>>;
 
 internal sealed class TimeOffDeleteCommandHandler(

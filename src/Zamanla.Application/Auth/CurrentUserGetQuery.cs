@@ -1,8 +1,9 @@
+using TS.MediatR;
+using TS.Result;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Domain.Tenants;
 using Zamanla.Domain.Users;
-using TS.MediatR;
-using TS.Result;
 
 namespace Zamanla.Application.Auth;
 public sealed record CurrentUserGetQuery : IRequest<Result<CurrentUserDto>>;
@@ -14,7 +15,9 @@ public sealed record CurrentUserDto(
     string Role,
     Guid TenantId,
     string TenantName,
-    string TenantSlug);
+    string TenantSlug,
+    Guid? StaffId,
+    List<string> Permissions); // sahipte bütün yetkiler; client menüyü ve düğmeleri buna göre gösterir
 
 internal sealed class CurrentUserGetQueryHandler(
     IUserContext userContext,
@@ -47,6 +50,10 @@ internal sealed class CurrentUserGetQueryHandler(
             user.Role.ToString(),
             tenant.Id,
             tenant.Name.Value,
-            tenant.Slug.Value);
+            tenant.Slug.Value,
+            user.StaffId,
+            user.IsOwner
+                ? PermissionCatalog.All.Select(p => p.Value).ToList()
+                : user.Permissions.Select(p => p.Value).ToList());
     }
 }

@@ -5,9 +5,12 @@ using TS.Result;
 using Zamanla.Domain.SalonServices;
 using Zamanla.Domain.SalonServices.ValueObjects;
 using Zamanla.Domain.Shared;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 
 namespace Zamanla.Application.SalonServices;
 
+[Permission(PermissionCatalog.ServicesManage)]
 public sealed record SalonServiceCreateCommand(
     string Name,
     string Category,

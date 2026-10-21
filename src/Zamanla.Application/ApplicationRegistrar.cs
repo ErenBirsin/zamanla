@@ -15,6 +15,8 @@ public static class ApplicationRegistrar
         services.AddMediatR(options =>
         {
             options.RegisterServicesFromAssembly(assembly);
+            // yetkisi olmayanın isteği doğrulanmadan reddedilir
+            options.AddOpenBehavior(typeof(PermissionBehavior<,>));
             options.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 

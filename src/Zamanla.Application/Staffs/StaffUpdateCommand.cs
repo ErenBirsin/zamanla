@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Appointments;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
@@ -18,6 +20,7 @@ using Zamanla.Domain.Tenants;
 
 namespace Zamanla.Application.Staffs;
 
+[Permission(PermissionCatalog.StaffManage)]
 public sealed record StaffUpdateCommand(
     Guid Id,
     string FirstName,
