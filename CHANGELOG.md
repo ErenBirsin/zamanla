@@ -1,5 +1,23 @@
 # Değişiklik günlüğü
 
+## [0.12.0] - 2026-10-22
+
+Aşama 5.6: Personel hesapları ve yetkilendirme.
+
+### Eklendi
+
+- Personel hesapları için 7 farklı yetki eklendi. Bunlar başka personelin randevularını yönetme, ciroyu görme, müşteri silme, hizmetleri yönetme, personel ve çalışma saatlerini düzenleme, izinleri yönetme ve salon ayarlarını değiştirme yetkileri. Salon sahibi tüm yetkilere sahip. Yetki kontrolü için komutlara `[Permission]` etiketi eklendi ve kontroller doğrulama işleminden önce ortak bir pipeline adımında yapılıyor. Personel davet etme ve hesap yönetimi yalnızca salon sahibine açık. Yetkisiz isteklerde `403` yanıtı dönüyor. Yetkilerin listesi ve Türkçe karşılıkları `GET /api/permissions` üzerinden alınabiliyor.
+- Kullanıcının yetkileri ve hesap durumu her istekte veritabanından kontrol ediliyor. Böylece bir yetki kaldırıldığında veya hesap pasif yapıldığında, personelin token süresinin dolması beklenmeden değişiklik uygulanıyor.
+- Personel davet işlemleri eklendi. Salon sahibi `POST /api/invitations` üzerinden e-posta adresi ve verilecek yetkilerle davet oluşturabiliyor. Davet linki 7 gün geçerli ve yalnızca bir kez kullanılabiliyor. Güvenlik için linkin kendisi yerine SHA-256 özeti saklanıyor. E-posta gönderilemese bile davet linki salon sahibine gösteriliyor. Yeni davet gönderildiğinde önceki link geçersiz oluyor. Bekleyen davetler `DELETE /api/invitations/{staffId}` ile iptal edilebiliyor.
+- Daveti kabul etmek için herkese açık `GET /api/public/{slug}/invitations/{token}` ve `POST /api/public/{slug}/invitations/{token}/accept` uçları eklendi. Personel en az 8 karakterli şifresini belirledikten sonra hesabı oluşturuluyor ve doğrudan panele giriş yapmış oluyor.
+- Personel hesaplarını yönetmek için `GET /api/staff/accounts`, `PUT /api/staff/accounts/permissions` ve `PUT /api/staff/accounts/status` uçları eklendi. Hesap listesinde personelin hesabı olup olmadığı, davetin gönderilip gönderilmediği veya süresinin dolup dolmadığı ve hesabın aktif ya da pasif durumu gösteriliyor. Hesap pasif yapıldığında açık oturumlar kapatılıyor. Personel silindiğinde veya pasif yapıldığında hesabı da kapatılıyor ve bekleyen davetleri kaldırılıyor. Personelin adı değiştirildiğinde hesap bilgisi de güncelleniyor.
+- Personel kendi randevularını oluşturabiliyor, tamamlandı veya gelmedi olarak işaretleyebiliyor, iptal edebiliyor ve saatini değiştirebiliyor. Başka bir personelin randevusunda bu işlemler için ek yetki gerekiyor. Randevu başka bir personele aktarıldığında hem mevcut hem de yeni personel için yetki kontrolü yapılıyor. Ciro yetkisi olmayan personele genel bakış API'sinden ciro bilgisi gönderilmiyor.
+- Paneldeki menüler, düğmeler ve ciro bilgileri kullanıcının yetkilerine göre gösteriliyor. Yetkisi olmayan bir personel, Ayarlar sayfasının adresini doğrudan yazarak da sayfaya erişemiyor.
+- Davet bağlantısından açılan `/davet/{slug}/{token}` sayfası eklendi. Personel bu sayfada salonun adını ve davetin geçerlilik süresini görebiliyor, ardından şifresini belirleyebiliyor. Süresi dolmuş, kullanılmış veya iptal edilmiş bağlantılar için ayrı mesajlar gösteriliyor.
+- Personel sayfasına, yalnızca salon sahibinin görebildiği "Panel hesabı" sütunu eklendi. Hesap penceresinden davet gönderilebiliyor, davet geri alınabiliyor, bağlantı kopyalanabiliyor, yetkiler değiştirilebiliyor ve hesap aktif veya pasif yapılabiliyor.
+- Takvim de personelin yetkilerine göre düzenlendi. Başka personelin randevularını yönetme yetkisi olmayan kullanıcılar bu randevuları yalnızca görüntüleyebiliyor. Takvimde boş bir alana tıklayarak sadece kendi sütunlarına randevu ekleyebiliyorlar. Yeni randevu ve yeniden planlama pencerelerinde de yalnızca kendileri personel olarak seçilebiliyor.
+- Yetkilendirme, davet ve personel hesapları için birim ve entegrasyon testleri eklendi. Yetki etiketlerinin tanımlı yetkilerle eşleşmesi, pasif hesabın giriş yapamaması, davet linkinin ikinci kez kullanılamaması ve başka bir salon sahibinin farklı bir salonun personel yetkilerini değiştirememesi test edildi. Toplam test sayısı 142'ye ulaştı.
+
 ## [0.11.0] - 2026-10-21
 
 Aşama 5.5: Günlük özet.
