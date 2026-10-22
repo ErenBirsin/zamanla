@@ -1,3 +1,4 @@
+import type { Permission } from '@/shared/auth/permissions'
 export interface AuthTokens {
   accessToken: string
   accessTokenExpiresAt: string
@@ -14,4 +15,7 @@ export interface CurrentUser {
   tenantId: string
   tenantName: string
   tenantSlug: string
+  staffId: string | null
+  // sahipte bütün yetkiler gelir
+  permissions: Permission[]
 }

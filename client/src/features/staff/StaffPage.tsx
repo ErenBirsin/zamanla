@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { usePermissions } from '@/features/auth/usePermissions'
 import { useServices } from '@/features/services/useServices'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 import { formatTime } from './schedule'
 import { StaffFormDialog } from './StaffFormDialog'
 import { deleteStaff } from './staffApi'
@@ -15,6 +17,7 @@ export function StaffPage() {
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Staff | null>(null)
+  const canManage = usePermissions().can(PERMISSIONS.staffManage)
 
   const serviceNames = new Map(services.map((service) => [service.id, service.name]))
 
@@ -53,13 +56,15 @@ export function StaffPage() {
             Randevu alan çalışanlar, verdikleri hizmetler ve çalışma saatleri.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="h-11 cursor-pointer rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark"
-        >
-          Personel ekle
-        </button>
+        {canManage && (
+          <button
+            type="button"
+            onClick={openCreate}
+            className="h-11 cursor-pointer rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark"
+          >
+            Personel ekle
+          </button>
+        )}
       </header>
 
       {isPending ? (
@@ -124,22 +129,24 @@ export function StaffPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <div className="flex justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(staff)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
-                        >
-                          Düzenle
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => remove(staff)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                        >
-                          Sil
-                        </button>
-                      </div>
+                      {canManage && (
+                        <div className="flex justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => openEdit(staff)}
+                            className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
+                          >
+                            Düzenle
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => remove(staff)}
+                            className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
+                          >
+                            Sil
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 )

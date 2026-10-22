@@ -1,7 +1,9 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { AuthLayout } from '@/features/auth/AuthLayout'
+import { RequirePermission } from '@/features/auth/RequirePermission'
 import { PanelLayout } from '@/features/panel/PanelLayout'
 import { GuestOnly, RequireAuth } from '@/shared/auth/guards'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 
 export const router = createBrowserRouter([
   {
@@ -75,10 +77,15 @@ export const router = createBrowserRouter([
                 }),
               },
               {
-                path: 'settings',
-                lazy: async () => ({
-                  Component: (await import('@/features/settings/SettingsPage')).SettingsPage,
-                }),
+                element: <RequirePermission permission={PERMISSIONS.settingsManage} />,
+                children: [
+                  {
+                    path: 'settings',
+                    lazy: async () => ({
+                      Component: (await import('@/features/settings/SettingsPage')).SettingsPage,
+                    }),
+                  },
+                ],
               },
             ],
           },
