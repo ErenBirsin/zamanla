@@ -70,6 +70,7 @@ public static class InfrastructureRegistrar
         services.Configure<ClientOptions>(configuration.GetSection("Client"));
         services.AddScoped<IAppointmentNotificationService, AppointmentNotificationService>();
         services.AddScoped<IInvitationMailService, InvitationMailService>();
+        services.AddScoped<IPasswordResetMailService, PasswordResetMailService>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");
