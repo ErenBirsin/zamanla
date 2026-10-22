@@ -5,11 +5,13 @@ import { usePermissions } from '@/features/auth/usePermissions'
 import { useServices } from '@/features/services/useServices'
 import { PERMISSIONS } from '@/shared/auth/permissions'
 import { formatTime } from './schedule'
+import { StaffAccountDialog } from './StaffAccountDialog'
 import { StaffFormDialog } from './StaffFormDialog'
 import { deleteStaff } from './staffApi'
-import { staffColorClasses, weekDays } from './staffOptions'
-import type { Staff, WorkingHour } from './types'
+import { accountBadgeClasses, staffColorClasses, weekDays } from './staffOptions'
+import type { Staff, StaffAccount, WorkingHour } from './types'
 import { staffQueryKey, useStaff } from './useStaff'
+import { useStaffAccounts } from './useStaffAccounts'
 
 export function StaffPage() {
   const { data: staffList = [], isPending } = useStaff()
@@ -17,7 +19,12 @@ export function StaffPage() {
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Staff | null>(null)
-  const canManage = usePermissions().can(PERMISSIONS.staffManage)
+  const { can, isOwner } = usePermissions()
+  const canManage = can(PERMISSIONS.staffManage)
+  // hesap sütunu ve düğmesi sadece sahipte; personelde istek de atılmaz
+  const { data: accounts = [] } = useStaffAccounts()
+  const accountByStaff = new Map(accounts.map((account) => [account.staffId, account]))
+  const [accountFor, setAccountFor] = useState<StaffAccount | null>(null)
 
   const serviceNames = new Map(services.map((service) => [service.id, service.name]))
 
@@ -86,6 +93,7 @@ export function StaffPage() {
                 <th className="px-5 py-3">HİZMETLER</th>
                 <th className="px-5 py-3">ÇALIŞMA GÜNLERİ</th>
                 <th className="px-5 py-3">DURUM</th>
+                {isOwner && <th className="px-5 py-3">PANEL HESABI</th>}
                 <th className="px-5 py-3">
                   <span className="sr-only">İşlemler</span>
                 </th>
@@ -93,6 +101,7 @@ export function StaffPage() {
             </thead>
             <tbody>
               {staffList.map((staff) => {
+                const account = accountByStaff.get(staff.id)
                 // silinmiş hizmetler listede görünmez
                 const names = staff.salonServiceIds
                   .map((id) => serviceNames.get(id))
@@ -128,9 +137,29 @@ export function StaffPage() {
                         {staff.isActive ? 'Aktif' : 'Pasif'}
                       </span>
                     </td>
+                    {isOwner && (
+                      <td className="px-5 py-3.5">
+                        {account && (
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${accountBadgeClasses[account.status]}`}
+                          >
+                            {account.status}
+                          </span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-5 py-3.5">
                       {canManage && (
                         <div className="flex justify-end gap-1">
+                          {isOwner && account && (
+                            <button
+                              type="button"
+                              onClick={() => setAccountFor(account)}
+                              className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
+                            >
+                              Hesap
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => openEdit(staff)}
@@ -157,6 +186,7 @@ export function StaffPage() {
       )}
 
       <StaffFormDialog open={formOpen} staff={editing} onClose={() => setFormOpen(false)} />
+      <StaffAccountDialog account={accountFor} onClose={() => setAccountFor(null)} />
     </>
   )
 }
