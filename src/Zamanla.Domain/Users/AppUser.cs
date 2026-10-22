@@ -6,6 +6,7 @@ namespace Zamanla.Domain.Users;
 
 public sealed class AppUser : Entity, ITenantEntity
 {
+    public const int ForgotPasswordValidHours = 1;
     private readonly List<Permission> _permissions = new();
     private AppUser() { }
 
@@ -39,6 +40,9 @@ public sealed class AppUser : Entity, ITenantEntity
     public IReadOnlyCollection<Permission> Permissions => _permissions;
     public bool IsOwner => Role == UserRole.Owner;
     public string FullName => $"{FirstName.Value} {LastName.Value}";
+    public ForgotPasswordCode? ForgotPasswordCode { get; private set; }
+    public DateTimeOffset? ForgotPasswordDate { get; private set; }
+    public bool IsForgotPasswordCompleted { get; private set; }
 
     #region Behaviors
     public bool HasPermission(string permission)
@@ -48,6 +52,26 @@ public sealed class AppUser : Entity, ITenantEntity
     public bool VerifyPassword(string password)
     {
         return Password.Verify(password);
+    }
+
+    // yeni istek eski linki geçersiz yapar
+    public void CreateForgotPasswordCode(ForgotPasswordCode code, DateTimeOffset now)
+    {
+        ForgotPasswordCode = code;
+        ForgotPasswordDate = now;
+        IsForgotPasswordCompleted = false;
+    }
+
+    public bool IsForgotPasswordCodeValid(DateTimeOffset now)
+    {
+        return ForgotPasswordCode is not null
+            && !IsForgotPasswordCompleted
+            && ForgotPasswordDate!.Value.AddHours(ForgotPasswordValidHours) > now;
+    }
+
+    public void SetIsForgotPasswordCompleted(bool isForgotPasswordCompleted)
+    {
+        IsForgotPasswordCompleted = isForgotPasswordCompleted;
     }
 
     public void SetFirstName(FirstName firstName)
