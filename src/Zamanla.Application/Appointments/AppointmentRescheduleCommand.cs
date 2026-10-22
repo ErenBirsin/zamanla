@@ -3,6 +3,7 @@ using GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Application.Tenants;
 using Zamanla.Application.TimeOffs;
@@ -37,6 +38,7 @@ internal sealed class AppointmentRescheduleCommandHandler(
     ITenantContext tenantContext,
     ITimeOffRepository timeOffRepository,
     TimeProvider timeProvider,
+    AccessService accessService,
     IUnitOfWork unitOfWork) : IRequestHandler<AppointmentRescheduleCommand, Result<string>>
 {
     // oluşturmadaki toleransla aynı
@@ -50,6 +52,9 @@ internal sealed class AppointmentRescheduleCommandHandler(
         {
             return Result<string>.Failure(404, "Randevu bulunamadı");
         }
+
+        await accessService.EnsureCanManageAppointmentAsync(appointment.StaffId, cancellationToken);
+        await accessService.EnsureCanManageAppointmentAsync(request.StaffId, cancellationToken);
 
         if (appointment.IsFinished)
         {

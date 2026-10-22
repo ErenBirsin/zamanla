@@ -1,4 +1,5 @@
 import { useCurrentUser } from '@/features/auth/useCurrentUser'
+import { usePermissions } from '@/features/auth/usePermissions'
 import { formatDayTitle, todayKey } from '@/features/calendar/time'
 import { ApiStatusCard } from '@/features/system/ApiStatusCard'
 import { BookingLinkCard } from './BookingLinkCard'
@@ -11,6 +12,7 @@ import { WeeklyChart } from './WeeklyChart'
 
 export function DashboardPage() {
   const { data: user } = useCurrentUser()
+  const { isOwner } = usePermissions()
   const { steps, completed, isLoading } = useSetupProgress()
   const { data: dashboard, isPending: dashboardPending } = useDashboard()
   const setupDone = completed === steps.length
@@ -22,14 +24,17 @@ export function DashboardPage() {
           {user ? `Merhaba, ${user.firstName}` : 'Genel bakış'}
         </h1>
         <p className="text-muted">
-          {setupDone || isLoading
+          {/* kurulum çağrısı sadece sahibe */}
+          {setupDone || isLoading || !isOwner
             ? `${formatDayTitle(todayKey())} · günün özeti`
             : 'Birkaç adımda salonunu online randevuya hazırlayalım.'}
         </p>
       </header>
 
-      {/* veri gelmeden kart gösterilmez; yoksa adımlar bir an "bekliyor" görünüp sonra işaretlenir */}
-      {!isLoading && !setupDone && <SetupChecklist steps={steps} completed={completed} />}
+      {/* kurulum adımlarını sahip tamamlar; veri gelmeden kart gösterilmez, yoksa adımlar bir an "bekliyor" görünüp sonra işaretlenir */}
+      {isOwner && !isLoading && !setupDone && (
+        <SetupChecklist steps={steps} completed={completed} />
+      )}
 
       {dashboardPending ? (
         <p className="text-sm text-muted">Özet yükleniyor…</p>

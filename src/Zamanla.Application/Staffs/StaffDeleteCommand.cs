@@ -2,6 +2,8 @@ using GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
@@ -11,6 +13,7 @@ using Zamanla.Domain.Tenants;
 
 namespace Zamanla.Application.Staffs;
 
+[Permission(PermissionCatalog.StaffManage)]
 public sealed record StaffDeleteCommand(Guid Id) : IRequest<Result<string>>;
 
 internal sealed class StaffDeleteCommandHandler(
@@ -20,6 +23,7 @@ internal sealed class StaffDeleteCommandHandler(
     ITenantRepository tenantRepository,
     ITenantContext tenantContext,
     TimeProvider timeProvider,
+    StaffAccountService staffAccountService,
     IUnitOfWork unitOfWork) : IRequestHandler<StaffDeleteCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(StaffDeleteCommand request, CancellationToken cancellationToken)
@@ -40,6 +44,7 @@ internal sealed class StaffDeleteCommandHandler(
 
         staff.Delete();
         staffRepository.Update(staff);
+        await staffAccountService.CloseForStaffAsync(staff.Id, cancellationToken);
 
         try
         {

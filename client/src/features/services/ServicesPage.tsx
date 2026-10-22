@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { usePermissions } from '@/features/auth/usePermissions'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 import { formatPrice } from '@/shared/ui/format'
 import { ServiceFormDialog } from './ServiceFormDialog'
 import { deleteService } from './servicesApi'
@@ -12,6 +14,7 @@ export function ServicesPage() {
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<SalonService | null>(null)
+  const canManage = usePermissions().can(PERMISSIONS.servicesManage)
 
   const categories = [...new Set(services.map((service) => service.category))]
 
@@ -46,13 +49,15 @@ export function ServicesPage() {
           <h1 className="text-3xl font-bold">Hizmetler</h1>
           <p className="text-muted">Müşterilerin randevu alırken seçeceği hizmetler.</p>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="h-11 cursor-pointer rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark"
-        >
-          Hizmet ekle
-        </button>
+        {canManage && (
+          <button
+            type="button"
+            onClick={openCreate}
+            className="h-11 cursor-pointer rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark"
+          >
+            Hizmet ekle
+          </button>
+        )}
       </header>
 
       {isPending ? (
@@ -104,22 +109,24 @@ export function ServicesPage() {
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <div className="flex justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openEdit(service)}
-                        className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
-                      >
-                        Düzenle
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => remove(service)}
-                        className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                      >
-                        Sil
-                      </button>
-                    </div>
+                    {canManage && (
+                      <div className="flex justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => openEdit(service)}
+                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
+                        >
+                          Düzenle
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => remove(service)}
+                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
+                        >
+                          Sil
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

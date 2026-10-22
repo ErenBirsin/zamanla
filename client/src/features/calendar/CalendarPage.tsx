@@ -8,6 +8,8 @@ import { DayGrid } from './DayGrid'
 import { addDays, formatDayTitle, todayKey } from './time'
 import { useDayAppointments } from './useDayAppointments'
 import { useDayTimeOffs } from '@/features/time-offs/useTimeOffs'
+import { usePermissions } from '@/features/auth/usePermissions'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 
 const iconButton =
   'flex size-10 cursor-pointer items-center justify-center rounded-full border border-line bg-surface hover:bg-sand-soft'
@@ -38,6 +40,8 @@ export function CalendarPage() {
   const { data: staff = [], isPending: staffPending } = useStaff()
   const { data: appointments = [], isPending: appointmentsPending } = useDayAppointments(dateKey)
   const { data: timeOffs = [] } = useDayTimeOffs(dateKey)
+  const { can, canManageAppointment } = usePermissions()
+  const canViewRevenue = can(PERMISSIONS.revenueView)
   const activeStaff = staff.filter((member) => member.isActive)
   const salonClosed = timeOffs.find((timeOff) => timeOff.staffId === null)
   // null: kapalı; boş alana tıklanınca personel ve saat dolu gelir
@@ -115,9 +119,11 @@ export function CalendarPage() {
         <span className="rounded-full border border-line bg-surface px-3.5 py-2">
           <strong className="text-ink">{appointments.length}</strong> randevu
         </span>
-        <span className="rounded-full border border-line bg-surface px-3.5 py-2">
-          <strong className="text-ink">{formatPrice(expectedRevenue)}</strong> beklenen ciro
-        </span>
+        {canViewRevenue && (
+          <span className="rounded-full border border-line bg-surface px-3.5 py-2">
+            <strong className="text-ink">{formatPrice(expectedRevenue)}</strong> beklenen ciro
+          </span>
+        )}
         {salonClosed && (
           <span className="rounded-full border border-clay/30 bg-clay-soft px-3.5 py-2 font-semibold text-clay-dark">
             Salon kapalı{salonClosed.note && ` · ${salonClosed.note}`}
@@ -158,6 +164,7 @@ export function CalendarPage() {
                   ? undefined
                   : (staffId, minutes) => setFormStart({ staffId, minutes })
               }
+              canAddFor={canManageAppointment} //  yetkisi olmayan personel sadece kendi sütununa randevu ekler
               selectedId={selectedId}
               onSelect={setSelectedId}
             />

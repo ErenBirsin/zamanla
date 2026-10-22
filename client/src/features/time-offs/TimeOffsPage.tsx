@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { usePermissions } from '@/features/auth/usePermissions'
 import { appointmentsQueryKey } from '@/features/calendar/useDayAppointments'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 import { describeTimeOff } from './format'
 import { TimeOffFormDialog } from './TimeOffFormDialog'
 import { deleteTimeOff } from './timeOffsApi'
@@ -12,6 +14,7 @@ export function TimeOffsPage() {
   const { data: timeOffs = [], isPending } = useTimeOffs()
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
+  const canManage = usePermissions().can(PERMISSIONS.timeOffsManage)
 
   const deleteMutation = useMutation({
     mutationFn: deleteTimeOff,
@@ -39,13 +42,15 @@ export function TimeOffsPage() {
             Personel izinleri ve salonun kapalı olduğu günler. Bu saatlerde randevu alınamaz.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setFormOpen(true)}
-          className="h-11 cursor-pointer rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark"
-        >
-          İzin ekle
-        </button>
+        {canManage && (
+          <button
+            type="button"
+            onClick={() => setFormOpen(true)}
+            className="h-11 cursor-pointer rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark"
+          >
+            İzin ekle
+          </button>
+        )}
       </header>
 
       {isPending ? (
@@ -90,15 +95,17 @@ export function TimeOffsPage() {
                     <td className="px-5 py-3.5 text-ink-soft tabular-nums">{time}</td>
                     <td className="px-5 py-3.5 text-ink-soft">{timeOff.note ?? '—'}</td>
                     <td className="px-5 py-3.5">
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => remove(timeOff)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                        >
-                          Sil
-                        </button>
-                      </div>
+                      {canManage && (
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => remove(timeOff)}
+                            className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
+                          >
+                            Sil
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 )

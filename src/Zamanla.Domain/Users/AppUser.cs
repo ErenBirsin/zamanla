@@ -6,6 +6,7 @@ namespace Zamanla.Domain.Users;
 
 public sealed class AppUser : Entity, ITenantEntity
 {
+    private readonly List<Permission> _permissions = new();
     private AppUser() { }
 
     public AppUser(
@@ -32,10 +33,18 @@ public sealed class AppUser : Entity, ITenantEntity
     public Password Password { get; private set; } = default!;
     public UserRole Role { get; private set; }
     public bool IsActive { get; private set; }
-
+    // personel hesabıysa takvimdeki personel kaydı; sahipte boş
+    public Guid? StaffId { get; private set; }
+    // sahibin yetki listesi boştur, her şeyi yapabilir
+    public IReadOnlyCollection<Permission> Permissions => _permissions;
+    public bool IsOwner => Role == UserRole.Owner;
     public string FullName => $"{FirstName.Value} {LastName.Value}";
 
     #region Behaviors
+    public bool HasPermission(string permission)
+    {
+        return IsOwner || _permissions.Any(p => p.Value == permission);
+    }
     public bool VerifyPassword(string password)
     {
         return Password.Verify(password);
@@ -64,6 +73,17 @@ public sealed class AppUser : Entity, ITenantEntity
     public void SetRole(UserRole role)
     {
         Role = role;
+    }
+
+    public void SetStaffId(Guid? staffId)
+    {
+        StaffId = staffId;
+    }
+
+    public void SetPermissions(IEnumerable<Permission> permissions)
+    {
+        _permissions.Clear();
+        _permissions.AddRange(permissions);
     }
 
     public void Activate()

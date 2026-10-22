@@ -1,6 +1,7 @@
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Permissions;
 using Zamanla.Domain.Appointments;
 using Zamanla.Domain.Customers;
 
@@ -12,6 +13,7 @@ internal sealed class AppointmentNoShowCommandHandler(
     IAppointmentRepository appointmentRepository,
     ICustomerRepository customerRepository,
     TimeProvider timeProvider,
+    AccessService accessService,
     IUnitOfWork unitOfWork) : IRequestHandler<AppointmentNoShowCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(AppointmentNoShowCommand request, CancellationToken cancellationToken)
@@ -21,6 +23,8 @@ internal sealed class AppointmentNoShowCommandHandler(
         {
             return Result<string>.Failure(404, "Randevu bulunamadı");
         }
+
+        await accessService.EnsureCanManageAppointmentAsync(appointment.StaffId, cancellationToken);
 
         if (appointment.IsFinished)
         {

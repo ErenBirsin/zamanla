@@ -2,6 +2,7 @@ using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Appointments;
 using Zamanla.Application.Public;
+using Zamanla.Application.Services;
 
 namespace Zamanla.WebAPI.Modules;
 
@@ -71,5 +72,21 @@ public static class PublicModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<string>>();
+
+        app.MapGet("invitations/{token}",
+            async (string token, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new PublicInvitationGetQuery(token), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<PublicInvitationDto>>();
+
+        app.MapPost("invitations/{token}/accept",
+            async (string token, PublicInvitationAcceptCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request with { Token = token }, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<AuthTokens>>();
     }
 }

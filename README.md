@@ -18,6 +18,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - İzinler: personel izni ve bayram gibi salonun kapalı olduğu günler, tüm gün ya da saat aralığıyla.
 - Bildirimler: müşteri online randevu alınca, linkten iptal edince ya da saatini değiştirince zil ile haber verilir; okunmamış sayısı ve okundu işareti tutulur.
 - Ayarlar: salon adı, adres, telefon ve online randevu kuralları.
+- Personel hesapları: salon sahibi personeli e-postayla gönderilen davet linkiyle panele çağırır, yetkilerini personel başına seçer ve hesabı pasif yapabilir. Yetkisi olmayan personel takvimi görür, müşteri ekler ve kendi randevularını yönetir; ciro, ayarlar ve diğer yönetim ekranları yetkiye göre açılır.
 
 ### Müşteri tarafı
 
@@ -33,7 +34,8 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Onaylı randevusu olan bir aralığa izin ya da kapalı gün girilemez; etkilenen randevular listelenir.
 - Aynı saate aynı anda gelen iki randevudan yalnızca biri kaydedilir.
 - Online randevu kuralları her salon için ayarlardan değiştirilebilir: kaç gün ilerisi (varsayılan 60), linkten iptal için son süre (varsayılan 3 saat) ve aynı telefonla en fazla ileri tarihli randevu (varsayılan 5).
-- Yönetim linkindeki anahtar veritabanında açık haliyle değil, SHA-256 özetiyle saklanır.
+- Yönetim ve davet linklerindeki anahtarlar veritabanında açık haliyle değil, SHA-256 özetiyle saklanır. Davet linki 7 gün geçerlidir ve bir kez kullanılabilir.
+- Yetkiler her istekte veritabanından okunur; yetki geri alınınca ya da hesap pasif yapılınca hemen geçerli olur, pasif hesabın açık oturumları kapanır. Başka personelin randevusu için ayrı yetki gerekir, ciro yetkisi olmayana ciro bilgisi API'den hiç gönderilmez.
 - JWT access token (15 dk) ve refresh token (14 gün). Kullanılmış bir refresh token tekrar gelirse açık oturumlar kapatılır. Süresi dolan token'lar günde bir silinir.
 - E-posta ya da SMS gönderilemezse randevu yine oluşturulur. Hatırlatma bir sonraki turda tekrar denenir.
 - Giriş, kayıt ve herkese açık uçlarda IP bazlı istek sınırı.
@@ -44,7 +46,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 ### Backend
 
 - **Mimari:** Clean Architecture (Domain, Application, Infrastructure, WebAPI)
-- **Desenler:** CQRS, Result, Repository, Unit of Work
+- **Desenler:** CQRS, Result, Repository, Unit of Work, `[Permission]` etiketiyle yetki kontrolü
 - **.NET 10, ASP.NET Core Web API:** Minimal API modülleri ve OData uçları
 - **Entity Framework Core + SQL Server:** veri erişimi, global query filter ile salon ve silinmiş kayıt ayrımı
 - **TS.MediatR:** CQRS ve pipeline davranışları için
@@ -171,6 +173,8 @@ Geliştirme ortamında API ilk açıldığında "Demo Kuaför" adında dolu bir 
 
 Bu hesap yalnızca yerel geliştirme içindir.
 
+Personel hesabını denemek için Personel sayfasında bir personelin "Hesap" düğmesinden davet gönderebilirsin. Link e-postayla gelir (bkz. smtp4dev) ve pencerede de gösterilir; linkten şifre belirleyen personel panele kendi yetkileriyle girer.
+
 Demo verisini sıfırdan oluşturmak için veritabanını silip tekrar kurabilirsin:
 
 ```bash
@@ -213,12 +217,12 @@ client/
 - [x] Aşama 3: Randevular ve günlük takvim
 - [x] Aşama 4: Herkese açık randevu sayfası
 - [x] MVP: Kurulum rehberi ve demo verisi
-- [ ] Aşama 5: v1 katmanı
+- [x] Aşama 5: v1 katmanı
   - [x] 5.1 Salon ayarları
   - [x] 5.2 Personel izni ve kapalı günler
   - [x] 5.3 Hatırlatmalar (e-posta ve SMS)
   - [x] 5.4 Canlı takvim ve bildirim zili (SignalR)
   - [x] 5.5 Günlük özet
-  - [ ] 5.6 Personel hesapları ve yetkiler
+  - [x] 5.6 Personel hesapları ve yetkiler
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).

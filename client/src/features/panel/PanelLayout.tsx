@@ -1,18 +1,28 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { NavLink, Outlet } from 'react-router'
 import { useCurrentUser } from '@/features/auth/useCurrentUser'
+import { usePermissions } from '@/features/auth/usePermissions'
+import { type Permission, PERMISSIONS } from '@/shared/auth/permissions'
 import { useSession } from '@/shared/auth/session'
 import { Logo } from '@/shared/ui/Logo'
 import { useRealtimeUpdates } from '@/shared/realtime/useRealtimeUpdates'
 import { NotificationBell } from '@/features/notifications/NotificationBell'
 
-const navItems = [
+interface NavItem {
+  to: string
+  label: string
+  end: boolean
+  // yoksa herkes görür
+  permission?: Permission
+}
+
+const navItems: NavItem[] = [
   { to: '/app', label: 'Genel bakış', end: true },
   { to: '/app/calendar', label: 'Takvim', end: false },
   { to: '/app/services', label: 'Hizmetler', end: false },
   { to: '/app/staff', label: 'Personel', end: false },
   { to: '/app/customers', label: 'Müşteriler', end: false },
-  { to: '/app/settings', label: 'Ayarlar', end: false },
+  { to: '/app/settings', label: 'Ayarlar', end: false, permission: PERMISSIONS.settingsManage },
   { to: '/app/time-offs', label: 'İzinler', end: false },
 ]
 
@@ -22,6 +32,7 @@ const roleLabels = { Owner: 'İşletme sahibi', Staff: 'Personel' }
 
 export function PanelLayout() {
   const { data: user } = useCurrentUser()
+  const { can } = usePermissions()
   const clearSession = useSession((state) => state.clear)
   const queryClient = useQueryClient()
   useRealtimeUpdates()
@@ -45,18 +56,20 @@ export function PanelLayout() {
         </div>
 
         <nav className="flex flex-col gap-0.5">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `rounded-xl px-3 py-2.5 text-sm font-semibold ${isActive ? 'bg-clay-soft text-clay-dark' : 'text-ink-soft hover:bg-line-soft'}`
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
+          {navItems
+            .filter((item) => !item.permission || can(item.permission))
+            .map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `rounded-xl px-3 py-2.5 text-sm font-semibold ${isActive ? 'bg-clay-soft text-clay-dark' : 'text-ink-soft hover:bg-line-soft'}`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
           {upcomingItems.map((item) => (
             <span
               key={item}

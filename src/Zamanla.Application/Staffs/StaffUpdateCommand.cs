@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using TS.MediatR;
 using TS.Result;
 using Zamanla.Application.Appointments;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Application.Tenants;
 using Zamanla.Domain.Appointments;
@@ -18,6 +20,7 @@ using Zamanla.Domain.Tenants;
 
 namespace Zamanla.Application.Staffs;
 
+[Permission(PermissionCatalog.StaffManage)]
 public sealed record StaffUpdateCommand(
     Guid Id,
     string FirstName,
@@ -62,6 +65,7 @@ internal sealed class StaffUpdateCommandHandler(
     ITenantRepository tenantRepository,
     ITenantContext tenantContext,
     TimeProvider timeProvider,
+    StaffAccountService staffAccountService,
     IUnitOfWork unitOfWork) : IRequestHandler<StaffUpdateCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(StaffUpdateCommand request, CancellationToken cancellationToken)
@@ -112,6 +116,12 @@ internal sealed class StaffUpdateCommandHandler(
         #endregion
 
         staffRepository.Update(staff);
+        await staffAccountService.SyncNameAsync(staff, cancellationToken);
+        if (!staff.IsActive)
+        {
+            // pasif personel panele de giremez; tekrar aktif yapılınca hesabı sahip ayrıca açar
+            await staffAccountService.CloseForStaffAsync(staff.Id, cancellationToken);
+        }
 
         try
         {

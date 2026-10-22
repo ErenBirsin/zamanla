@@ -69,6 +69,7 @@ public static class InfrastructureRegistrar
         services.AddScoped<ISmsService, FakeSmsService>();
         services.Configure<ClientOptions>(configuration.GetSection("Client"));
         services.AddScoped<IAppointmentNotificationService, AppointmentNotificationService>();
+        services.AddScoped<IInvitationMailService, InvitationMailService>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");

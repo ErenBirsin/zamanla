@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using TS.Result;
+using Zamanla.Application.Behaviors;
 
 namespace Zamanla.WebAPI;
 
@@ -21,6 +22,10 @@ internal sealed class ExceptionHandler(ILogger<ExceptionHandler> logger) : IExce
                 .ToList();
 
             result = Result<string>.Failure(StatusCodes.Status422UnprocessableEntity, messages);
+        }
+        else if (exception is AuthorizationException authorizationException)
+        {
+            result = Result<string>.Failure(StatusCodes.Status403Forbidden, authorizationException.Message);
         }
         else if (exception is BadHttpRequestException badRequestException)
         {

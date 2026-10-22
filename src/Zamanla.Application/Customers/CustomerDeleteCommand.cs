@@ -1,10 +1,13 @@
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Domain.Customers;
 
 namespace Zamanla.Application.Customers;
 
+[Permission(PermissionCatalog.CustomersDelete)]
 public sealed record CustomerDeleteCommand(Guid Id) : IRequest<Result<string>>;
 
 internal sealed class CustomerDeleteCommandHandler(

@@ -2,6 +2,8 @@ using FluentValidation;
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
 using Zamanla.Domain.Shared;
 using Zamanla.Domain.Tenants;
@@ -9,6 +11,7 @@ using Zamanla.Domain.Tenants.ValueObjects;
 
 namespace Zamanla.Application.Settings;
 
+[Permission(PermissionCatalog.SettingsManage)]
 // slug bilerek yok: müşterilere paylaşılmış linkler bozulmasın
 public sealed record SettingsUpdateCommand(
     string Name,

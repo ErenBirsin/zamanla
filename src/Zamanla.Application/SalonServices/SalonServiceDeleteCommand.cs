@@ -1,10 +1,13 @@
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Domain.SalonServices;
 
 namespace Zamanla.Application.SalonServices;
 
+[Permission(PermissionCatalog.ServicesManage)]
 public sealed record SalonServiceDeleteCommand(Guid Id) : IRequest<Result<string>>;
 
 internal sealed class SalonServiceDeleteCommandHandler(

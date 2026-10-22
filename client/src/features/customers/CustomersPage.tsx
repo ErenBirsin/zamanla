@@ -7,6 +7,8 @@ import { deleteCustomer } from './customersApi'
 import { formatPhone } from './phone'
 import type { Customer } from './types'
 import { customersQueryKey, useCustomers } from './useCustomers'
+import { usePermissions } from '@/features/auth/usePermissions'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 
 export function CustomersPage() {
   const [search, setSearch] = useState('')
@@ -15,6 +17,8 @@ export function CustomersPage() {
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Customer | null>(null)
+  // ekleme ve düzenleme herkese açık, randevu alırken gerekiyor
+  const canDelete = usePermissions().can(PERMISSIONS.customersDelete)
 
   const deleteMutation = useMutation({
     mutationFn: deleteCustomer,
@@ -130,13 +134,15 @@ export function CustomersPage() {
                       >
                         Düzenle
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => remove(customer)}
-                        className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                      >
-                        Sil
-                      </button>
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={() => remove(customer)}
+                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
+                        >
+                          Sil
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

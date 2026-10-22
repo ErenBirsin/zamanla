@@ -1,6 +1,7 @@
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Permissions;
 using Zamanla.Domain.Appointments;
 
 namespace Zamanla.Application.Appointments;
@@ -10,6 +11,7 @@ public sealed record AppointmentCompleteCommand(Guid Id) : IRequest<Result<strin
 internal sealed class AppointmentCompleteCommandHandler(
     IAppointmentRepository appointmentRepository,
     TimeProvider timeProvider,
+    AccessService accessService,
     IUnitOfWork unitOfWork) : IRequestHandler<AppointmentCompleteCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(AppointmentCompleteCommand request, CancellationToken cancellationToken)
@@ -19,6 +21,8 @@ internal sealed class AppointmentCompleteCommandHandler(
         {
             return Result<string>.Failure(404, "Randevu bulunamadı");
         }
+
+        await accessService.EnsureCanManageAppointmentAsync(appointment.StaffId, cancellationToken);
 
         if (appointment.IsFinished)
         {

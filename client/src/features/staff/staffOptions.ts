@@ -1,3 +1,5 @@
+import type { StaffAccountStatus } from './types'
+
 export const staffColors = ['peach', 'sage', 'lavender', 'sky'] as const
 
 export type StaffColor = (typeof staffColors)[number]
@@ -25,3 +27,12 @@ export const weekDays = [
   { day: 6, label: 'Cumartesi', short: 'Cmt' },
   { day: 0, label: 'Pazar', short: 'Paz' },
 ]
+
+// Personel sayfasındaki hesap rozetleri
+export const accountBadgeClasses: Record<StaffAccountStatus, string> = {
+  Aktif: 'bg-sage-soft text-sage',
+  Pasif: 'bg-line-soft text-muted',
+  'Davet gönderildi': 'bg-clay-soft text-clay-dark',
+  'Davetin süresi doldu': 'bg-clay-soft text-clay-dark',
+  'Hesap yok': 'border border-line text-muted',
+}

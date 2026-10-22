@@ -25,17 +25,23 @@ export function TodaySummary({ today }: TodaySummaryProps) {
   const confirmed = today.appointmentCount - today.completedCount - today.noShowCount
 
   return (
-    <section aria-label="Bugünün özeti" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section
+      aria-label="Bugünün özeti"
+      // ciro kartı yoksa üç kart satırı doldurur
+      className={`grid gap-4 sm:grid-cols-2 ${today.expectedRevenue === null ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}
+    >
       <Stat
         label="BUGÜNKÜ RANDEVU"
         value={String(today.appointmentCount)}
         detail={confirmed > 0 ? `${confirmed} tanesi onaylı` : 'Onaylı randevu kalmadı'}
       />
-      <Stat
-        label="BEKLENEN CİRO"
-        value={formatPrice(today.expectedRevenue)}
-        detail="Gelmeyenler hariç"
-      />
+      {today.expectedRevenue !== null && (
+        <Stat
+          label="BEKLENEN CİRO"
+          value={formatPrice(today.expectedRevenue)}
+          detail="Gelmeyenler hariç"
+        />
+      )}
       <Stat
         label="TAMAMLANAN"
         value={String(today.completedCount)}

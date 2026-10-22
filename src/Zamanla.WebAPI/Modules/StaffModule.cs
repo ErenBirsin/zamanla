@@ -44,5 +44,30 @@ public static class StaffModule
                 return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
             })
             .Produces<Result<StaffDto>>();
+
+        // hesap uçları sadece salon sahibine açık
+        app.MapGet("accounts",
+            async (ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(new StaffAccountGetAllQuery(), cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<List<StaffAccountDto>>>();
+
+        app.MapPut("accounts/permissions",
+            async (StaffAccountPermissionsUpdateCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<string>>();
+
+        app.MapPut("accounts/status",
+            async (StaffAccountStatusUpdateCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<string>>();
     }
 }

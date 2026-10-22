@@ -32,12 +32,15 @@ interface WeeklyChartProps {
 const tabButton = 'h-8 cursor-pointer rounded-full px-3 text-xs font-semibold'
 
 export function WeeklyChart({ days }: WeeklyChartProps) {
-  const [metric, setMetric] = useState<Metric>('count')
+  const [selected, setSelected] = useState<Metric>('count')
   const today = todayKey()
+  // ciroyu görme yetkisi yoksa backend null döner; sekme ve ciro satırları gizlenir
+  const showRevenue = days.every((day) => day.revenue !== null)
+  const metric = showRevenue ? selected : 'count'
 
   const totalCount = days.reduce((sum, day) => sum + day.appointmentCount, 0)
-  const totalRevenue = days.reduce((sum, day) => sum + day.revenue, 0)
-  const values = days.map((day) => (metric === 'count' ? day.appointmentCount : day.revenue))
+  const totalRevenue = days.reduce((sum, day) => sum + (day.revenue ?? 0), 0)
+  const values = days.map((day) => (metric === 'count' ? day.appointmentCount : (day.revenue ?? 0)))
 
   const data = {
     labels: days.map((day) => formatShortDay(day.date)),
@@ -65,7 +68,9 @@ export function WeeklyChart({ days }: WeeklyChartProps) {
           // iki bilgi birlikte; hangi sekme açık olursa olsun
           label: (context) => {
             const day = days[context.dataIndex]
-            return [`${day.appointmentCount} randevu`, `${formatPrice(day.revenue)} ciro`]
+            return day.revenue === null
+              ? `${day.appointmentCount} randevu`
+              : [`${day.appointmentCount} randevu`, `${formatPrice(day.revenue)} ciro`]
           },
         },
       },
@@ -97,31 +102,34 @@ export function WeeklyChart({ days }: WeeklyChartProps) {
         <div className="flex flex-col gap-0.5">
           <h2 className="text-xl font-bold">Son 7 gün</h2>
           <span className="text-sm text-muted">
-            {totalCount} randevu · {formatPrice(totalRevenue)} gerçekleşen ciro
+            {totalCount} randevu
+            {showRevenue && ` · ${formatPrice(totalRevenue)} gerçekleşen ciro`}
           </span>
         </div>
-        <div
-          role="group"
-          aria-label="Grafikte gösterilen"
-          className="flex rounded-full bg-sand-soft p-1"
-        >
-          <button
-            type="button"
-            aria-pressed={metric === 'count'}
-            onClick={() => setMetric('count')}
-            className={`${tabButton} ${metric === 'count' ? 'bg-surface shadow-sm' : 'text-muted'}`}
+        {showRevenue && (
+          <div
+            role="group"
+            aria-label="Grafikte gösterilen"
+            className="flex rounded-full bg-sand-soft p-1"
           >
-            Randevu
-          </button>
-          <button
-            type="button"
-            aria-pressed={metric === 'revenue'}
-            onClick={() => setMetric('revenue')}
-            className={`${tabButton} ${metric === 'revenue' ? 'bg-surface shadow-sm' : 'text-muted'}`}
-          >
-            Ciro
-          </button>
-        </div>
+            <button
+              type="button"
+              aria-pressed={metric === 'count'}
+              onClick={() => setSelected('count')}
+              className={`${tabButton} ${metric === 'count' ? 'bg-surface shadow-sm' : 'text-muted'}`}
+            >
+              Randevu
+            </button>
+            <button
+              type="button"
+              aria-pressed={metric === 'revenue'}
+              onClick={() => setSelected('revenue')}
+              className={`${tabButton} ${metric === 'revenue' ? 'bg-surface shadow-sm' : 'text-muted'}`}
+            >
+              Ciro
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="relative h-64">
@@ -129,11 +137,19 @@ export function WeeklyChart({ days }: WeeklyChartProps) {
           data={data}
           options={options}
           role="img"
-          aria-label={`Son 7 günde ${totalCount} randevu ve ${formatPrice(totalRevenue)} ciro`}
+          aria-label={
+            showRevenue
+              ? `Son 7 günde ${totalCount} randevu ve ${formatPrice(totalRevenue)} ciro`
+              : `Son 7 günde ${totalCount} randevu`
+          }
         />
       </div>
 
-      <p className="text-xs text-muted">İptaller sayılmaz; ciro sadece tamamlanan randevulardan.</p>
+      <p className="text-xs text-muted">
+        {showRevenue
+          ? 'İptaller sayılmaz; ciro sadece tamamlanan randevulardan.'
+          : 'İptal edilen randevular sayılmaz.'}
+      </p>
     </section>
   )
 }

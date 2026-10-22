@@ -2,7 +2,9 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using TS.MediatR;
 using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Application.Services;
+using Zamanla.Application.Staffs;
 
 namespace Zamanla.Application;
 
@@ -15,12 +17,16 @@ public static class ApplicationRegistrar
         services.AddMediatR(options =>
         {
             options.RegisterServicesFromAssembly(assembly);
+            // yetkisi olmayanın isteği doğrulanmadan reddedilir
+            options.AddOpenBehavior(typeof(PermissionBehavior<,>));
             options.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
         services.AddScoped<AppointmentBookingService>();
         services.AddScoped<AppointmentReminderService>();
+        services.AddScoped<StaffAccountService>();
+        services.AddScoped<AccessService>();
 
         return services;
     }

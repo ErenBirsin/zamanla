@@ -30,6 +30,8 @@ interface DayGridProps {
   staff: Staff[]
   appointments: Appointment[]
   onEmptyClick?: (staffId: string, minutes: number) => void
+  // verilmezse bütün sütunlara randevu eklenebilir
+  canAddFor?: (staffId: string) => boolean
   selectedId: string | null
   onSelect: (id: string) => void
   timeOffs: TimeOff[]
@@ -105,6 +107,7 @@ export function DayGrid({
   appointments,
   timeOffs,
   onEmptyClick,
+  canAddFor,
   selectedId,
   onSelect,
 }: DayGridProps) {
@@ -135,8 +138,11 @@ export function DayGrid({
   const toTop = (minutes: number) => (minutes - bounds.start) * PX_PER_MINUTE
 
   // boş alana tıklanan yer 15 dakikaya yuvarlanır; kart ve taralı alan tıklamaları sayılmaz
+  const canAdd = (staffId: string) => onEmptyClick !== undefined && (canAddFor?.(staffId) ?? true)
+
+  // boş alana tıklanan yer 15 dakikaya yuvarlanır; kart ve taralı alan tıklamaları sayılmaz
   const handleColumnClick = (staffId: string, event: MouseEvent<HTMLDivElement>) => {
-    if (!onEmptyClick || event.target !== event.currentTarget) return
+    if (!onEmptyClick || !canAdd(staffId) || event.target !== event.currentTarget) return
     const offset = event.clientY - event.currentTarget.getBoundingClientRect().top
     const minutes = bounds.start + Math.floor(offset / PX_PER_MINUTE / 15) * 15
     onEmptyClick(staffId, minutes)
@@ -184,7 +190,7 @@ export function DayGrid({
           {columns.map((column) => (
             <div
               key={column.id}
-              className={`relative border-l border-line-soft ${onEmptyClick ? 'cursor-pointer' : ''}`}
+              className={`relative border-l border-line-soft ${canAdd(column.id) ? 'cursor-pointer' : ''}`}
               onClick={(event) => handleColumnClick(column.id, event)}
               style={{
                 height,

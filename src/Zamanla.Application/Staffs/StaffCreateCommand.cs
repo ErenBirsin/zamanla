@@ -2,6 +2,8 @@ using FluentValidation;
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Domain.SalonServices;
 using Zamanla.Domain.Shared;
 using Zamanla.Domain.Staffs;
@@ -9,6 +11,7 @@ using Zamanla.Domain.Staffs.ValueObjects;
 
 namespace Zamanla.Application.Staffs;
 
+[Permission(PermissionCatalog.StaffManage)]
 public sealed record StaffCreateCommand(
     string FirstName,
     string LastName,

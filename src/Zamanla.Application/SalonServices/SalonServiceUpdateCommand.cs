@@ -2,12 +2,15 @@ using FluentValidation;
 using GenericRepository;
 using TS.MediatR;
 using TS.Result;
+using Zamanla.Application.Behaviors;
+using Zamanla.Application.Permissions;
 using Zamanla.Domain.SalonServices;
 using Zamanla.Domain.SalonServices.ValueObjects;
 using Zamanla.Domain.Shared;
 
 namespace Zamanla.Application.SalonServices;
 
+[Permission(PermissionCatalog.ServicesManage)]
 public sealed record SalonServiceUpdateCommand(
     Guid Id,
     string Name,
