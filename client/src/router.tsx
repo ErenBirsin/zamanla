@@ -34,6 +34,17 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        element: <AuthLayout />,
+        children: [
+          {
+            path: '/davet/:slug/:token',
+            lazy: async () => ({
+              Component: (await import('@/features/invitations/InvitationPage')).InvitationPage,
+            }),
+          },
+        ],
+      },
+      {
         path: '/app',
         element: <RequireAuth />,
         children: [
