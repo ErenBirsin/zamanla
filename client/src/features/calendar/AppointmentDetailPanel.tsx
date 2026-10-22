@@ -10,6 +10,7 @@ import { formatClock, formatDateTime, formatDayTitle, todayKey } from './time'
 import type { Appointment } from './types'
 import { appointmentsQueryKey } from './useDayAppointments'
 import { useNow } from './useNow'
+import { usePermissions } from '@/features/auth/usePermissions'
 
 interface AppointmentDetailPanelProps {
   appointment: Appointment
@@ -51,6 +52,8 @@ export function AppointmentDetailPanel({
   }, [appointment.id])
 
   const isOpen = appointment.status === 'Onaylandı'
+  // başka personelin randevusu yetki yoksa sadece görüntülenir
+  const canManage = usePermissions().canManageAppointment(appointment.staffId)
   // tamamlandı ve gelmedi ancak randevu saati gelince işaretlenebilir
   const hasStarted = new Date(appointment.startAt) <= now
   const services = appointment.salonServices.map((service) => service.name).join(' + ')
@@ -179,7 +182,14 @@ export function AppointmentDetailPanel({
         </ol>
       </div>
 
+      {isOpen && !canManage && (
+        <p className="rounded-xl bg-sand px-3.5 py-2.5 text-[13px] text-muted">
+          Bu randevu {appointment.staffFullName} adına; sadece görüntüleyebilirsin.
+        </p>
+      )}
+
       {isOpen &&
+        canManage &&
         (confirming === 'no-show' ? (
           <div className="flex flex-col gap-2.5">
             <p className="text-sm">

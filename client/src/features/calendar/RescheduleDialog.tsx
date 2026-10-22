@@ -2,7 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 import { type FormEvent, useId, useState } from 'react'
 import { toast } from 'sonner'
+import { usePermissions } from '@/features/auth/usePermissions'
 import { useStaff } from '@/features/staff/useStaff'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 import { Dialog } from '@/shared/ui/Dialog'
 import { FormError } from '@/shared/ui/FormError'
 import { rescheduleAppointment } from './appointmentsApi'
@@ -28,16 +30,21 @@ export function RescheduleDialog({ appointment, onClose, onRescheduled }: Resche
 
   const salonServiceIds = appointment.salonServices.map((service) => service.salonServiceId)
   const { data: staff = [] } = useStaff()
+  // yetkisi olmayan personel randevuyu başka personele taşıyamaz
+  const manageAll = usePermissions().can(PERMISSIONS.appointmentsManageAll)
   // süre ve hizmetler değişmez; yalnızca hepsini veren aktif personele taşınabilir
   const eligibleStaff = staff.filter(
     (member) =>
-      member.isActive && salonServiceIds.every((id) => member.salonServiceIds.includes(id)),
+      member.isActive &&
+      (manageAll || member.id === appointment.staffId) &&
+      salonServiceIds.every((id) => member.salonServiceIds.includes(id)),
   )
 
   const [pickedStaffId, setStaffId] = useState(appointment.staffId)
-  // randevunun personeli artık bu hizmetleri vermiyorsa "fark etmez" ile başlanır
+  // randevunun personeli artık bu hizmetleri vermiyorsa "fark etmez" ile başlanır;
+  // yetkisi olmayan personelde kendi kaydı kalır, backend uygun saat olmadığını söyler
   const staffId =
-    staff.length === 0 || eligibleStaff.some((member) => member.id === pickedStaffId)
+    !manageAll || staff.length === 0 || eligibleStaff.some((member) => member.id === pickedStaffId)
       ? pickedStaffId
       : ''
   const [date, setDate] = useState(() => {
@@ -104,7 +111,7 @@ export function RescheduleDialog({ appointment, onClose, onRescheduled }: Resche
               }}
               className="h-12 w-full cursor-pointer rounded-xl border border-[#dcd0c1] bg-surface px-3 text-[15px] outline-none focus:border-clay focus:ring-3 focus:ring-clay-soft"
             >
-              <option value="">Fark etmez</option>
+              {manageAll && <option value="">Fark etmez</option>}
               {eligibleStaff.map((member) => (
                 <option key={member.id} value={member.id}>
                   {member.firstName} {member.lastName}

@@ -40,7 +40,8 @@ export function CalendarPage() {
   const { data: staff = [], isPending: staffPending } = useStaff()
   const { data: appointments = [], isPending: appointmentsPending } = useDayAppointments(dateKey)
   const { data: timeOffs = [] } = useDayTimeOffs(dateKey)
-  const canViewRevenue = usePermissions().can(PERMISSIONS.revenueView)
+  const { can, canManageAppointment } = usePermissions()
+  const canViewRevenue = can(PERMISSIONS.revenueView)
   const activeStaff = staff.filter((member) => member.isActive)
   const salonClosed = timeOffs.find((timeOff) => timeOff.staffId === null)
   // null: kapalı; boş alana tıklanınca personel ve saat dolu gelir
@@ -163,6 +164,7 @@ export function CalendarPage() {
                   ? undefined
                   : (staffId, minutes) => setFormStart({ staffId, minutes })
               }
+              canAddFor={canManageAppointment} //  yetkisi olmayan personel sadece kendi sütununa randevu ekler
               selectedId={selectedId}
               onSelect={setSelectedId}
             />

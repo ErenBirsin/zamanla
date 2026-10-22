@@ -14,6 +14,8 @@ import { formatClock, minutesOfDay, minutesToLabel, todayKey } from './time'
 import type { AvailabilitySlot } from './types'
 import { useAvailability } from './useAvailability'
 import { appointmentsQueryKey } from './useDayAppointments'
+import { usePermissions } from '@/features/auth/usePermissions'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 
 interface AppointmentFormDialogProps {
   initialDate: string
@@ -37,11 +39,16 @@ export function AppointmentFormDialog({
   const dateId = useId()
   const staffId = useId()
   const noteId = useId()
+  const { staffId: ownStaffId, can } = usePermissions()
+  // yetkisi olmayan personel sadece kendi adına randevu açar
+  const manageAll = can(PERMISSIONS.appointmentsManageAll)
 
   const [customer, setCustomer] = useState<Customer | null>(null)
   // seçim sırası önemli: hizmetler bu sırayla arka arkaya yapılır
   const [salonServiceIds, setSalonServiceIds] = useState<string[]>([])
-  const [selectedStaffId, setSelectedStaffId] = useState(initialStaffId)
+  const [selectedStaffId, setSelectedStaffId] = useState(
+    manageAll ? initialStaffId : (ownStaffId ?? ''),
+  )
   const [date, setDate] = useState(initialDate)
   const [pickedSlot, setSlot] = useState<AvailabilitySlot | null>(null)
   // takvimde tıklanan saat; boş saatler gelince uygunsa kendiliğinden seçilir
@@ -50,7 +57,9 @@ export function AppointmentFormDialog({
 
   const { data: services = [] } = useServices()
   const { data: staff = [] } = useStaff()
-  const activeStaff = staff.filter((member) => member.isActive)
+  const activeStaff = staff.filter(
+    (member) => member.isActive && (manageAll || member.id === ownStaffId),
+  )
 
   // en az bir aktif personelin verdiği aktif hizmetler
   const bookableServices = services.filter(
@@ -175,7 +184,7 @@ export function AppointmentFormDialog({
               }}
               className="h-12 w-full cursor-pointer rounded-xl border border-[#dcd0c1] bg-surface px-3 text-[15px] outline-none focus:border-clay focus:ring-3 focus:ring-clay-soft"
             >
-              <option value="">Fark etmez</option>
+              {manageAll && <option value="">Fark etmez</option>}
               {eligibleStaff.map((member) => (
                 <option key={member.id} value={member.id}>
                   {member.firstName} {member.lastName}
