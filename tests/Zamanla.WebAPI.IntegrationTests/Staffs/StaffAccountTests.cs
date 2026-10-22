@@ -105,6 +105,21 @@ public sealed class StaffAccountTests(ZamanlaApiFactory factory) : IntegrationTe
     }
 
     [Fact]
+    public async Task WithdrawInvitation_InvalidatesLink()
+    {
+        var salon = await SetupSalonAsync();
+        var token = await InviteAndGetTokenAsync(salon.Owner, salon.MertId, "mert@test.com");
+
+        var response = await salon.Owner.DeleteAsync($"/api/invitations/{salon.MertId}", CancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await Client.GetAsync($"/api/public/{Slug}/invitations/{token}", CancellationToken)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        (await GetAccountsAsync(salon.Owner)).Single(a => a.StaffId == salon.MertId).Status.ShouldBe(StaffAccountStatus.None);
+        // geri alınacak bekleyen davet kalmadı
+        (await salon.Owner.DeleteAsync($"/api/invitations/{salon.MertId}", CancellationToken)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task Invite_UsedEmail_Returns409()
     {
         var salon = await SetupSalonAsync();
