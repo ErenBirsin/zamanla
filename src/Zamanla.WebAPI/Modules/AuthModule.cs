@@ -72,5 +72,15 @@ public static class AuthModule
             })
             .Produces<Result<CurrentUserDto>>()
             .RequireAuthorization();
+
+        app.MapPut("/password",
+            async (ChangePasswordCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<AuthTokens>>()
+            .RequireAuthorization()
+            .RequireRateLimiting("login-fixed");
     }
 }
