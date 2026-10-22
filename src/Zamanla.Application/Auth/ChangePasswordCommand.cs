@@ -55,12 +55,9 @@ internal sealed class ChangePasswordCommandHandler(
         appUserRepository.Update(user);
 
         var refreshTokens = await refreshTokenRepository
-            .WhereWithTracking(t => t.UserId == user.Id && t.IsActive.Value)
+            .WhereWithTracking(t => t.UserId == user.Id)
             .ToListAsync(cancellationToken);
-        foreach (var refreshToken in refreshTokens)
-        {
-            refreshToken.SetIsActive(new(false));
-        }
+        refreshTokenRepository.DeleteRange(refreshTokens);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -34,12 +34,9 @@ public sealed class StaffAccountService(
     public async Task RevokeSessionsAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var tokens = await refreshTokenRepository
-            .WhereWithTracking(t => t.UserId == userId && t.IsActive.Value)
+            .WhereWithTracking(t => t.UserId == userId)
             .ToListAsync(cancellationToken);
-        foreach (var token in tokens)
-        {
-            token.SetIsActive(new(false));
-        }
+        refreshTokenRepository.DeleteRange(tokens);
     }
 
     // takvimdeki ad değişince panelde de güncel görünsün; değer nesneleri paylaşılmaz
