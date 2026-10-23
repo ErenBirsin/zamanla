@@ -6,6 +6,7 @@ import { useSession } from '@/shared/auth/session'
 import { FormField } from '@/shared/ui/FormField'
 import { login } from './authApi'
 import { type LoginValues, loginSchema } from './schemas'
+import { PasswordField } from '@/shared/ui/PasswordField'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -44,14 +45,18 @@ export function LoginPage() {
         error={errors.email?.message}
         {...register('email')}
       />
-      <FormField
+      <PasswordField
         label="Şifre"
-        type="password"
         autoComplete="current-password"
         error={errors.password?.message}
         {...register('password')}
       />
-
+      <Link
+        to="/sifremi-unuttum"
+        className="-mt-2 self-end text-sm font-semibold text-clay hover:underline"
+      >
+        Şifremi unuttum
+      </Link>
       <button
         type="submit"
         disabled={loginMutation.isPending}

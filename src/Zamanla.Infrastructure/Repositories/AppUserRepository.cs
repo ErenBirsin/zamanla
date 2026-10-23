@@ -2,6 +2,7 @@ using GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using Zamanla.Domain.Shared;
 using Zamanla.Domain.Users;
+using Zamanla.Domain.Users.ValueObjects;
 using Zamanla.Infrastructure.Context;
 
 namespace Zamanla.Infrastructure.Repositories;
@@ -27,5 +28,13 @@ internal sealed class AppUserRepository : Repository<AppUser, ApplicationDbConte
         return _context.Set<AppUser>()
             .IgnoreQueryFilters([QueryFilterExtensions.TenantFilter])
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+    }
+
+    public Task<AppUser?> GetByForgotPasswordCodeIgnoringTenantAsync(ForgotPasswordCode code, CancellationToken cancellationToken = default)
+    {
+        var hash = code.Value;
+        return _context.Set<AppUser>()
+            .IgnoreQueryFilters([QueryFilterExtensions.TenantFilter])
+            .FirstOrDefaultAsync(u => u.ForgotPasswordCode!.Value == hash, cancellationToken);
     }
 }

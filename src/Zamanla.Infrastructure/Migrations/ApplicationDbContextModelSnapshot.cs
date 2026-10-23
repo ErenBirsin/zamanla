@@ -367,7 +367,13 @@ namespace Zamanla.Infrastructure.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("ForgotPasswordDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsForgotPasswordCompleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Role")
@@ -1523,6 +1529,29 @@ namespace Zamanla.Infrastructure.Migrations
                                 .HasForeignKey("AppUserId");
                         });
 
+                    b.OwnsOne("Zamanla.Domain.Users.ValueObjects.ForgotPasswordCode", "ForgotPasswordCode", b1 =>
+                        {
+                            b1.Property<Guid>("AppUserId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("nvarchar(64)")
+                                .HasColumnName("ForgotPasswordCode");
+
+                            b1.HasKey("AppUserId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique()
+                                .HasFilter("[ForgotPasswordCode] IS NOT NULL");
+
+                            b1.ToTable("AppUsers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppUserId");
+                        });
+
                     b.OwnsOne("Zamanla.Domain.Users.ValueObjects.Password", "Password", b1 =>
                         {
                             b1.Property<Guid>("AppUserId")
@@ -1547,6 +1576,8 @@ namespace Zamanla.Infrastructure.Migrations
 
                     b.Navigation("FirstName")
                         .IsRequired();
+
+                    b.Navigation("ForgotPasswordCode");
 
                     b.Navigation("LastName")
                         .IsRequired();

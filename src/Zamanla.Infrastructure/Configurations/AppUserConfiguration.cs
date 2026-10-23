@@ -36,6 +36,12 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
 
         builder.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
 
+        builder.OwnsOne(u => u.ForgotPasswordCode, code =>
+        {
+            code.Property(c => c.Value).HasColumnName("ForgotPasswordCode").HasMaxLength(64);
+            code.HasIndex(c => c.Value).IsUnique();
+        });
+
         builder.OwnsMany(u => u.Permissions, permission =>
         {
             permission.ToTable("AppUserPermissions");

@@ -8,8 +8,17 @@ export const http = axios.create({
   timeout: 15_000,
 })
 
-// bu uçlardan gelen 401 "oturum bitti" anlamına gelmez
-const anonymousEndpoints = ['/auth/login', '/auth/register', '/auth/refresh']
+// oturumsuz uçlar: token eklenmez, 401 "oturum bitti" anlamına gelmez
+const anonymousEndpoints = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh',
+  '/auth/forgot-password',
+  '/auth/check-forgot-password-code',
+  '/auth/reset-password',
+]
+
+const isAnonymous = (url = '') => anonymousEndpoints.some((endpoint) => url.startsWith(endpoint))
 
 type RetryableRequest = InternalAxiosRequestConfig & { _retry?: boolean }
 
@@ -17,7 +26,7 @@ let refreshPromise: Promise<string> | null = null
 
 http.interceptors.request.use((config) => {
   const { accessToken } = useSession.getState()
-  if (accessToken) {
+  if (accessToken && !isAnonymous(config.url)) {
     config.headers.Authorization = `Bearer ${accessToken}`
   }
   return config
@@ -30,12 +39,7 @@ http.interceptors.response.use(undefined, async (error: unknown) => {
 
   const request = error.config as RetryableRequest | undefined
   const { refreshToken } = useSession.getState()
-  if (
-    !request ||
-    request._retry ||
-    !refreshToken ||
-    anonymousEndpoints.includes(request.url ?? '')
-  ) {
+  if (!request || request._retry || !refreshToken || isAnonymous(request.url)) {
     throw error
   }
 

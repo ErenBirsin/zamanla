@@ -1,5 +1,24 @@
 # Değişiklik günlüğü
 
+## [0.13.0] - 2026-10-23
+
+Aşama 5.7: Şifre sıfırlama ve şifre değiştirme.
+
+### Eklendi
+
+- Şifremi unuttum özelliği eklendi. `POST /api/auth/forgot-password` üzerinden kullanıcının e-posta adresine şifre sıfırlama bağlantısı gönderiliyor. Bağlantı 1 saat geçerli ve yalnızca bir kez kullanılabiliyor. Güvenlik için bağlantının kendisi yerine SHA-256 özeti veritabanında saklanıyor. Yeni bir sıfırlama isteği oluşturulduğunda önceki bağlantı geçersiz oluyor. E-posta adresi kayıtlı olsun veya olmasın aynı cevap dönüyor. Pasif hesaplar ve pasif salonlar için sıfırlama bağlantısı gönderilmiyor.
+- Sıfırlama bağlantısını kontrol etmek için `GET /api/auth/check-forgot-password-code/{code}`, yeni şifreyi kaydetmek için `POST /api/auth/reset-password` uçları eklendi. Şifre sıfırlandığında kullanıcının tüm oturumları kapatılıyor.
+- Giriş yapmış kullanıcıların şifrelerini değiştirebilmesi için `PUT /api/auth/password` ucu eklendi. İşlem sırasında mevcut şifre isteniyor ve yeni şifrenin mevcut şifreyle aynı olmasına izin verilmiyor. Şifre değiştirildiğinde diğer cihazlardaki oturumlar kapatılıyor, işlemin yapıldığı cihaza yeni token veriliyor.
+- Kayıt, davet kabulü, şifre sıfırlama ve şifre değiştirme işlemlerindeki şifre kuralları güncellendi. Şifrenin en az 8 karakter olması, büyük ve küçük harf, rakam ve özel karakter içermesi gerekiyor. Türkçe harfler de büyük ve küçük harf kontrolüne dahil edildi. Kurallar hem formlarda hem de API tarafında kontrol ediliyor. Mevcut şifreler bu değişiklikten etkilenmiyor. Demo salonun şifresi `Demo12345!` olarak güncellendi.
+- Giriş sayfasına "Şifremi unuttum" bağlantısı eklendi. Şifre sıfırlama isteği gönderme ve yeni şifre belirleme sayfaları da hazırlandı. Bu sayfalar, salonun ortak bilgisayarında başka bir kullanıcı oturum açmış olsa bile kullanılabiliyor.
+- Şifre alanlarına göster/gizle düğmesi eklendi. Kayıt, davet kabulü ve şifre sıfırlama sayfalarında ve şifre değiştirme penceresinde şifre gücünü gösteren çubuk ve şifre kurallarının listesi de yer alıyor.
+- Panelde şifre değiştirmek için "Şifreyi değiştir" penceresi eklendi.
+- Şifre sıfırlama, şifre değiştirme ve şifre kurallarıyla ilgili birim ve entegrasyon testleri eklendi. Toplam test sayısı 159'a ulaştı.
+
+### Düzeltildi
+
+- Şifre değiştirildiğinde veya hesap pasif yapıldığında oturumlar kapatılırken refresh token'lar kullanılmış olarak işaretleniyordu. Eski bir cihazdan gelen yenileme isteği, token'ın çalındığı şeklinde algılanabiliyor ve yeni açılan oturumun da kapanmasına neden oluyordu. Artık bu token'lar siliniyor.
+
 ## [0.12.0] - 2026-10-22
 
 Aşama 5.6: Personel hesapları ve yetkilendirme.

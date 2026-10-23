@@ -40,7 +40,7 @@ public static class ExtensionMethods
         #region Salon ve Sahibi
         // kayıt ekranıyla aynı yol: salon ve sahibi birlikte açılır, şifre hash'lenir
         var register = await sender.Send(new RegisterBusinessCommand(
-            "Demo Kuaför", DemoSlug, "Demo", "Kullanıcı", "demo@zamanla.test", "Demo12345"));
+             "Demo Kuaför", DemoSlug, "Demo", "Kullanıcı", "demo@zamanla.test", "Demo12345!"));
         if (!register.IsSuccessful)
         {
             return;

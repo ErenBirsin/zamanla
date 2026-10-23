@@ -27,7 +27,7 @@ public sealed class StaffAccountTests(ZamanlaApiFactory factory) : IntegrationTe
 {
     private const string Slug = "salon-a";
     private const string ElifEmail = "elif@test.com";
-    private const string Password = "Personel123";
+    private const string Password = "Personel123!";
 
     #region Davet
     [Fact]

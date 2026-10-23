@@ -1,12 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { Link, useNavigate, useParams } from 'react-router'
 import { formatDateTime } from '@/features/calendar/time'
 import { useSession } from '@/shared/auth/session'
 import { FormError } from '@/shared/ui/FormError'
 import { FormField } from '@/shared/ui/FormField'
+import { PasswordField } from '@/shared/ui/PasswordField'
+import { PasswordStrength } from '@/shared/ui/PasswordStrength'
 import { acceptInvitation, getInvitation } from './invitationsApi'
 import { type InvitationValues, invitationSchema } from './schemas'
 
@@ -28,8 +30,10 @@ export function InvitationPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<InvitationValues>({ resolver: zodResolver(invitationSchema) })
+  const password = useWatch({ control, name: 'password', defaultValue: '' })
 
   const acceptMutation = useMutation({
     mutationFn: (values: InvitationValues) => acceptInvitation(slug, token, values.password),
@@ -92,17 +96,15 @@ export function InvitationPage() {
       </header>
 
       <FormField label="E-posta" type="email" value={email} readOnly disabled />
-      <FormField
+      <PasswordField
         label="Şifre"
-        type="password"
         autoComplete="new-password"
-        hint="En az 8 karakter"
         error={errors.password?.message}
         {...register('password')}
       />
-      <FormField
+      <PasswordStrength password={password} />
+      <PasswordField
         label="Şifre tekrar"
-        type="password"
         autoComplete="new-password"
         error={errors.passwordConfirm?.message}
         {...register('passwordConfirm')}

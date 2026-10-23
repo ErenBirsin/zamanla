@@ -5,6 +5,8 @@ import { useForm, useWatch } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { useSession } from '@/shared/auth/session'
 import { FormField } from '@/shared/ui/FormField'
+import { PasswordField } from '@/shared/ui/PasswordField'
+import { PasswordStrength } from '@/shared/ui/PasswordStrength'
 import { registerBusiness } from './authApi'
 import { type RegisterValues, registerSchema } from './schemas'
 import { slugify } from './slugify'
@@ -33,6 +35,7 @@ export function RegisterPage() {
     },
   })
   const slug = useWatch({ control, name: 'slug' })
+  const password = useWatch({ control, name: 'password' })
 
   const registerMutation = useMutation({
     mutationFn: registerBusiness,
@@ -96,14 +99,13 @@ export function RegisterPage() {
         error={errors.email?.message}
         {...register('email')}
       />
-      <FormField
+      <PasswordField
         label="Şifre"
-        type="password"
         autoComplete="new-password"
-        hint="En az 8 karakter"
         error={errors.password?.message}
         {...register('password')}
       />
+      <PasswordStrength password={password} />
 
       <button
         type="submit"

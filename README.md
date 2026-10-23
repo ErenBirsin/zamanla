@@ -9,6 +9,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 ### Salon paneli
 
 - İşletme kaydı ve giriş. Her salonun verisi diğerlerinden ayrı tutulur.
+- Şifremi unuttum ve şifre değiştirme: sıfırlama linki e-postayla gelir; panelden mevcut şifreyle yeni şifre belirlenir. Şifre alanlarında göster/gizle düğmesi ve şifre gücü göstergesi vardır.
 - Genel bakış: bugünün randevu sayısı, beklenen ciro, tamamlanan, gelmeyen ve iptal edilen randevular, sıradaki randevular ve son 7 günün randevu ve ciro grafiği. Takvim değişince sayfa yenilenmeden güncellenir.
 - Hizmetler: süre, hazırlık payı, fiyat ve kategori.
 - Personel: verdiği hizmetler ve haftalık çalışma saatleri. Aynı güne öğle arası gibi birden fazla aralık girilebilir.
@@ -34,7 +35,9 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Onaylı randevusu olan bir aralığa izin ya da kapalı gün girilemez; etkilenen randevular listelenir.
 - Aynı saate aynı anda gelen iki randevudan yalnızca biri kaydedilir.
 - Online randevu kuralları her salon için ayarlardan değiştirilebilir: kaç gün ilerisi (varsayılan 60), linkten iptal için son süre (varsayılan 3 saat) ve aynı telefonla en fazla ileri tarihli randevu (varsayılan 5).
-- Yönetim ve davet linklerindeki anahtarlar veritabanında açık haliyle değil, SHA-256 özetiyle saklanır. Davet linki 7 gün geçerlidir ve bir kez kullanılabilir.
+- Yönetim, davet ve şifre sıfırlama linklerindeki anahtarlar veritabanında açık haliyle değil, SHA-256 özetiyle saklanır. Davet linki 7 gün, şifre sıfırlama linki 1 saat geçerlidir; ikisi de bir kez kullanılabilir.
+- Şifre en az 8 karakter olur, büyük ve küçük harf, rakam ve özel karakter içerir; Türkçe harfler de sayılır. Kural hem formda hem API'de uygulanır.
+- Şifremi unuttum ekranı e-posta kayıtlı olsun olmasın aynı cevabı verir. Şifre değişince ya da sıfırlanınca diğer cihazlardaki oturumlar kapanır.
 - Yetkiler her istekte veritabanından okunur; yetki geri alınınca ya da hesap pasif yapılınca hemen geçerli olur, pasif hesabın açık oturumları kapanır. Başka personelin randevusu için ayrı yetki gerekir, ciro yetkisi olmayana ciro bilgisi API'den hiç gönderilmez.
 - JWT access token (15 dk) ve refresh token (14 gün). Kullanılmış bir refresh token tekrar gelirse açık oturumlar kapatılır. Süresi dolan token'lar günde bir silinir.
 - E-posta ya da SMS gönderilemezse randevu yine oluşturulur. Hatırlatma bir sonraki turda tekrar denenir.
@@ -168,7 +171,7 @@ Geliştirme ortamında API ilk açıldığında "Demo Kuaför" adında dolu bir 
 | --- | --- |
 | Panel | `http://localhost:5173` |
 | E-posta | `demo@zamanla.test` |
-| Şifre | `Demo12345` |
+| Şifre | `Demo12345!` |
 | Randevu sayfası | `http://localhost:5173/b/demo-kuafor` |
 
 Bu hesap yalnızca yerel geliştirme içindir.
@@ -224,5 +227,6 @@ client/
   - [x] 5.4 Canlı takvim ve bildirim zili (SignalR)
   - [x] 5.5 Günlük özet
   - [x] 5.6 Personel hesapları ve yetkiler
+  - [x] 5.7 Şifre sıfırlama ve şifre değiştirme
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).
