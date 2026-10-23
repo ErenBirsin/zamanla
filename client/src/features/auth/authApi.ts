@@ -31,6 +31,14 @@ export async function resetPassword(code: string, newPassword: string) {
   return data.data!
 }
 
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const { data } = await http.put<Result<AuthTokens>>('/auth/password', {
+    currentPassword,
+    newPassword,
+  })
+  return data.data!
+}
+
 export async function getCurrentUser() {
   const { data } = await http.get<Result<CurrentUser>>('/auth/me')
   return data.data!

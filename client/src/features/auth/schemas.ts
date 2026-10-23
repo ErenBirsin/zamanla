@@ -48,8 +48,24 @@ export const resetPasswordSchema = z
     path: ['newPasswordConfirm'],
   })
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Mevcut şifrenizi girin'),
+    newPassword: strongPasswordSchema,
+    newPasswordConfirm: z.string(),
+  })
+  .refine((values) => values.newPassword !== values.currentPassword, {
+    message: 'Yeni şifre mevcut şifreyle aynı olamaz',
+    path: ['newPassword'],
+  })
+  .refine((values) => values.newPassword === values.newPasswordConfirm, {
+    message: 'Şifreler aynı değil',
+    path: ['newPasswordConfirm'],
+  })
+
 export type LoginValues = z.infer<typeof loginSchema>
 export type RegisterValues = z.infer<typeof registerSchema>
 
 export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>
+export type ChangePasswordValues = z.infer<typeof changePasswordSchema>

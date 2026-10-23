@@ -1,5 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router'
+import { ChangePasswordDialog } from '@/features/auth/ChangePasswordDialog'
 import { useCurrentUser } from '@/features/auth/useCurrentUser'
 import { usePermissions } from '@/features/auth/usePermissions'
 import { type Permission, PERMISSIONS } from '@/shared/auth/permissions'
@@ -35,6 +37,7 @@ export function PanelLayout() {
   const { can } = usePermissions()
   const clearSession = useSession((state) => state.clear)
   const queryClient = useQueryClient()
+  const [changingPassword, setChangingPassword] = useState(false)
   useRealtimeUpdates()
 
   const logout = () => {
@@ -87,6 +90,13 @@ export function PanelLayout() {
               {user ? `${user.firstName} ${user.lastName}` : '…'}
             </span>
             <span className="text-xs text-muted">{user ? roleLabels[user.role] : ''}</span>
+            <button
+              type="button"
+              onClick={() => setChangingPassword(true)}
+              className="mt-1 cursor-pointer self-start text-xs font-semibold text-clay hover:underline"
+            >
+              Şifreyi değiştir
+            </button>
           </div>
           <button
             type="button"
@@ -101,6 +111,9 @@ export function PanelLayout() {
       <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
         <Outlet />
       </main>
+
+      {/* her açılışta form boş başlar */}
+      {changingPassword && <ChangePasswordDialog onClose={() => setChangingPassword(false)} />}
     </div>
   )
 }
