@@ -34,12 +34,25 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        // oturum açıkken de açılır: salonun ortak bilgisayarında başka biri girmiş olabilir
         element: <AuthLayout />,
         children: [
           {
             path: '/davet/:slug/:token',
             lazy: async () => ({
               Component: (await import('@/features/invitations/InvitationPage')).InvitationPage,
+            }),
+          },
+          {
+            path: '/sifremi-unuttum',
+            lazy: async () => ({
+              Component: (await import('@/features/auth/ForgotPasswordPage')).ForgotPasswordPage,
+            }),
+          },
+          {
+            path: '/sifre-sifirla/:code',
+            lazy: async () => ({
+              Component: (await import('@/features/auth/ResetPasswordPage')).ResetPasswordPage,
             }),
           },
         ],

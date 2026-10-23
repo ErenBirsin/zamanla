@@ -33,5 +33,22 @@ export const registerSchema = z.object({
   password: z.string().min(8, 'Şifre en az 8 karakter olmalı'),
 })
 
+export const forgotPasswordSchema = z.object({
+  email: z.email('Geçerli bir mail adresi girin'),
+})
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z.string().min(8, 'Şifre en az 8 karakter olmalı'),
+    newPasswordConfirm: z.string(),
+  })
+  .refine((values) => values.newPassword === values.newPasswordConfirm, {
+    message: 'Şifreler aynı değil',
+    path: ['newPasswordConfirm'],
+  })
+
 export type LoginValues = z.infer<typeof loginSchema>
 export type RegisterValues = z.infer<typeof registerSchema>
+
+export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>
+export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>

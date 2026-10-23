@@ -51,7 +51,12 @@ export function LoginPage() {
         error={errors.password?.message}
         {...register('password')}
       />
-
+      <Link
+        to="/sifremi-unuttum"
+        className="-mt-2 self-end text-sm font-semibold text-clay hover:underline"
+      >
+        Şifremi unuttum
+      </Link>
       <button
         type="submit"
         disabled={loginMutation.isPending}
