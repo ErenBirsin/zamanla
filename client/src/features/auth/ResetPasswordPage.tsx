@@ -1,12 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { useSession } from '@/shared/auth/session'
 import { FormError } from '@/shared/ui/FormError'
-import { FormField } from '@/shared/ui/FormField'
+import { PasswordField } from '@/shared/ui/PasswordField'
+import { PasswordStrength } from '@/shared/ui/PasswordStrength'
 import { checkForgotPasswordCode, resetPassword } from './authApi'
 import { type ResetPasswordValues, resetPasswordSchema } from './schemas'
 
@@ -28,8 +29,10 @@ export function ResetPasswordPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<ResetPasswordValues>({ resolver: zodResolver(resetPasswordSchema) })
+  const newPassword = useWatch({ control, name: 'newPassword', defaultValue: '' })
 
   const resetMutation = useMutation({
     mutationFn: (values: ResetPasswordValues) => resetPassword(code, values.newPassword),
@@ -86,17 +89,15 @@ export function ResetPasswordPage() {
         <p className="text-muted">Kaydettikten sonra yeni şifrenle giriş yapabilirsin.</p>
       </header>
 
-      <FormField
+      <PasswordField
         label="Yeni şifre"
-        type="password"
         autoComplete="new-password"
-        hint="En az 8 karakter"
         error={errors.newPassword?.message}
         {...register('newPassword')}
       />
-      <FormField
+      <PasswordStrength password={newPassword} />
+      <PasswordField
         label="Yeni şifre tekrar"
-        type="password"
         autoComplete="new-password"
         error={errors.newPasswordConfirm?.message}
         {...register('newPasswordConfirm')}

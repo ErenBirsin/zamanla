@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { strongPasswordSchema } from '@/shared/auth/passwordRules'
 
 // mesajlar ve sınırlar backend'deki validator'larla aynı
 export const loginSchema = z.object({
@@ -30,7 +31,7 @@ export const registerSchema = z.object({
   email: z
     .email('Geçerli bir mail adresi girin')
     .max(254, 'Mail adresi en fazla 254 karakter olabilir'),
-  password: z.string().min(8, 'Şifre en az 8 karakter olmalı'),
+  password: strongPasswordSchema,
 })
 
 export const forgotPasswordSchema = z.object({
@@ -39,7 +40,7 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
-    newPassword: z.string().min(8, 'Şifre en az 8 karakter olmalı'),
+    newPassword: strongPasswordSchema,
     newPasswordConfirm: z.string(),
   })
   .refine((values) => values.newPassword === values.newPasswordConfirm, {
