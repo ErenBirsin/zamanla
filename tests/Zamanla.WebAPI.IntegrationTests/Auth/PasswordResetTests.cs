@@ -12,13 +12,13 @@ using Zamanla.WebAPI.IntegrationTests.Infrastructure;
 
 namespace Zamanla.WebAPI.IntegrationTests.Auth;
 
-// RegisterAsync'in açtığı salon sahibi: owner@test.com / Zamanla123
+// RegisterAsync'in açtığı salon sahibi: owner@test.com / Zamanla123!
 [Collection(IntegrationTestCollection.Name)]
 public sealed class PasswordResetTests(ZamanlaApiFactory factory) : IntegrationTestBase(factory)
 {
     private const string Email = "owner@test.com";
-    private const string OldPassword = "Zamanla123";
-    private const string NewPassword = "YeniSifre123";
+    private const string OldPassword = "Zamanla123!";
+    private const string NewPassword = "Şifre2026!";
 
     #region Şifremi unuttum
     [Fact]
@@ -88,10 +88,23 @@ public sealed class PasswordResetTests(ZamanlaApiFactory factory) : IntegrationT
         var code = await ForgotPasswordAndGetCodeAsync();
         (await ResetPasswordAsync(code, NewPassword)).EnsureSuccessStatusCode();
 
-        var response = await ResetPasswordAsync(code, "BaskaSifre123");
+        var response = await ResetPasswordAsync(code, "BaskaSifre123!");
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         (await CheckAsync(code)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task ResetPassword_WeakPassword_Returns422()
+    {
+        await RegisterAsync(email: Email);
+        var code = await ForgotPasswordAndGetCodeAsync();
+
+        var response = await ResetPasswordAsync(code, "zamanla2026");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+        // link kullanılmış sayılmaz, kurala uyan şifreyle tekrar denenebilir
+        (await CheckAsync(code)).StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
     [Fact]

@@ -30,7 +30,7 @@ public abstract class IntegrationTestBase(ZamanlaApiFactory factory) : IAsyncLif
 
     protected async Task<AuthTokens> RegisterAsync(string slug = "test-salon", string email = "owner@test.com")
     {
-        var command = new RegisterBusinessCommand("Test Salon", slug, "Test", "Kullanıcı", email, "Zamanla123");
+        var command = new RegisterBusinessCommand("Test Salon", slug, "Test", "Kullanıcı", email, "Zamanla123!");
         var response = await Client.PostAsJsonAsync("/api/auth/register", command, CancellationToken);
         response.EnsureSuccessStatusCode();
 

@@ -23,6 +23,10 @@ public sealed class ChangePasswordCommandValidator : AbstractValidator<ChangePas
         RuleFor(p => p.NewPassword)
             .NotEmpty().WithMessage("Geçerli bir yeni şifre girin")
             .MinimumLength(8).WithMessage("Şifre en az 8 karakter olmalı")
+            .Matches(@"\p{Lu}").WithMessage("Şifre en az bir büyük harf içermeli")
+            .Matches(@"\p{Ll}").WithMessage("Şifre en az bir küçük harf içermeli")
+            .Matches("[0-9]").WithMessage("Şifre en az bir rakam içermeli")
+            .Matches(@"[!@#$%^&*(),.?"":{}|<>]").WithMessage("Şifre en az bir özel karakter içermeli")
             .NotEqual(p => p.CurrentPassword).WithMessage("Yeni şifre mevcut şifreyle aynı olamaz");
     }
 }

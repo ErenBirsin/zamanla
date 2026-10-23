@@ -25,7 +25,7 @@ public sealed class AuthTests(ZamanlaApiFactory factory) : IntegrationTestBase(f
     {
         await RegisterAsync("ayni-salon", "ilk@test.com");
 
-        var command = new RegisterBusinessCommand("Başka Salon", "ayni-salon", "Test", "Kullanıcı", "ikinci@test.com", "Zamanla123");
+        var command = new RegisterBusinessCommand("Başka Salon", "ayni-salon", "Test", "Kullanıcı", "ikinci@test.com", "Zamanla123!");
         var response = await Client.PostAsJsonAsync("/api/auth/register", command, CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
@@ -34,7 +34,7 @@ public sealed class AuthTests(ZamanlaApiFactory factory) : IntegrationTestBase(f
     [Fact]
     public async Task Register_WithInvalidSlug_ReturnsUnprocessableEntity()
     {
-        var command = new RegisterBusinessCommand("Test Salon", "Test Salon", "Test", "Kullanıcı", "owner@test.com", "Zamanla123");
+        var command = new RegisterBusinessCommand("Test Salon", "Test Salon", "Test", "Kullanıcı", "owner@test.com", "Zamanla123!");
         var response = await Client.PostAsJsonAsync("/api/auth/register", command, CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
@@ -46,7 +46,7 @@ public sealed class AuthTests(ZamanlaApiFactory factory) : IntegrationTestBase(f
         await RegisterAsync(email: "owner@test.com");
 
         // mail büyük harfle yazılsa da aynı kullanıcı bulunmalı
-        var response = await LoginAsync("OWNER@test.com", "Zamanla123");
+        var response = await LoginAsync("OWNER@test.com", "Zamanla123!");
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
