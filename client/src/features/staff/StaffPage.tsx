@@ -92,96 +92,165 @@ export function StaffPage() {
           </p>
         </div>
       ) : (
-        <div className="relative overflow-x-auto rounded-card border border-line bg-surface">
-          <table className="w-full min-w-200 text-left text-sm">
-            <thead className="border-b border-line text-xs font-semibold tracking-wide text-muted">
-              <tr>
-                <th className="px-5 py-3">PERSONEL</th>
-                <th className="px-5 py-3">HİZMETLER</th>
-                <th className="px-5 py-3">ÇALIŞMA GÜNLERİ</th>
-                <th className="px-5 py-3">DURUM</th>
-                {isOwner && <th className="px-5 py-3">PANEL HESABI</th>}
-                <th className="px-5 py-3">
-                  <span className="sr-only">İşlemler</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {staffList.map((staff) => {
-                const account = accountByStaff.get(staff.id)
-                // silinmiş hizmetler listede görünmez
-                const names = staff.salonServiceIds
-                  .map((id) => serviceNames.get(id))
-                  .filter((name) => name !== undefined)
+        <>
+          {/* telefonda tablo yerine kartlar */}
+          <ul className="flex flex-col gap-3 md:hidden">
+            {staffList.map((staff) => {
+              const account = accountByStaff.get(staff.id)
+              const names = staff.salonServiceIds
+                .map((id) => serviceNames.get(id))
+                .filter((name) => name !== undefined)
 
-                return (
-                  <tr key={staff.id} className="border-b border-line-soft last:border-b-0">
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2.5 font-semibold">
-                        <span
-                          aria-hidden
-                          className={`size-3.5 shrink-0 rounded-full border border-line ${staffColorClasses[staff.color]}`}
-                        />
-                        {staff.firstName} {staff.lastName}
-                      </div>
-                    </td>
-                    <td className="max-w-64 px-5 py-3.5 text-ink-soft">
-                      {names.length > 0 ? (
-                        <span className="line-clamp-2">{names.join(', ')}</span>
-                      ) : (
-                        <span className="text-muted">Hizmet seçilmedi</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <WorkingDays hours={staff.workingHours} />
-                    </td>
-                    <td className="px-5 py-3.5">
+              return (
+                <li
+                  key={staff.id}
+                  className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5 font-semibold">
                       <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          staff.isActive ? 'bg-sage-soft text-sage' : 'bg-line-soft text-muted'
-                        }`}
+                        aria-hidden
+                        className={`size-3.5 shrink-0 rounded-full border border-line ${staffColorClasses[staff.color]}`}
+                      />
+                      {staff.firstName} {staff.lastName}
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        staff.isActive ? 'bg-sage-soft text-sage' : 'bg-line-soft text-muted'
+                      }`}
+                    >
+                      {staff.isActive ? 'Aktif' : 'Pasif'}
+                    </span>
+                  </div>
+                  <span className="text-sm text-ink-soft">
+                    {names.length > 0 ? (
+                      names.join(', ')
+                    ) : (
+                      <span className="text-muted">Hizmet seçilmedi</span>
+                    )}
+                  </span>
+                  <WorkingDays hours={staff.workingHours} />
+                  {isOwner && account && (
+                    <div className="flex items-center gap-2 text-sm text-muted">
+                      Panel hesabı
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${accountBadgeClasses[account.status]}`}
                       >
-                        {staff.isActive ? 'Aktif' : 'Pasif'}
+                        {account.status}
                       </span>
-                    </td>
-                    {isOwner && (
+                    </div>
+                  )}
+                  {canManage && (
+                    <div className="flex flex-wrap gap-2">
+                      {isOwner && account && (
+                        <ActionButton icon="account" onClick={() => setAccountFor(account)}>
+                          Hesap
+                        </ActionButton>
+                      )}
+                      <ActionButton icon="edit" onClick={() => openEdit(staff)}>
+                        Düzenle
+                      </ActionButton>
+                      <ActionButton icon="delete" onClick={() => remove(staff)}>
+                        Sil
+                      </ActionButton>
+                    </div>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+
+          <div className="relative hidden overflow-x-auto rounded-card border border-line bg-surface md:block">
+            <table className="w-full min-w-200 text-left text-sm">
+              <thead className="border-b border-line text-xs font-semibold tracking-wide text-muted">
+                <tr>
+                  <th className="px-5 py-3">PERSONEL</th>
+                  <th className="px-5 py-3">HİZMETLER</th>
+                  <th className="px-5 py-3">ÇALIŞMA GÜNLERİ</th>
+                  <th className="px-5 py-3">DURUM</th>
+                  {isOwner && <th className="px-5 py-3">PANEL HESABI</th>}
+                  <th className="px-5 py-3">
+                    <span className="sr-only">İşlemler</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {staffList.map((staff) => {
+                  const account = accountByStaff.get(staff.id)
+                  // silinmiş hizmetler listede görünmez
+                  const names = staff.salonServiceIds
+                    .map((id) => serviceNames.get(id))
+                    .filter((name) => name !== undefined)
+
+                  return (
+                    <tr key={staff.id} className="border-b border-line-soft last:border-b-0">
                       <td className="px-5 py-3.5">
-                        {account && (
+                        <div className="flex items-center gap-2.5 font-semibold">
                           <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${accountBadgeClasses[account.status]}`}
-                          >
-                            {account.status}
-                          </span>
+                            aria-hidden
+                            className={`size-3.5 shrink-0 rounded-full border border-line ${staffColorClasses[staff.color]}`}
+                          />
+                          {staff.firstName} {staff.lastName}
+                        </div>
+                      </td>
+                      <td className="max-w-64 px-5 py-3.5 text-ink-soft">
+                        {names.length > 0 ? (
+                          <span className="line-clamp-2">{names.join(', ')}</span>
+                        ) : (
+                          <span className="text-muted">Hizmet seçilmedi</span>
                         )}
                       </td>
-                    )}
-                    <td className="px-5 py-3.5">
-                      {canManage && (
-                        <div className="flex justify-end gap-2">
-                          {isOwner && account && (
-                            <ActionButton
-                              compact
-                              icon="account"
-                              onClick={() => setAccountFor(account)}
+                      <td className="px-5 py-3.5">
+                        <WorkingDays hours={staff.workingHours} />
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                            staff.isActive ? 'bg-sage-soft text-sage' : 'bg-line-soft text-muted'
+                          }`}
+                        >
+                          {staff.isActive ? 'Aktif' : 'Pasif'}
+                        </span>
+                      </td>
+                      {isOwner && (
+                        <td className="px-5 py-3.5">
+                          {account && (
+                            <span
+                              className={`rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${accountBadgeClasses[account.status]}`}
                             >
-                              Hesap
-                            </ActionButton>
+                              {account.status}
+                            </span>
                           )}
-                          <ActionButton compact icon="edit" onClick={() => openEdit(staff)}>
-                            Düzenle
-                          </ActionButton>
-                          <ActionButton compact icon="delete" onClick={() => remove(staff)}>
-                            Sil
-                          </ActionButton>
-                        </div>
+                        </td>
                       )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                      <td className="px-5 py-3.5">
+                        {canManage && (
+                          <div className="flex justify-end gap-2">
+                            {isOwner && account && (
+                              <ActionButton
+                                compact
+                                icon="account"
+                                onClick={() => setAccountFor(account)}
+                              >
+                                Hesap
+                              </ActionButton>
+                            )}
+                            <ActionButton compact icon="edit" onClick={() => openEdit(staff)}>
+                              Düzenle
+                            </ActionButton>
+                            <ActionButton compact icon="delete" onClick={() => remove(staff)}>
+                              Sil
+                            </ActionButton>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       <StaffFormDialog open={formOpen} staff={editing} onClose={() => setFormOpen(false)} />
