@@ -9,6 +9,7 @@ import { useSession } from '@/shared/auth/session'
 import { Logo } from '@/shared/ui/Logo'
 import { useRealtimeUpdates } from '@/shared/realtime/useRealtimeUpdates'
 import { NotificationBell } from '@/features/notifications/NotificationBell'
+import { UserMenu } from '@/features/panel/UserMenu'
 
 interface NavItem {
   to: string
@@ -84,27 +85,14 @@ export function PanelLayout() {
           ))}
         </nav>
 
-        <div className="mt-auto flex items-center justify-between gap-3 px-2">
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate text-sm font-semibold">
-              {user ? `${user.firstName} ${user.lastName}` : '…'}
-            </span>
-            <span className="text-xs text-muted">{user ? roleLabels[user.role] : ''}</span>
-            <button
-              type="button"
-              onClick={() => setChangingPassword(true)}
-              className="mt-1 cursor-pointer self-start text-xs font-semibold text-clay hover:underline"
-            >
-              Şifreyi değiştir
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="h-9 shrink-0 cursor-pointer rounded-full border border-line bg-surface px-3 text-xs font-semibold hover:bg-line-soft"
-          >
-            Çıkış
-          </button>
+        <div className="mt-auto">
+          <UserMenu
+            fullName={user ? `${user.firstName} ${user.lastName}` : '…'}
+            roleLabel={user ? roleLabels[user.role] : ''}
+            email={user?.email ?? ''}
+            onChangePassword={() => setChangingPassword(true)}
+            onLogout={logout}
+          />
         </div>
       </aside>
 
