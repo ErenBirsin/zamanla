@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { getErrorMessages } from './http'
 
 function showErrors(error: unknown) {
-  getErrorMessages(error).forEach((message) => toast.error(message))
+  getErrorMessages(error).forEach((message) => toast.error(message, { id: message }))
 }
 
 export const queryClient = new QueryClient({
