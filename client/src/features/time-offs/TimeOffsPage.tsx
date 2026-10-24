@@ -10,9 +10,11 @@ import { deleteTimeOff } from './timeOffsApi'
 import type { TimeOff } from './types'
 import { timeOffsQueryKey, useTimeOffs } from './useTimeOffs'
 import { confirmAction } from '@/shared/ui/confirm'
+import { ListSkeleton } from '@/shared/ui/Skeleton'
+import { QueryError } from '@/shared/ui/QueryError'
 
 export function TimeOffsPage() {
-  const { data: timeOffs = [], isPending } = useTimeOffs()
+  const { data: timeOffs = [], isPending, isError, error, refetch } = useTimeOffs()
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const canManage = usePermissions().can(PERMISSIONS.timeOffsManage)
@@ -58,7 +60,9 @@ export function TimeOffsPage() {
       </header>
 
       {isPending ? (
-        <p className="text-sm text-muted">İzinler yükleniyor…</p>
+        <ListSkeleton />
+      ) : isError ? (
+        <QueryError error={error} onRetry={() => void refetch()} />
       ) : timeOffs.length === 0 ? (
         <div className="flex max-w-xl flex-col items-start gap-2 rounded-card border border-dashed border-line p-6">
           <h2 className="text-lg font-bold">Yaklaşan izin yok</h2>

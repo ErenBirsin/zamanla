@@ -9,9 +9,11 @@ import { deleteService } from './servicesApi'
 import type { SalonService } from './types'
 import { servicesQueryKey, useServices } from './useServices'
 import { confirmAction } from '@/shared/ui/confirm'
+import { ListSkeleton } from '@/shared/ui/Skeleton'
+import { QueryError } from '@/shared/ui/QueryError'
 
 export function ServicesPage() {
-  const { data: services = [], isPending } = useServices()
+  const { data: services = [], isPending, isError, error, refetch } = useServices()
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<SalonService | null>(null)
@@ -65,7 +67,9 @@ export function ServicesPage() {
       </header>
 
       {isPending ? (
-        <p className="text-sm text-muted">Hizmetler yükleniyor…</p>
+        <ListSkeleton />
+      ) : isError ? (
+        <QueryError error={error} onRetry={() => void refetch()} />
       ) : services.length === 0 ? (
         <div className="flex max-w-xl flex-col items-start gap-2 rounded-card border border-dashed border-line p-6">
           <h2 className="text-lg font-bold">Henüz hizmet yok</h2>

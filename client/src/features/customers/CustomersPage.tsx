@@ -10,11 +10,20 @@ import { customersQueryKey, useCustomers } from './useCustomers'
 import { usePermissions } from '@/features/auth/usePermissions'
 import { PERMISSIONS } from '@/shared/auth/permissions'
 import { confirmAction } from '@/shared/ui/confirm'
+import { ListSkeleton } from '@/shared/ui/Skeleton'
+import { QueryError } from '@/shared/ui/QueryError'
 
 export function CustomersPage() {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebouncedValue(search.trim())
-  const { data: customers = [], isPending, isFetching } = useCustomers(debouncedSearch)
+  const {
+    data: customers = [],
+    isPending,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useCustomers(debouncedSearch)
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Customer | null>(null)
@@ -80,7 +89,9 @@ export function CustomersPage() {
       </div>
 
       {isPending ? (
-        <p className="text-sm text-muted">Müşteriler yükleniyor…</p>
+        <ListSkeleton />
+      ) : isError ? (
+        <QueryError error={error} onRetry={() => void refetch()} />
       ) : customers.length === 0 ? (
         debouncedSearch ? (
           <p className="text-sm text-muted">"{debouncedSearch}" ile eşleşen müşteri yok.</p>

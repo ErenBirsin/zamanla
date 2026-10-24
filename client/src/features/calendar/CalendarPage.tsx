@@ -10,6 +10,8 @@ import { useDayAppointments } from './useDayAppointments'
 import { useDayTimeOffs } from '@/features/time-offs/useTimeOffs'
 import { usePermissions } from '@/features/auth/usePermissions'
 import { PERMISSIONS } from '@/shared/auth/permissions'
+import { BlockSkeleton } from '@/shared/ui/Skeleton'
+import { QueryError } from '@/shared/ui/QueryError'
 
 const iconButton =
   'flex size-10 cursor-pointer items-center justify-center rounded-full border border-line bg-surface hover:bg-sand-soft'
@@ -37,8 +39,12 @@ export function CalendarPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const dateKey = searchParams.get('date') ?? todayKey()
 
-  const { data: staff = [], isPending: staffPending } = useStaff()
-  const { data: appointments = [], isPending: appointmentsPending } = useDayAppointments(dateKey)
+  const staffQuery = useStaff()
+  const appointmentsQuery = useDayAppointments(dateKey)
+  const { data: staff = [], isPending: staffPending } = staffQuery
+  const { data: appointments = [], isPending: appointmentsPending } = appointmentsQuery
+  // personel ya da randevular gelmezse boş takvim yerine hata gösterilir
+  const loadError = staffQuery.error ?? appointmentsQuery.error
   const { data: timeOffs = [] } = useDayTimeOffs(dateKey)
   const { can, canManageAppointment } = usePermissions()
   const canViewRevenue = can(PERMISSIONS.revenueView)
@@ -137,8 +143,16 @@ export function CalendarPage() {
         )}
       </div>
 
-      {staffPending || appointmentsPending ? (
-        <p className="text-sm text-muted">Takvim yükleniyor…</p>
+      {loadError ? (
+        <QueryError
+          error={loadError}
+          onRetry={() => {
+            void staffQuery.refetch()
+            void appointmentsQuery.refetch()
+          }}
+        />
+      ) : staffPending || appointmentsPending ? (
+        <BlockSkeleton className="h-120" />
       ) : activeStaff.length === 0 ? (
         <div className="flex max-w-xl flex-col items-start gap-2 rounded-card border border-dashed border-line p-6">
           <h2 className="text-lg font-bold">Takvimde gösterilecek personel yok</h2>
