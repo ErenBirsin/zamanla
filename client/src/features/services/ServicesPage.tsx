@@ -8,6 +8,7 @@ import { ServiceFormDialog } from './ServiceFormDialog'
 import { deleteService } from './servicesApi'
 import type { SalonService } from './types'
 import { servicesQueryKey, useServices } from './useServices'
+import { confirmAction } from '@/shared/ui/confirm'
 
 export function ServicesPage() {
   const { data: services = [], isPending } = useServices()
@@ -37,9 +38,12 @@ export function ServicesPage() {
   }
 
   const remove = (service: SalonService) => {
-    if (window.confirm(`"${service.name}" hizmetini silmek istediğine emin misin?`)) {
-      deleteMutation.mutate(service.id)
-    }
+    confirmAction({
+      title: 'Hizmet silinsin mi?',
+      message: `"${service.name}" hizmeti silinecek. Geçmiş randevularda adı görünmeye devam eder.`,
+      confirmLabel: 'Sil',
+      onConfirm: () => deleteMutation.mutate(service.id),
+    })
   }
 
   return (

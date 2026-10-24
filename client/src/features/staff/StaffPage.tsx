@@ -12,6 +12,7 @@ import { accountBadgeClasses, staffColorClasses, weekDays } from './staffOptions
 import type { Staff, StaffAccount, WorkingHour } from './types'
 import { staffQueryKey, useStaff } from './useStaff'
 import { useStaffAccounts } from './useStaffAccounts'
+import { confirmAction } from '@/shared/ui/confirm'
 
 export function StaffPage() {
   const { data: staffList = [], isPending } = useStaff()
@@ -47,11 +48,12 @@ export function StaffPage() {
   }
 
   const remove = (staff: Staff) => {
-    if (
-      window.confirm(`"${staff.firstName} ${staff.lastName}" kaydını silmek istediğine emin misin?`)
-    ) {
-      deleteMutation.mutate(staff.id)
-    }
+    confirmAction({
+      title: 'Personel silinsin mi?',
+      message: `"${staff.firstName} ${staff.lastName}" kaydı silinecek. Panel hesabı varsa o da kapanır.`,
+      confirmLabel: 'Sil',
+      onConfirm: () => deleteMutation.mutate(staff.id),
+    })
   }
 
   return (

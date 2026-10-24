@@ -9,6 +9,7 @@ import type { Customer } from './types'
 import { customersQueryKey, useCustomers } from './useCustomers'
 import { usePermissions } from '@/features/auth/usePermissions'
 import { PERMISSIONS } from '@/shared/auth/permissions'
+import { confirmAction } from '@/shared/ui/confirm'
 
 export function CustomersPage() {
   const [search, setSearch] = useState('')
@@ -39,10 +40,12 @@ export function CustomersPage() {
   }
 
   const remove = (customer: Customer) => {
-    const confirmed = window.confirm(
-      `"${customer.fullName}" silinsin mi? Ad, telefon, e-posta ve not kalıcı olarak silinir; geçmiş randevular isimsiz olarak kalır.`,
-    )
-    if (confirmed) deleteMutation.mutate(customer.id)
+    confirmAction({
+      title: 'Müşteri silinsin mi?',
+      message: `"${customer.fullName}" kaydının adı, telefonu, e-postası ve notu kalıcı olarak silinir; geçmiş randevular isimsiz olarak kalır.`,
+      confirmLabel: 'Sil',
+      onConfirm: () => deleteMutation.mutate(customer.id),
+    })
   }
 
   return (

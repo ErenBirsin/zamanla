@@ -9,6 +9,7 @@ import { TimeOffFormDialog } from './TimeOffFormDialog'
 import { deleteTimeOff } from './timeOffsApi'
 import type { TimeOff } from './types'
 import { timeOffsQueryKey, useTimeOffs } from './useTimeOffs'
+import { confirmAction } from '@/shared/ui/confirm'
 
 export function TimeOffsPage() {
   const { data: timeOffs = [], isPending } = useTimeOffs()
@@ -28,9 +29,12 @@ export function TimeOffsPage() {
   const remove = (timeOff: TimeOff) => {
     const { date } = describeTimeOff(timeOff)
     const who = timeOff.staffFullName ?? 'Salonun kapalı günü'
-    if (window.confirm(`${who} · ${date} silinsin mi? Bu saatler yeniden randevuya açılır.`)) {
-      deleteMutation.mutate(timeOff.id)
-    }
+    confirmAction({
+      title: 'İzin silinsin mi?',
+      message: `${who} · ${date}. Bu saatler yeniden randevuya açılır.`,
+      confirmLabel: 'Sil',
+      onConfirm: () => deleteMutation.mutate(timeOff.id),
+    })
   }
 
   return (
