@@ -8,9 +8,13 @@ import { ServiceFormDialog } from './ServiceFormDialog'
 import { deleteService } from './servicesApi'
 import type { SalonService } from './types'
 import { servicesQueryKey, useServices } from './useServices'
+import { confirmAction } from '@/shared/ui/confirm'
+import { ListSkeleton } from '@/shared/ui/Skeleton'
+import { QueryError } from '@/shared/ui/QueryError'
+import { ActionButton } from '@/shared/ui/ActionButton'
 
 export function ServicesPage() {
-  const { data: services = [], isPending } = useServices()
+  const { data: services = [], isPending, isError, error, refetch } = useServices()
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<SalonService | null>(null)
@@ -37,9 +41,12 @@ export function ServicesPage() {
   }
 
   const remove = (service: SalonService) => {
-    if (window.confirm(`"${service.name}" hizmetini silmek istediğine emin misin?`)) {
-      deleteMutation.mutate(service.id)
-    }
+    confirmAction({
+      title: 'Hizmet silinsin mi?',
+      message: `"${service.name}" hizmeti silinecek. Geçmiş randevularda adı görünmeye devam eder.`,
+      confirmLabel: 'Sil',
+      onConfirm: () => deleteMutation.mutate(service.id),
+    })
   }
 
   return (
@@ -61,7 +68,9 @@ export function ServicesPage() {
       </header>
 
       {isPending ? (
-        <p className="text-sm text-muted">Hizmetler yükleniyor…</p>
+        <ListSkeleton />
+      ) : isError ? (
+        <QueryError error={error} onRetry={() => void refetch()} />
       ) : services.length === 0 ? (
         <div className="flex max-w-xl flex-col items-start gap-2 rounded-card border border-dashed border-line p-6">
           <h2 className="text-lg font-bold">Henüz hizmet yok</h2>
@@ -71,68 +80,104 @@ export function ServicesPage() {
           </p>
         </div>
       ) : (
-        <div className="relative overflow-x-auto rounded-card border border-line bg-surface">
-          <table className="w-full min-w-160 text-left text-sm">
-            <thead className="border-b border-line text-xs font-semibold tracking-wide text-muted">
-              <tr>
-                <th className="px-5 py-3">HİZMET</th>
-                <th className="px-5 py-3">KATEGORİ</th>
-                <th className="px-5 py-3">SÜRE</th>
-                <th className="px-5 py-3 text-right">FİYAT</th>
-                <th className="px-5 py-3">DURUM</th>
-                <th className="px-5 py-3">
-                  <span className="sr-only">İşlemler</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {services.map((service) => (
-                <tr key={service.id} className="border-b border-line-soft last:border-b-0">
-                  <td className="px-5 py-3.5 font-semibold">{service.name}</td>
-                  <td className="px-5 py-3.5 text-ink-soft">{service.category}</td>
-                  <td className="px-5 py-3.5 text-ink-soft">
-                    {service.durationMinutes} dk
-                    {service.bufferMinutes > 0 && (
-                      <span className="text-muted"> + {service.bufferMinutes} dk hazırlık</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5 text-right font-semibold tabular-nums">
-                    {formatPrice(service.price)}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        service.isActive ? 'bg-sage-soft text-sage' : 'bg-line-soft text-muted'
-                      }`}
-                    >
-                      {service.isActive ? 'Aktif' : 'Pasif'}
+        <>
+          {/* telefonda tablo yerine kartlar */}
+          <ul className="flex flex-col gap-3 md:hidden">
+            {services.map((service) => (
+              <li
+                key={service.id}
+                className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <span className="font-semibold">{service.name}</span>
+                    <span className="text-sm text-ink-soft">
+                      {service.category} · {service.durationMinutes} dk
+                      {service.bufferMinutes > 0 && (
+                        <span className="text-muted"> + {service.bufferMinutes} dk hazırlık</span>
+                      )}
                     </span>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    {canManage && (
-                      <div className="flex justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(service)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
-                        >
-                          Düzenle
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => remove(service)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                        >
-                          Sil
-                        </button>
-                      </div>
-                    )}
-                  </td>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      service.isActive ? 'bg-sage-soft text-sage' : 'bg-line-soft text-muted'
+                    }`}
+                  >
+                    {service.isActive ? 'Aktif' : 'Pasif'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-semibold tabular-nums">{formatPrice(service.price)}</span>
+                  {canManage && (
+                    <div className="flex gap-2">
+                      <ActionButton icon="edit" onClick={() => openEdit(service)}>
+                        Düzenle
+                      </ActionButton>
+                      <ActionButton icon="delete" onClick={() => remove(service)}>
+                        Sil
+                      </ActionButton>
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="relative hidden overflow-x-auto rounded-card border border-line bg-surface md:block">
+            <table className="w-full min-w-160 text-left text-sm">
+              <thead className="border-b border-line text-xs font-semibold tracking-wide text-muted">
+                <tr>
+                  <th className="px-5 py-3">HİZMET</th>
+                  <th className="px-5 py-3">KATEGORİ</th>
+                  <th className="px-5 py-3">SÜRE</th>
+                  <th className="px-5 py-3 text-right">FİYAT</th>
+                  <th className="px-5 py-3">DURUM</th>
+                  <th className="px-5 py-3">
+                    <span className="sr-only">İşlemler</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {services.map((service) => (
+                  <tr key={service.id} className="border-b border-line-soft last:border-b-0">
+                    <td className="px-5 py-3.5 font-semibold">{service.name}</td>
+                    <td className="px-5 py-3.5 text-ink-soft">{service.category}</td>
+                    <td className="px-5 py-3.5 text-ink-soft">
+                      {service.durationMinutes} dk
+                      {service.bufferMinutes > 0 && (
+                        <span className="text-muted"> + {service.bufferMinutes} dk hazırlık</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5 text-right font-semibold tabular-nums">
+                      {formatPrice(service.price)}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          service.isActive ? 'bg-sage-soft text-sage' : 'bg-line-soft text-muted'
+                        }`}
+                      >
+                        {service.isActive ? 'Aktif' : 'Pasif'}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      {canManage && (
+                        <div className="flex justify-end gap-2">
+                          <ActionButton icon="edit" onClick={() => openEdit(service)}>
+                            Düzenle
+                          </ActionButton>
+                          <ActionButton icon="delete" onClick={() => remove(service)}>
+                            Sil
+                          </ActionButton>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       <ServiceFormDialog

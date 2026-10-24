@@ -9,11 +9,22 @@ import type { Customer } from './types'
 import { customersQueryKey, useCustomers } from './useCustomers'
 import { usePermissions } from '@/features/auth/usePermissions'
 import { PERMISSIONS } from '@/shared/auth/permissions'
+import { confirmAction } from '@/shared/ui/confirm'
+import { ListSkeleton } from '@/shared/ui/Skeleton'
+import { QueryError } from '@/shared/ui/QueryError'
+import { ActionButton } from '@/shared/ui/ActionButton'
 
 export function CustomersPage() {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebouncedValue(search.trim())
-  const { data: customers = [], isPending, isFetching } = useCustomers(debouncedSearch)
+  const {
+    data: customers = [],
+    isPending,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useCustomers(debouncedSearch)
   const queryClient = useQueryClient()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Customer | null>(null)
@@ -39,10 +50,12 @@ export function CustomersPage() {
   }
 
   const remove = (customer: Customer) => {
-    const confirmed = window.confirm(
-      `"${customer.fullName}" silinsin mi? Ad, telefon, e-posta ve not kalıcı olarak silinir; geçmiş randevular isimsiz olarak kalır.`,
-    )
-    if (confirmed) deleteMutation.mutate(customer.id)
+    confirmAction({
+      title: 'Müşteri silinsin mi?',
+      message: `"${customer.fullName}" kaydının adı, telefonu, e-postası ve notu kalıcı olarak silinir; geçmiş randevular isimsiz olarak kalır.`,
+      confirmLabel: 'Sil',
+      onConfirm: () => deleteMutation.mutate(customer.id),
+    })
   }
 
   return (
@@ -77,7 +90,9 @@ export function CustomersPage() {
       </div>
 
       {isPending ? (
-        <p className="text-sm text-muted">Müşteriler yükleniyor…</p>
+        <ListSkeleton />
+      ) : isError ? (
+        <QueryError error={error} onRetry={() => void refetch()} />
       ) : customers.length === 0 ? (
         debouncedSearch ? (
           <p className="text-sm text-muted">"{debouncedSearch}" ile eşleşen müşteri yok.</p>
@@ -91,65 +106,97 @@ export function CustomersPage() {
           </div>
         )
       ) : (
-        <div
-          className={`relative overflow-x-auto rounded-card border border-line bg-surface transition-opacity ${isFetching ? 'opacity-60' : ''}`}
-        >
-          <table className="w-full min-w-180 text-left text-sm">
-            <thead className="border-b border-line text-xs font-semibold tracking-wide text-muted">
-              <tr>
-                <th className="px-5 py-3">MÜŞTERİ</th>
-                <th className="px-5 py-3">TELEFON</th>
-                <th className="px-5 py-3">E-POSTA</th>
-                <th className="px-5 py-3">NOT</th>
-                <th className="px-5 py-3">
-                  <span className="sr-only">İşlemler</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((customer) => (
-                <tr key={customer.id} className="border-b border-line-soft last:border-b-0">
-                  <td className="px-5 py-3.5 font-semibold">{customer.fullName}</td>
-                  <td className="px-5 py-3.5 whitespace-nowrap text-ink-soft tabular-nums">
-                    <a href={`tel:${customer.phoneNumber}`} className="hover:text-clay-dark">
-                      {formatPhone(customer.phoneNumber)}
-                    </a>
-                  </td>
-                  <td className="px-5 py-3.5 text-ink-soft">
-                    {customer.email ?? <span className="text-muted">—</span>}
-                  </td>
-                  <td className="max-w-64 px-5 py-3.5 text-ink-soft">
-                    {customer.note ? (
-                      <span className="line-clamp-2">{customer.note}</span>
-                    ) : (
-                      <span className="text-muted">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openEdit(customer)}
-                        className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
-                      >
-                        Düzenle
-                      </button>
-                      {canDelete && (
-                        <button
-                          type="button"
-                          onClick={() => remove(customer)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                        >
-                          Sil
-                        </button>
-                      )}
-                    </div>
-                  </td>
+        <>
+          {/* telefonda tablo yerine kartlar */}
+          <ul
+            className={`flex flex-col gap-3 transition-opacity md:hidden ${isFetching ? 'opacity-60' : ''}`}
+          >
+            {customers.map((customer) => (
+              <li
+                key={customer.id}
+                className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4"
+              >
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="font-semibold">{customer.fullName}</span>
+                  <a
+                    href={`tel:${customer.phoneNumber}`}
+                    className="self-start text-sm text-ink-soft tabular-nums hover:text-clay-dark"
+                  >
+                    {formatPhone(customer.phoneNumber)}
+                  </a>
+                  {customer.email && (
+                    <span className="truncate text-sm text-ink-soft">{customer.email}</span>
+                  )}
+                  {customer.note && (
+                    <span className="line-clamp-2 text-sm text-muted">{customer.note}</span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <ActionButton icon="edit" onClick={() => openEdit(customer)}>
+                    Düzenle
+                  </ActionButton>
+                  {canDelete && (
+                    <ActionButton icon="delete" onClick={() => remove(customer)}>
+                      Sil
+                    </ActionButton>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div
+            className={`relative hidden overflow-x-auto rounded-card border border-line bg-surface transition-opacity md:block ${isFetching ? 'opacity-60' : ''}`}
+          >
+            <table className="w-full min-w-180 text-left text-sm">
+              <thead className="border-b border-line text-xs font-semibold tracking-wide text-muted">
+                <tr>
+                  <th className="px-5 py-3">MÜŞTERİ</th>
+                  <th className="px-5 py-3">TELEFON</th>
+                  <th className="px-5 py-3">E-POSTA</th>
+                  <th className="px-5 py-3">NOT</th>
+                  <th className="px-5 py-3">
+                    <span className="sr-only">İşlemler</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {customers.map((customer) => (
+                  <tr key={customer.id} className="border-b border-line-soft last:border-b-0">
+                    <td className="px-5 py-3.5 font-semibold">{customer.fullName}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-ink-soft tabular-nums">
+                      <a href={`tel:${customer.phoneNumber}`} className="hover:text-clay-dark">
+                        {formatPhone(customer.phoneNumber)}
+                      </a>
+                    </td>
+                    <td className="px-5 py-3.5 text-ink-soft">
+                      {customer.email ?? <span className="text-muted">—</span>}
+                    </td>
+                    <td className="max-w-64 px-5 py-3.5 text-ink-soft">
+                      {customer.note ? (
+                        <span className="line-clamp-2">{customer.note}</span>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex justify-end gap-2">
+                        <ActionButton icon="edit" onClick={() => openEdit(customer)}>
+                          Düzenle
+                        </ActionButton>
+                        {canDelete && (
+                          <ActionButton icon="delete" onClick={() => remove(customer)}>
+                            Sil
+                          </ActionButton>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       <CustomerFormDialog open={formOpen} customer={editing} onClose={() => setFormOpen(false)} />

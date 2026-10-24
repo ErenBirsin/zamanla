@@ -10,6 +10,8 @@ import { type SettingsValues, settingsSchema } from './schemas'
 import { updateSettings } from './settingsApi'
 import type { Settings } from './types'
 import { settingsQueryKey, useSettings } from './useSettings'
+import { BlockSkeleton } from '@/shared/ui/Skeleton'
+import { QueryError } from '@/shared/ui/QueryError'
 
 function toFormValues(settings: Settings): SettingsValues {
   return {
@@ -25,7 +27,7 @@ function toFormValues(settings: Settings): SettingsValues {
 const section = 'flex flex-col gap-4 rounded-card border border-line bg-surface p-6'
 
 export function SettingsPage() {
-  const { data: settings, isPending } = useSettings()
+  const { data: settings, isPending, isError, error, refetch } = useSettings()
   const queryClient = useQueryClient()
 
   const {
@@ -60,7 +62,12 @@ export function SettingsPage() {
       </header>
 
       {isPending ? (
-        <p className="text-sm text-muted">Ayarlar yükleniyor…</p>
+        <div className="flex max-w-2xl flex-col gap-5">
+          <BlockSkeleton className="h-64" />
+          <BlockSkeleton className="h-48" />
+        </div>
+      ) : isError ? (
+        <QueryError error={error} onRetry={() => void refetch()} />
       ) : (
         <form
           noValidate

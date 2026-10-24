@@ -18,6 +18,7 @@ import {
 import { accountBadgeClasses } from './staffOptions'
 import type { InvitationCreated, StaffAccount } from './types'
 import { staffAccountsQueryKey, usePermissionCatalog } from './useStaffAccounts'
+import { confirmAction } from '@/shared/ui/confirm'
 
 interface StaffAccountDialogProps {
   // null iken kapalı
@@ -227,9 +228,12 @@ function InviteForm({ account, onClose }: FormProps) {
           <button
             type="button"
             onClick={() => {
-              if (window.confirm('Davet geri alınsın mı? Gönderilen link artık açılmaz.')) {
-                withdrawMutation.mutate()
-              }
+              confirmAction({
+                title: 'Davet geri alınsın mı?',
+                message: 'Gönderilen link artık açılmaz.',
+                confirmLabel: 'Geri al',
+                onConfirm: () => withdrawMutation.mutate(),
+              })
             }}
             disabled={withdrawMutation.isPending}
             className={`${secondaryButton} mr-auto text-clay-dark`}
@@ -279,10 +283,14 @@ function AccountForm({ account, onClose }: FormProps) {
   })
 
   const toggleStatus = () => {
-    const question = active
-      ? `${account.staffFullName} panele giremeyecek, açık oturumları kapanacak. Devam edilsin mi?`
-      : `${account.staffFullName} panele yeniden girebilecek. Devam edilsin mi?`
-    if (window.confirm(question)) statusMutation.mutate()
+    confirmAction({
+      title: active ? 'Hesap pasif yapılsın mı?' : 'Hesap aktif yapılsın mı?',
+      message: active
+        ? `${account.staffFullName} panele giremeyecek, açık oturumları kapanacak.`
+        : `${account.staffFullName} panele yeniden girebilecek.`,
+      confirmLabel: active ? 'Pasif yap' : 'Aktif yap',
+      onConfirm: () => statusMutation.mutate(),
+    })
   }
 
   const changed =
