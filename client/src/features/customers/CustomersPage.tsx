@@ -12,6 +12,7 @@ import { PERMISSIONS } from '@/shared/auth/permissions'
 import { confirmAction } from '@/shared/ui/confirm'
 import { ListSkeleton } from '@/shared/ui/Skeleton'
 import { QueryError } from '@/shared/ui/QueryError'
+import { ActionButton } from '@/shared/ui/ActionButton'
 
 export function CustomersPage() {
   const [search, setSearch] = useState('')
@@ -140,22 +141,14 @@ export function CustomersPage() {
                     )}
                   </td>
                   <td className="px-5 py-3.5">
-                    <div className="flex justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openEdit(customer)}
-                        className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
-                      >
+                    <div className="flex justify-end gap-2">
+                      <ActionButton icon="edit" onClick={() => openEdit(customer)}>
                         Düzenle
-                      </button>
+                      </ActionButton>
                       {canDelete && (
-                        <button
-                          type="button"
-                          onClick={() => remove(customer)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                        >
+                        <ActionButton icon="delete" onClick={() => remove(customer)}>
                           Sil
-                        </button>
+                        </ActionButton>
                       )}
                     </div>
                   </td>

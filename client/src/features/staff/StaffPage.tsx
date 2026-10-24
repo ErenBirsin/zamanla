@@ -15,6 +15,7 @@ import { useStaffAccounts } from './useStaffAccounts'
 import { confirmAction } from '@/shared/ui/confirm'
 import { ListSkeleton } from '@/shared/ui/Skeleton'
 import { QueryError } from '@/shared/ui/QueryError'
+import { ActionButton } from '@/shared/ui/ActionButton'
 
 export function StaffPage() {
   const { data: staffList = [], isPending, isError, error, refetch } = useStaff()
@@ -156,30 +157,22 @@ export function StaffPage() {
                     )}
                     <td className="px-5 py-3.5">
                       {canManage && (
-                        <div className="flex justify-end gap-1">
+                        <div className="flex justify-end gap-2">
                           {isOwner && account && (
-                            <button
-                              type="button"
+                            <ActionButton
+                              compact
+                              icon="account"
                               onClick={() => setAccountFor(account)}
-                              className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
                             >
                               Hesap
-                            </button>
+                            </ActionButton>
                           )}
-                          <button
-                            type="button"
-                            onClick={() => openEdit(staff)}
-                            className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
-                          >
+                          <ActionButton compact icon="edit" onClick={() => openEdit(staff)}>
                             Düzenle
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => remove(staff)}
-                            className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                          >
+                          </ActionButton>
+                          <ActionButton compact icon="delete" onClick={() => remove(staff)}>
                             Sil
-                          </button>
+                          </ActionButton>
                         </div>
                       )}
                     </td>

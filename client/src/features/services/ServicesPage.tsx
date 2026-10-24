@@ -11,6 +11,7 @@ import { servicesQueryKey, useServices } from './useServices'
 import { confirmAction } from '@/shared/ui/confirm'
 import { ListSkeleton } from '@/shared/ui/Skeleton'
 import { QueryError } from '@/shared/ui/QueryError'
+import { ActionButton } from '@/shared/ui/ActionButton'
 
 export function ServicesPage() {
   const { data: services = [], isPending, isError, error, refetch } = useServices()
@@ -118,21 +119,13 @@ export function ServicesPage() {
                   </td>
                   <td className="px-5 py-3.5">
                     {canManage && (
-                      <div className="flex justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(service)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-sand-soft"
-                        >
+                      <div className="flex justify-end gap-2">
+                        <ActionButton icon="edit" onClick={() => openEdit(service)}>
                           Düzenle
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => remove(service)}
-                          className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                        >
+                        </ActionButton>
+                        <ActionButton icon="delete" onClick={() => remove(service)}>
                           Sil
-                        </button>
+                        </ActionButton>
                       </div>
                     )}
                   </td>

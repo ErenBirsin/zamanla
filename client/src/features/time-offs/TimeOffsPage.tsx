@@ -12,6 +12,7 @@ import { timeOffsQueryKey, useTimeOffs } from './useTimeOffs'
 import { confirmAction } from '@/shared/ui/confirm'
 import { ListSkeleton } from '@/shared/ui/Skeleton'
 import { QueryError } from '@/shared/ui/QueryError'
+import { ActionButton } from '@/shared/ui/ActionButton'
 
 export function TimeOffsPage() {
   const { data: timeOffs = [], isPending, isError, error, refetch } = useTimeOffs()
@@ -105,13 +106,9 @@ export function TimeOffsPage() {
                     <td className="px-5 py-3.5">
                       {canManage && (
                         <div className="flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => remove(timeOff)}
-                            className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold text-clay-dark hover:bg-clay-soft"
-                          >
+                          <ActionButton icon="delete" onClick={() => remove(timeOff)}>
                             Sil
-                          </button>
+                          </ActionButton>
                         </div>
                       )}
                     </td>
