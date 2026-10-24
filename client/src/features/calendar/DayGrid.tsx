@@ -63,11 +63,11 @@ function closedBlocks(ranges: Range[], bounds: Range) {
   let cursor = bounds.start
   ranges.forEach((range, index) => {
     if (range.start > cursor) {
-      blocks.push({ start: cursor, end: range.start, label: index === 0 ? '' : 'Mola' })
+      blocks.push({ start: cursor, end: range.start, label: index === 0 ? 'Mesai dışı' : 'Mola' })
     }
     cursor = Math.max(cursor, range.end)
   })
-  if (cursor < bounds.end) blocks.push({ start: cursor, end: bounds.end, label: '' })
+  if (cursor < bounds.end) blocks.push({ start: cursor, end: bounds.end, label: 'Mesai dışı' })
   return blocks
 }
 
@@ -200,6 +200,15 @@ export function DayGrid({
                  transparent ${HOUR_HEIGHT / 2 + 1}px, transparent ${HOUR_HEIGHT}px)`,
               }}
             >
+              {/* geçen saatler hafif soluk; mesai dışı ve izin alanları bunun üstünde kalır */}
+              {showNow && (
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 bg-sand/60"
+                  style={{ height: toTop(nowMinutes) }}
+                />
+              )}
+
               {closedBlocks(column.ranges, bounds).map((block) => (
                 <div
                   key={block.start}
@@ -248,10 +257,11 @@ export function DayGrid({
             </div>
           ))}
 
+          {/* rozetin ortası tam şu anki saate gelsin */}
           {showNow && (
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 z-0 flex items-center"
+              className="pointer-events-none absolute inset-x-0 z-0 flex -translate-y-1/2 items-center"
               style={{ top: toTop(nowMinutes) + 12 }}
             >
               <span className="flex w-14 justify-end pr-1">
