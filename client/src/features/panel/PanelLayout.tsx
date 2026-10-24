@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router'
+import { Link, NavLink, Outlet } from 'react-router'
 import { ChangePasswordDialog } from '@/features/auth/ChangePasswordDialog'
 import { useCurrentUser } from '@/features/auth/useCurrentUser'
 import { usePermissions } from '@/features/auth/usePermissions'
@@ -72,7 +72,14 @@ export function PanelLayout() {
             <path d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <Logo />
+        <Link
+          to="/app"
+          aria-label="Genel bakışa git"
+          onClick={() => setMenuOpen(false)}
+          className="rounded-xl"
+        >
+          <Logo />
+        </Link>
         <div className="ml-auto">
           <NotificationBell />
         </div>
@@ -91,7 +98,14 @@ export function PanelLayout() {
         className={`${menuOpen ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] flex-col gap-6 overflow-y-auto border-r border-line bg-sand-soft px-4 py-5 shadow-xl md:static md:flex md:w-64 md:max-w-none md:shrink-0 md:overflow-visible md:py-6 md:shadow-none`}
       >
         <div className="flex items-center justify-between px-2">
-          <Logo />
+          <Link
+            to="/app"
+            aria-label="Genel bakışa git"
+            onClick={() => setMenuOpen(false)}
+            className="rounded-xl"
+          >
+            <Logo />
+          </Link>
           <div className="hidden md:block">
             <NotificationBell />
           </div>
