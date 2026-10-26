@@ -32,6 +32,7 @@ public sealed class PasswordResetTests(ZamanlaApiFactory factory) : IntegrationT
         var mail = Factory.MailService.Mails.ShouldHaveSingleItem();
         mail.To.ShouldBe(Email);
         mail.Subject.ShouldBe("Şifre sıfırlama · Zamanla");
+        mail.Html.ShouldContain("Yeni şifre belirle");
         (await CheckAsync(ReadCode(mail))).StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 

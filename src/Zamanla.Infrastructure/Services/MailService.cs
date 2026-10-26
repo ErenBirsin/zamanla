@@ -5,12 +5,13 @@ namespace Zamanla.Infrastructure.Services;
 
 internal sealed class MailService(IFluentEmail fluentEmail) : IMailService
 {
-    public async Task SendAsync(string to, string subject, string body, CancellationToken cancellationToken = default)
+    public async Task SendAsync(string to, string subject, string htmlBody, string textBody, CancellationToken cancellationToken = default)
     {
         var sendResponse = await fluentEmail
             .To(to)
             .Subject(subject)
-            .Body(body)
+            .Body(htmlBody, isHtml: true)
+            .PlaintextAlternativeBody(textBody)
             .SendAsync(cancellationToken);
 
         if (!sendResponse.Successful)

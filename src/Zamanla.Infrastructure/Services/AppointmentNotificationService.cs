@@ -31,23 +31,35 @@ internal sealed class AppointmentNotificationService(
         try
         {
             var details = await GetDetailsAsync(appointmentId, cancellationToken);
+            var summary = BuildSummary(details);
+            // link sadece online randevuda var; panelden açılan randevuyu müşteri yönetemez
+            var manageUrl = manageToken is null ? null : $"{clientOptions.Value.BaseUrl}/b/{details.Slug}/r/{manageToken}";
 
-            var footer = manageToken is null
+            var footer = manageUrl is null
                 ? "Randevunuzu değiştirmek ya da iptal etmek için salonu arayabilirsiniz."
-                : $"Randevunuzu görüntülemek, saatini değiştirmek ya da iptal etmek için:\n{clientOptions.Value.BaseUrl}/b/{details.Slug}/r/{manageToken}";
+                : $"Randevunuzu görüntülemek, saatini değiştirmek ya da iptal etmek için:\n{manageUrl}";
 
             var subject = $"Randevunuz alındı · {details.SalonName}";
-            var body = string.Join("\n",
+            var text = string.Join("\n",
                 $"Merhaba {details.CustomerFirstName},",
                 "",
                 $"{details.SalonName} randevunuz oluşturuldu.",
                 "",
-                BuildSummary(details),
+                ToText(summary),
                 "",
                 footer);
+            var html = MailLayout.Render("Randevunuz alındı",
+                MailLayout.Paragraph($"Merhaba {details.CustomerFirstName},") +
+                MailLayout.Paragraph($"{details.SalonName} randevunuz oluşturuldu.") +
+                MailLayout.Details(summary) +
+                (manageUrl is null
+                    ? MailLayout.Note("Randevunuzu değiştirmek ya da iptal etmek için salonu arayabilirsiniz.")
+                    : MailLayout.Paragraph("Randevunuzu görüntülemek, saatini değiştirmek ya da iptal etmek için:") +
+                      MailLayout.Button("Randevumu yönet", manageUrl) +
+                      MailLayout.LinkFallback(manageUrl)));
             var sms = $"{details.SalonName}: Randevunuz {details.LocalStart.ToString("d MMMM HH:mm", Culture)}. Randevu no: {details.AppointmentNumber}";
 
-            await TrySendMailAsync(details, subject, body, cancellationToken);
+            await TrySendMailAsync(details, subject, html, text, cancellationToken);
             await SendSmsAsync(details, sms, cancellationToken);
         }
         catch (Exception ex)
@@ -61,24 +73,30 @@ internal sealed class AppointmentNotificationService(
         try
         {
             var details = await GetDetailsAsync(appointmentId, cancellationToken);
+            var summary = BuildSummary(details);
 
             var footer = details.IsOnline
                 ? "Randevunuzu değiştirmeniz gerekirse onay e-postasındaki linki kullanabilir ya da salonu arayabilirsiniz."
                 : "Gelemeyecekseniz lütfen salonu arayarak haber verin.";
 
             var subject = $"Randevu hatırlatması · {details.SalonName}";
-            var body = string.Join("\n",
+            var text = string.Join("\n",
                 $"Merhaba {details.CustomerFirstName},",
                 "",
                 $"{details.SalonName} randevunuzu hatırlatmak istedik.",
                 "",
-                BuildSummary(details),
+                ToText(summary),
                 "",
                 footer);
+            var html = MailLayout.Render("Randevunuzu hatırlatırız",
+                MailLayout.Paragraph($"Merhaba {details.CustomerFirstName},") +
+                MailLayout.Paragraph($"{details.SalonName} randevunuzu hatırlatmak istedik.") +
+                MailLayout.Details(summary) +
+                MailLayout.Note(footer));
             var sms = $"{details.SalonName}: Randevunuzu hatırlatırız, {details.LocalStart.ToString("d MMMM HH:mm", Culture)}. Gelemeyecekseniz lütfen haber verin.";
 
             // e-posta gitmezse SMS de gönderilmez; ikisi bir sonraki turda birlikte denenir
-            if (!await TrySendMailAsync(details, subject, body, cancellationToken))
+            if (!await TrySendMailAsync(details, subject, html, text, cancellationToken))
             {
                 return false;
             }
@@ -93,7 +111,7 @@ internal sealed class AppointmentNotificationService(
     }
 
     // e-postası olmayan müşteride gönderilecek bir şey yok, başarılı sayılır
-    private async Task<bool> TrySendMailAsync(NotificationDetails details, string subject, string body, CancellationToken cancellationToken)
+    private async Task<bool> TrySendMailAsync(NotificationDetails details, string subject, string html, string text, CancellationToken cancellationToken)
     {
         if (details.Email is null)
         {
@@ -102,7 +120,7 @@ internal sealed class AppointmentNotificationService(
 
         try
         {
-            await mailService.SendAsync(details.Email, subject, body, cancellationToken);
+            await mailService.SendAsync(details.Email, subject, html, text, cancellationToken);
             return true;
         }
         catch (Exception ex)
@@ -120,26 +138,30 @@ internal sealed class AppointmentNotificationService(
         }
     }
 
-    private static string BuildSummary(NotificationDetails details)
+    // e-postanın HTML'inde tablo, düz yazısında "Başlık: değer" satırları olur
+    private static List<(string Label, string Value)> BuildSummary(NotificationDetails details)
     {
-        List<string> lines =
+        List<(string Label, string Value)> rows =
         [
-            $"Tarih: {details.LocalStart.ToString("d MMMM yyyy dddd, HH:mm", Culture)}",
-            $"Hizmet: {string.Join(", ", details.ServiceNames)}",
-            $"Personel: {details.StaffFullName}",
-            $"Randevu no: {details.AppointmentNumber}"
+            ("Tarih", details.LocalStart.ToString("d MMMM yyyy dddd, HH:mm", Culture)),
+            ("Hizmet", string.Join(", ", details.ServiceNames)),
+            ("Personel", details.StaffFullName),
+            ("Randevu no", details.AppointmentNumber)
         ];
         if (details.SalonAddress is not null)
         {
-            lines.Add($"Adres: {details.SalonAddress}");
+            rows.Add(("Adres", details.SalonAddress));
         }
         if (details.SalonPhoneNumber is not null)
         {
-            lines.Add($"Telefon: {FormatPhone(details.SalonPhoneNumber)}");
+            rows.Add(("Telefon", FormatPhone(details.SalonPhoneNumber)));
         }
 
-        return string.Join("\n", lines);
+        return rows;
     }
+
+    private static string ToText(List<(string Label, string Value)> rows) =>
+        string.Join("\n", rows.Select(row => $"{row.Label}: {row.Value}"));
 
     // +902160000000 → 0216 000 00 00
     private static string FormatPhone(string phoneNumber) =>
