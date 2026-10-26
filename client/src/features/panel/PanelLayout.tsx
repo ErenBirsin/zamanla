@@ -29,8 +29,6 @@ const navItems: NavItem[] = [
   { to: '/app/time-offs', label: 'İzinler', end: false },
 ]
 
-const upcomingItems = ['Randevular']
-
 const roleLabels = { Owner: 'İşletme sahibi', Staff: 'Personel' }
 
 export function PanelLayout() {
@@ -151,15 +149,6 @@ export function PanelLayout() {
                 {item.label}
               </NavLink>
             ))}
-          {upcomingItems.map((item) => (
-            <span
-              key={item}
-              className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-muted/70"
-            >
-              {item}
-              <span className="text-[11px] font-semibold tracking-wide">YAKINDA</span>
-            </span>
-          ))}
         </nav>
 
         <div className="mt-auto">
