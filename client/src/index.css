@@ -25,6 +25,10 @@
   --color-staff-sage: #dde7d6;
   --color-staff-lavender: #e6e0f2;
   --color-staff-sky: #d9e7f1;
+  --color-staff-peach-strong: #d9875a;
+  --color-staff-sage-strong: #6e9a63;
+  --color-staff-lavender-strong: #8b7cc4;
+  --color-staff-sky-strong: #5b93bf;
 
   --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, sans-serif;
   --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
@@ -38,6 +42,14 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  html:has(dialog[open]) {
+    overflow: hidden;
   }
 
   body {

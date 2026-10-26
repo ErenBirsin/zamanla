@@ -14,12 +14,13 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Hizmetler: süre, hazırlık payı, fiyat ve kategori.
 - Personel: verdiği hizmetler ve haftalık çalışma saatleri. Aynı güne öğle arası gibi birden fazla aralık girilebilir.
 - Müşteriler: isim ya da telefonla arama. Silinen müşterinin kişisel bilgileri KVKK'ya uygun şekilde anonimleştirilir.
-- Günlük takvim: personel sütunları, mola ve kapalı saatler, izinler, "şu an" çizgisi. Randevu ya da izin değişince sayfa yenilenmeden güncellenir.
+- Günlük takvim: personel sütunları, mola, mesai dışı ve kapalı saatler, izinler, "şu an" çizgisi ve geçen saatlerin soluk gösterimi. Randevu ya da izin değişince sayfa yenilenmeden güncellenir.
 - Randevular: birden fazla hizmet, tamamlandı / gelmedi / iptal / yeniden planlama ve randevu geçmişi.
 - İzinler: personel izni ve bayram gibi salonun kapalı olduğu günler, tüm gün ya da saat aralığıyla.
 - Bildirimler: müşteri online randevu alınca, linkten iptal edince ya da saatini değiştirince zil ile haber verilir; okunmamış sayısı ve okundu işareti tutulur.
 - Ayarlar: salon adı, adres, telefon ve online randevu kuralları.
 - Personel hesapları: salon sahibi personeli e-postayla gönderilen davet linkiyle panele çağırır, yetkilerini personel başına seçer ve hesabı pasif yapabilir. Yetkisi olmayan personel takvimi görür, müşteri ekler ve kendi randevularını yönetir; ciro, ayarlar ve diğer yönetim ekranları yetkiye göre açılır.
+- Panel telefon ekranına da uyum sağlar: menü üst çubuktaki ☰ düğmesiyle açılır, listeler kart olarak görünür. Veriler yüklenirken sayfanın iskeleti, API'ye ulaşılamazsa "Tekrar dene" kartı gösterilir; silme gibi işlemler onay penceresiyle sorulur.
 
 ### Müşteri tarafı
 
@@ -27,7 +28,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - Randevuyu görüntüleme, iptal etme ve saatini değiştirme için kişiye özel yönetim linki.
 - Randevuyu telefonun takvimine ekleme (.ics, 1 saat önce hatırlatma).
 - Salon adres ve telefon girdiyse randevu sayfasında ve randevu linkinde gösterilir; telefon tıklanınca arama başlar.
-- Randevu alınınca onay, randevudan 24 saat önce hatırlatma gönderilir. E-posta girildiyse e-postayla, ayrıca SMS ile. Online randevunun onay e-postasında yönetim linki vardır.
+- Randevu alınınca onay, randevudan 24 saat önce hatırlatma gönderilir. E-posta girildiyse e-postayla, ayrıca SMS ile (SMS sağlayıcısı henüz bağlı değil; mesajlar API'nin log'una yazılır). E-postalar ortak bir HTML şablonla gider; online randevunun onay e-postasında yönetim düğmesi vardır.
 
 ### Kurallar ve güvenlik
 
@@ -228,5 +229,7 @@ client/
   - [x] 5.5 Günlük özet
   - [x] 5.6 Personel hesapları ve yetkiler
   - [x] 5.7 Şifre sıfırlama ve şifre değiştirme
+- [ ] Aşama 6: Vitrin
+  - [x] 6.1 Görünüm iyileştirmeleri
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).

@@ -18,6 +18,13 @@ export const staffColorLabels: Record<StaffColor, string> = {
   sky: 'Gök mavisi',
 }
 
+export const staffAccentClasses: Record<StaffColor, string> = {
+  peach: 'border-staff-peach-strong',
+  sage: 'border-staff-sage-strong',
+  lavender: 'border-staff-lavender-strong',
+  sky: 'border-staff-sky-strong',
+}
+
 export const weekDays = [
   { day: 1, label: 'Pazartesi', short: 'Pzt' },
   { day: 2, label: 'Salı', short: 'Sal' },

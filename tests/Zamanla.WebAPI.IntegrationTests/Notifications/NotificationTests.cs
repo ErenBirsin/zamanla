@@ -42,6 +42,8 @@ public sealed class NotificationTests(ZamanlaApiFactory factory) : IntegrationTe
         mail.Body.ShouldContain("Hizmet: Sac kesimi");
         mail.Body.ShouldContain("Personel: Ayse Sik");
         mail.Body.ShouldNotContain("/r/");
+        mail.Html.ShouldContain("Sac kesimi");
+        mail.Html.ShouldNotContain("Randevumu yönet");
     }
 
     [Fact]
@@ -59,6 +61,8 @@ public sealed class NotificationTests(ZamanlaApiFactory factory) : IntegrationTe
         var mail = Mail.Mails.ShouldHaveSingleItem();
         mail.To.ShouldBe("ayse@test.com");
         mail.Body.ShouldContain($"/b/salon-a/r/{created.ManageToken}");
+        mail.Html.ShouldContain("Randevumu yönet");
+        mail.Html.ShouldContain($"/b/salon-a/r/{created.ManageToken}");
 
         var customers = await client.GetFromJsonAsync<ODataResponse<CustomerDto>>("/api/odata/customers", CancellationToken);
         customers!.Value.Single(c => c.FirstName == "Ayse").Email.ShouldBe("ayse@test.com");

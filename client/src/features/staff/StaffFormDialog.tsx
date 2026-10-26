@@ -179,7 +179,7 @@ export function StaffFormDialog({ open, staff, onClose }: StaffFormDialogProps) 
         )}
 
         <FormError error={saveMutation.error} />
-        <div className="mt-1 flex justify-end gap-3">
+        <div className="sticky bottom-0 -mx-6 -mb-6 flex justify-end gap-3 border-t border-line-soft bg-surface px-6 py-4">
           <button
             type="button"
             onClick={onClose}

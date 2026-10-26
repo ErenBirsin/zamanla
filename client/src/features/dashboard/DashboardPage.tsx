@@ -1,7 +1,6 @@
 import { useCurrentUser } from '@/features/auth/useCurrentUser'
 import { usePermissions } from '@/features/auth/usePermissions'
 import { formatDayTitle, todayKey } from '@/features/calendar/time'
-import { ApiStatusCard } from '@/features/system/ApiStatusCard'
 import { BookingLinkCard } from './BookingLinkCard'
 import { SetupChecklist } from './SetupChecklist'
 import { TodaySummary } from './TodaySummary'
@@ -9,12 +8,20 @@ import { UpcomingList } from './UpcomingList'
 import { useDashboard } from './useDashboard'
 import { useSetupProgress } from './useSetupProgress'
 import { WeeklyChart } from './WeeklyChart'
+import { BlockSkeleton } from '@/shared/ui/Skeleton'
+import { QueryError } from '@/shared/ui/QueryError'
 
 export function DashboardPage() {
   const { data: user } = useCurrentUser()
   const { isOwner } = usePermissions()
   const { steps, completed, isLoading } = useSetupProgress()
-  const { data: dashboard, isPending: dashboardPending } = useDashboard()
+  const {
+    data: dashboard,
+    isPending: dashboardPending,
+    isError: dashboardError,
+    error,
+    refetch,
+  } = useDashboard()
   const setupDone = completed === steps.length
 
   return (
@@ -37,7 +44,19 @@ export function DashboardPage() {
       )}
 
       {dashboardPending ? (
-        <p className="text-sm text-muted">Özet yükleniyor…</p>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {[1, 2, 3, 4].map((card) => (
+              <BlockSkeleton key={card} className="h-28" />
+            ))}
+          </div>
+          <div className="grid gap-5 lg:grid-cols-2">
+            <BlockSkeleton className="h-72" />
+            <BlockSkeleton className="h-72" />
+          </div>
+        </>
+      ) : dashboardError ? (
+        <QueryError error={error} onRetry={() => void refetch()} />
       ) : (
         dashboard && (
           <>
@@ -49,11 +68,11 @@ export function DashboardPage() {
           </>
         )
       )}
-
-      <div className="grid max-w-3xl gap-5 sm:grid-cols-2">
-        {user && <BookingLinkCard slug={user.tenantSlug} ready={setupDone} />}
-        <ApiStatusCard />
-      </div>
+      {user && (
+        <div className="max-w-xl">
+          <BookingLinkCard slug={user.tenantSlug} ready={setupDone} />
+        </div>
+      )}
     </>
   )
 }

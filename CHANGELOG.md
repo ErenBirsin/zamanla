@@ -1,5 +1,29 @@
 # Değişiklik günlüğü
 
+## [0.14.0] - 2026-10-26
+
+Aşama 6.1: Görünüm iyileştirmeleri.
+
+### Eklendi
+
+- Silme, davet iptali ve hesabı aktif veya pasif yapma işlemlerinde tarayıcının kendi onay kutusu yerine uygulamanın tasarımına uygun bir onay penceresi kullanılmaya başlandı.
+- Liste, ayarlar, genel bakış ve takvim sayfalarında veriler yüklenirken "Yükleniyor" yazısı yerine içeriklerin yerini alan iskeletler gösteriliyor. API'ye ulaşılamadığında boş bir liste yerine "Veriler yüklenemedi" kartı ve "Tekrar dene" düğmesi gösteriliyor.
+- Tablolardaki Hesap, Düzenle ve Sil düğmeleri ortak bir bileşende toplandı. Düğmeler ikonlu ve çerçeveli hale getirildi. Personel tablosunda dar ekranlarda yalnızca ikonlar gösteriliyor; üzerine gelindiğinde düğmenin adı görünüyor.
+- Takvimdeki randevu kartlarına personelin rengiyle uyumlu bir sol şerit ve hafif gölge eklendi. Geçmiş saatler daha soluk gösteriliyor, mesai öncesi ve sonrası alanlar "Mesai dışı" olarak işaretleniyor. Tamamlanan randevular ise beyaz kart ve "Tamamlandı" etiketiyle diğerlerinden ayrılıyor.
+- Sol menünün altındaki kullanıcı bilgisi baş harflerin gösterildiği bir karta dönüştürüldü. Şifre değiştirme ve çıkış seçenekleri, bu karta tıklanınca açılan menüye taşındı. Sol üstteki logoya tıklandığında Genel bakış sayfası açılıyor.
+- Mobil görünümde sol menü, üst çubuktaki ☰ düğmesiyle soldan açılan bir panele dönüştürüldü. Hizmetler, Personel, Müşteriler ve İzinler sayfalarındaki tablolar telefon ekranlarında kart listesi olarak gösteriliyor.
+- Davet, şifre sıfırlama, randevu onayı ve hatırlatma e-postaları için ortak bir HTML şablonu oluşturuldu. Şablonda logo, düğme ve randevu bilgilerinin bulunduğu bir kutu yer alıyor. HTML desteklemeyen e-posta programları için düz metin içeriği de eklendi. Müşteri ve salon adı gibi kullanıcıdan gelen bilgiler, HTML kodu olarak yorumlanmalarını önlemek için kodlanıyor. E-posta testlerine HTML içerik kontrolleri eklendi.
+
+### Kaldırıldı
+
+- Genel bakış sayfasındaki geliştirme amaçlı "Backend durumu" kartı ve sol menüdeki "Randevular · Yakında" yer tutucusu kaldırıldı.
+
+### Düzeltildi
+
+- Aynı anda başarısız olan isteklerde aynı hata mesajı birden fazla kez gösterilebiliyordu. Artık aynı mesaj için tek bir bildirim gösteriliyor.
+- Takvimdeki "şu an" çizgisi gerçek saatin birkaç dakika aşağısında duruyordu. Bu sorun düzeltildi.
+- Personel düzenleme gibi uzun pencerelerde pencerenin tamamı kaydığı için başlık ve Kaydet düğmesi görünümden çıkabiliyordu. Artık pencere ekran boyutuna sığıyor ve yalnızca içerik bölümü kayıyor. Başlık üstte, personel ve randevu formlarındaki düğmeler ise altta sabit kalıyor. Pencere açıkken arka plandaki sayfanın kayması da engellendi.
+
 ## [0.13.0] - 2026-10-23
 
 Aşama 5.7: Şifre sıfırlama ve şifre değiştirme.

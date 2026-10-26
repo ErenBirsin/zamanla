@@ -45,6 +45,7 @@ public sealed class StaffAccountTests(ZamanlaApiFactory factory) : IntegrationTe
         mail.To.ShouldBe(ElifEmail);
         mail.Subject.ShouldBe("Panel davetiniz · Test Salon");
         mail.Body.ShouldContain(created.Link);
+        mail.Html.ShouldContain(created.Link);
     }
 
     [Fact]

@@ -8,12 +8,14 @@ import '@fontsource-variable/plus-jakarta-sans'
 import './index.css'
 import { queryClient } from './shared/api/queryClient'
 import { router } from './router'
+import { ConfirmDialog } from './shared/ui/ConfirmDialog'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <Toaster position="top-center" richColors style={{ fontFamily: 'var(--font-sans)' }} />
+      <ConfirmDialog />
     </QueryClientProvider>
   </StrictMode>,
 )

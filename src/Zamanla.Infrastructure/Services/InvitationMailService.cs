@@ -28,7 +28,7 @@ internal sealed class InvitationMailService(
         var timeZone = await tenantRepository.GetTimeZoneAsync(tenant.Id, cancellationToken);
         var localExpires = TimeZoneInfo.ConvertTime(invitation.ExpiresAt, timeZone);
         var subject = $"Panel davetiniz · {tenant.Name.Value}";
-        var body = string.Join("\n",
+        var text = string.Join("\n",
             $"Merhaba {staff.FirstName.Value},",
             "",
             $"{tenant.Name.Value} sizi Zamanla paneline davet etti. Randevularınızı görmek ve yönetmek için aşağıdaki linkten şifrenizi belirleyin:",
@@ -36,10 +36,16 @@ internal sealed class InvitationMailService(
             url,
             "",
             $"Link {localExpires.ToString("d MMMM HH:mm", Culture)} tarihine kadar geçerli.");
+        var html = MailLayout.Render("Panele davet edildiniz",
+            MailLayout.Paragraph($"Merhaba {staff.FirstName.Value},") +
+            MailLayout.Paragraph($"{tenant.Name.Value} sizi Zamanla paneline davet etti. Randevularınızı görmek ve yönetmek için şifrenizi belirleyin.") +
+            MailLayout.Button("Şifremi belirle", url) +
+            MailLayout.LinkFallback(url) +
+            MailLayout.Note($"Link {localExpires.ToString("d MMMM HH:mm", Culture)} tarihine kadar geçerli."));
 
         try
         {
-            await mailService.SendAsync(invitation.Email.Value, subject, body, cancellationToken);
+            await mailService.SendAsync(invitation.Email.Value, subject, html, text, cancellationToken);
             return new InvitationLink(url, true);
         }
         catch (Exception ex)
