@@ -1,7 +1,6 @@
 import { useCurrentUser } from '@/features/auth/useCurrentUser'
 import { usePermissions } from '@/features/auth/usePermissions'
 import { formatDayTitle, todayKey } from '@/features/calendar/time'
-import { ApiStatusCard } from '@/features/system/ApiStatusCard'
 import { BookingLinkCard } from './BookingLinkCard'
 import { SetupChecklist } from './SetupChecklist'
 import { TodaySummary } from './TodaySummary'
@@ -69,11 +68,11 @@ export function DashboardPage() {
           </>
         )
       )}
-
-      <div className="grid max-w-3xl gap-5 sm:grid-cols-2">
-        {user && <BookingLinkCard slug={user.tenantSlug} ready={setupDone} />}
-        <ApiStatusCard />
-      </div>
+      {user && (
+        <div className="max-w-xl">
+          <BookingLinkCard slug={user.tenantSlug} ready={setupDone} />
+        </div>
+      )}
     </>
   )
 }
