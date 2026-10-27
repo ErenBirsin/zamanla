@@ -1,5 +1,14 @@
 # Değişiklik günlüğü
 
+## [0.14.1] - 2026-10-27
+
+Paket güncellemesi: .NET 10.0.13.
+
+### Güvenlik
+
+- .NET paketleri 10.0.12'den 10.0.13'e yükseltildi. Entegrasyon testlerinde kullanılan SignalR istemcisindeki bilinen açık bu sürümle kapandı.
+- SQL Server istemcisinin dolaylı olarak getirdiği `System.Security.Cryptography.Pkcs` paketi, bilinen iki açığın kapatıldığı 10.0.13 sürümüne sabitlendi. Bu açıklar için daha önce eklenen uyarı bastırma satırları kaldırıldı.
+
 ## [0.14.0] - 2026-10-26
 
 Aşama 6.1: Görünüm iyileştirmeleri.
