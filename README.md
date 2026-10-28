@@ -67,10 +67,10 @@ flowchart TB
         infra["Zamanla.Infrastructure<br/>EF Core, interceptor'lar,<br/>e-posta, SMS, JWT"] --> app["Zamanla.Application<br/>CQRS, doğrulama, yetki"] --> domain["Zamanla.Domain<br/>entity, value object,<br/>kurallar"]
     end
 
-    endpoints --> app
-    jobs --> app
-    infra --> db[("SQL Server")]
-    infra --> smtp["SMTP"]
+    endpoints --> core
+    jobs --> core
+    core --> db[("SQL Server")]
+    core --> smtp["SMTP"]
 ```
 
 ### Backend
