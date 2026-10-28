@@ -10,6 +10,7 @@ import { PasswordField } from '@/shared/ui/PasswordField'
 import { PasswordStrength } from '@/shared/ui/PasswordStrength'
 import { checkForgotPasswordCode, resetPassword } from './authApi'
 import { type ResetPasswordValues, resetPasswordSchema } from './schemas'
+import { StatusMessage } from '@/shared/ui/StatusMessage'
 
 export function ResetPasswordPage() {
   const { code = '' } = useParams()
@@ -55,15 +56,15 @@ export function ResetPasswordPage() {
     const invalid = isAxiosError(check.error) && check.error.response?.status === 404
 
     return (
-      <div className="flex flex-col gap-5">
-        <header className="flex flex-col gap-1.5">
-          <h2 className="text-3xl font-bold">Link açılamadı</h2>
-          {invalid && (
-            <p className="text-muted">
-              Bu link geçersiz, kullanılmış ya da süresi dolmuş. Yeni bir link isteyebilirsin.
-            </p>
-          )}
-        </header>
+      <StatusMessage
+        icon="link"
+        title="Link açılamadı"
+        message={
+          invalid
+            ? 'Bu link geçersiz, kullanılmış ya da süresi dolmuş. Yeni bir link isteyebilirsin.'
+            : undefined
+        }
+      >
         {!invalid && <FormError error={check.error} />}
         <Link
           to="/sifremi-unuttum"
@@ -74,7 +75,7 @@ export function ResetPasswordPage() {
         <Link to="/login" className="text-center text-sm font-semibold text-clay hover:underline">
           Giriş sayfasına dön
         </Link>
-      </div>
+      </StatusMessage>
     )
   }
 

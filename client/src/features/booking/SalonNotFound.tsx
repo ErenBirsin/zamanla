@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { FormError } from '@/shared/ui/FormError'
 import { Logo } from '@/shared/ui/Logo'
+import { StatusMessage } from '@/shared/ui/StatusMessage'
 
 interface SalonNotFoundProps {
   error: unknown
@@ -17,16 +18,17 @@ export function SalonNotFound({
   const notFound = isAxiosError(error) && error.response?.status === 404
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-start justify-center gap-6 px-6">
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-10 px-6 py-10">
       <Logo />
-      {notFound ? (
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold">{title}</h1>
-          <p className="text-muted">{message}</p>
-        </div>
-      ) : (
-        <FormError error={error} />
-      )}
+      <div className="w-full max-w-sm">
+        {notFound ? (
+          <StatusMessage icon="search" title={title} message={message} />
+        ) : (
+          <StatusMessage icon="alert" title="Sayfa açılamadı">
+            <FormError error={error} />
+          </StatusMessage>
+        )}
+      </div>
     </main>
   )
 }

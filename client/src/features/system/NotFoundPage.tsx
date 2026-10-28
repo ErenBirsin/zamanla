@@ -1,20 +1,25 @@
 import { Link } from 'react-router'
 import { Logo } from '@/shared/ui/Logo'
+import { StatusMessage } from '@/shared/ui/StatusMessage'
 
 export function NotFoundPage() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-start justify-center gap-6 px-6">
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-10 px-6 py-10">
       <Logo />
-      <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-bold">Sayfa bulunamadı</h1>
-        <p className="text-muted">Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.</p>
+      <div className="w-full max-w-sm">
+        <StatusMessage
+          icon="search"
+          title="Sayfa bulunamadı"
+          message="Aradığın sayfa taşınmış ya da hiç var olmamış olabilir."
+        >
+          <Link
+            to="/"
+            className="flex h-13 items-center justify-center rounded-full bg-clay text-[15px] font-semibold text-white hover:bg-clay-dark"
+          >
+            Ana sayfaya dön
+          </Link>
+        </StatusMessage>
       </div>
-      <Link
-        to="/"
-        className="flex h-11 items-center rounded-full bg-clay px-5 text-sm font-semibold text-white hover:bg-clay-dark"
-      >
-        Ana sayfaya dön
-      </Link>
     </main>
   )
 }
