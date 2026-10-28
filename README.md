@@ -8,9 +8,7 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 
 ![Günlük takvim: personel sütunları, molalar, online randevular ve "şu an" çizgisi](docs/screenshots/takvim.png)
 
-| Genel bakış | Giriş |
-| --- | --- |
-| ![Genel bakış: günün özeti ve son 7 günün grafiği](docs/screenshots/genel-bakis.png) | ![Giriş sayfası](docs/screenshots/giris.png) |
+![Genel bakış: günün özeti, sıradaki randevular ve son 7 günün grafiği](docs/screenshots/genel-bakis.png)
 
 <p align="center">
   <img src="docs/screenshots/randevu-sayfasi.png" alt="Müşterinin online randevu sayfası, bilgisayarda" width="68%">
@@ -19,6 +17,10 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 
 <details>
 <summary>Daha fazla ekran görüntüsü</summary>
+
+**Giriş sayfası**
+
+![Giriş sayfası](docs/screenshots/giris.png)
 
 **Online randevu: hizmet seçimi ve son adım**
 
