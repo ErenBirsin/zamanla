@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { formatPhone } from '@/features/customers/phone'
+import { maskPhone, withPhoneMask } from '@/features/customers/phone'
 import { FormError } from '@/shared/ui/FormError'
 import { FormField } from '@/shared/ui/FormField'
 import { type SettingsValues, settingsSchema } from './schemas'
@@ -19,7 +19,7 @@ function toFormValues(settings: Settings): SettingsValues {
     city: settings.address?.city ?? '',
     district: settings.address?.district ?? '',
     fullAddress: settings.address?.fullAddress ?? '',
-    phoneNumber: settings.phoneNumber ? formatPhone(settings.phoneNumber) : '',
+    phoneNumber: settings.phoneNumber ? maskPhone(settings.phoneNumber) : '',
     ...settings.bookingPolicy,
   }
 }
@@ -88,13 +88,14 @@ export function SettingsPage() {
             </div>
             <FormField
               label="Telefon"
+              prefix="+90"
               type="tel"
               inputMode="tel"
               autoComplete="off"
-              placeholder="0216 123 45 67"
+              placeholder="216 123 45 67"
               hint="İsteğe bağlı; randevu sayfasında müşterinin arayabileceği numara."
               error={errors.phoneNumber?.message}
-              {...register('phoneNumber')}
+              {...withPhoneMask(register('phoneNumber'))}
             />
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField label="İl" error={errors.city?.message} {...register('city')} />

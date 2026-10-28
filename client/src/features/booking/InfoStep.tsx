@@ -8,6 +8,7 @@ import { formatPrice } from '@/shared/ui/format'
 import { formatMonthShort, formatTimeRange } from './format'
 import type { BookingValues } from './schemas'
 import { StepHeading } from './StepHeading'
+import { withPhoneMask } from '@/features/customers/phone'
 
 interface InfoStepProps {
   form: UseFormReturn<BookingValues>
@@ -32,7 +33,6 @@ export function InfoStep({
   totalPrice,
   cancelHoursBefore,
 }: InfoStepProps) {
-  const phoneId = useId()
   const noteId = useId()
   const {
     register,
@@ -83,29 +83,16 @@ export function InfoStep({
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={phoneId} className="text-[13px] font-semibold">
-            Cep telefonu
-          </label>
-          <div className="flex gap-2">
-            <span className="flex h-12 items-center rounded-xl border border-[#dcd0c1] bg-sand-soft px-3.5 text-[15px] font-semibold">
-              +90
-            </span>
-            <input
-              id={phoneId}
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel-national"
-              placeholder="532 123 45 67"
-              aria-invalid={errors.phoneNumber ? true : undefined}
-              className="h-12 min-w-0 flex-1 rounded-xl border border-[#dcd0c1] bg-surface px-3.5 text-[15px] outline-none placeholder:text-muted/60 focus:border-clay focus:ring-3 focus:ring-clay-soft aria-invalid:border-clay"
-              {...register('phoneNumber')}
-            />
-          </div>
-          {errors.phoneNumber && (
-            <p className="text-[13px] text-clay-dark">{errors.phoneNumber.message}</p>
-          )}
-        </div>
+        <FormField
+          label="Cep telefonu"
+          prefix="+90"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel-national"
+          placeholder="532 123 45 67"
+          error={errors.phoneNumber?.message}
+          {...withPhoneMask(register('phoneNumber'))}
+        />
 
         <FormField
           label="E-posta"

@@ -8,6 +8,7 @@ import type { Customer } from '@/features/customers/types'
 import { customersQueryKey } from '@/features/customers/useCustomers'
 import { FormError } from '@/shared/ui/FormError'
 import { FormField } from '@/shared/ui/FormField'
+import { maskPhone, withPhoneMask } from '@/features/customers/phone'
 
 // hızlı kayıtta ad, soyad ve telefon yeterli; e-posta ve not müşteri sayfasından eklenir
 const quickCustomerSchema = customerSchema.pick({
@@ -25,9 +26,10 @@ interface NewCustomerFormProps {
 }
 
 // aramaya yazılan metin forma taşınır: rakamsa telefon, değilse ad soyad
+// aramaya yazılan metin forma taşınır: rakamsa telefon, değilse ad soyad
 function toDefaultValues(search: string): QuickCustomerValues {
   if (/^[\d\s()+-]+$/.test(search)) {
-    return { firstName: '', lastName: '', phoneNumber: search }
+    return { firstName: '', lastName: '', phoneNumber: maskPhone(search) }
   }
   const [firstName = '', ...rest] = search.split(/\s+/)
   return { firstName, lastName: rest.join(' '), phoneNumber: '' }
@@ -82,12 +84,13 @@ export function NewCustomerForm({ search, onSaved, onCancel }: NewCustomerFormPr
       </div>
       <FormField
         label="Telefon"
+        prefix="+90"
         type="tel"
         inputMode="tel"
         autoComplete="off"
-        placeholder="0532 123 45 67"
+        placeholder="532 123 45 67"
         error={errors.phoneNumber?.message}
-        {...register('phoneNumber')}
+        {...withPhoneMask(register('phoneNumber'))}
       />
 
       <FormError error={saveMutation.error} />
