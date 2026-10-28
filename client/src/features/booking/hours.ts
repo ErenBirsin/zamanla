@@ -3,7 +3,11 @@ import type { PublicStaff } from './types'
 
 // o gün en erken açan ve en geç kapanan personele göre; kimse çalışmıyorsa null
 export function openHours(staff: PublicStaff[], dateKey: string) {
-  const day = dayOfWeek(dateKey)
+  return openHoursOnDay(staff, dayOfWeek(dateKey))
+}
+
+// haftanın günü için (0 Pazar … 6 Cumartesi); çalışma saatleri listesinde kullanılır
+export function openHoursOnDay(staff: PublicStaff[], day: number) {
   const hours = staff.flatMap((member) => member.workingHours).filter((hour) => hour.day === day)
   if (hours.length === 0) return null
 
