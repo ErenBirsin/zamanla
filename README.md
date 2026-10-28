@@ -4,6 +4,42 @@
 
 Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) online randevu uygulaması. Salon sahibi hizmetlerini, personelini ve çalışma saatlerini panelden yönetir; müşteriler salonun kendine ait linkinden giriş yapmadan randevu alır.
 
+## Ekran görüntüleri
+
+![Günlük takvim: personel sütunları, molalar, online randevular ve "şu an" çizgisi](docs/screenshots/takvim.png)
+
+| Genel bakış | Giriş |
+| --- | --- |
+| ![Genel bakış: günün özeti ve son 7 günün grafiği](docs/screenshots/genel-bakis.png) | ![Giriş sayfası](docs/screenshots/giris.png) |
+
+<p align="center">
+  <img src="docs/screenshots/randevu-sayfasi.png" alt="Müşterinin online randevu sayfası, bilgisayarda" width="68%">
+  <img src="docs/screenshots/randevu-mobil.png" alt="Müşterinin online randevu sayfası, telefonda" width="24%">
+</p>
+
+<details>
+<summary>Daha fazla ekran görüntüsü</summary>
+
+**Online randevu: hizmet seçimi ve son adım**
+
+<p align="center">
+  <img src="docs/screenshots/randevu-adim1.png" alt="Hizmet seçimi, bilgisayarda" width="68%">
+  <img src="docs/screenshots/randevu-mobil-adim1.png" alt="Hizmet seçimi, telefonda" width="24%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/randevu-adim3.png" alt="Müşteri bilgileri, bilgisayarda" width="68%">
+  <img src="docs/screenshots/randevu-mobil-adim3.png" alt="Müşteri bilgileri, telefonda" width="24%">
+</p>
+
+**Randevu yönetim sayfası: takvime ekleme, saat değiştirme ve iptal**
+
+<p align="center">
+  <img src="docs/screenshots/yonetim.png" alt="Randevu yönetim sayfası, bilgisayarda" width="68%">
+  <img src="docs/screenshots/yonetim-mobil.png" alt="Randevu yönetim sayfası, telefonda" width="24%">
+</p>
+
+</details>
+
 ## Özellikler
 
 ### Salon paneli
