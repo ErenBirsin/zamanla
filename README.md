@@ -266,20 +266,25 @@ Gelen kutusu `http://localhost:5000` adresinde açılır. smtp4dev çalışmıyo
 
 ## Demo
 
-Geliştirme ortamında API ilk açıldığında "Demo Kuaför" adında dolu bir salon oluşturulur: 6 hizmet, 3 personel, 8 müşteri ve bugünden başlayan bir haftalık randevu. Demo salon zaten varsa tekrar eklenmez.
+Geliştirme ortamında API ilk açıldığında "Demo Kuaför" adında dolu bir salon oluşturulur: 12 hizmet (biri pasif), 4 personel, 80 müşteri, son 4 haftanın tamamlanan, gelmeyen ve iptal edilen randevuları, önümüzdeki 2 haftanın randevuları, personel izinleri ve bildirimler. Bütün isimler, telefonlar ve e-postalar uydurmadır. Demo salon zaten varsa tekrar eklenmez.
+
+| Hesap | E-posta | Şifre | Yetki |
+| --- | --- | --- | --- |
+| Salon sahibi | `demo@zamanla.test` | `Demo12345!` | Her şey |
+| Personel (Elif) | `elif@zamanla.test` | `Elif2026!` | İzinleri yönetir |
+| Personel (Mert) | `mert@zamanla.test` | `Mert2026!` | Yetkisi yok: takvimi görür, kendi randevularını yönetir |
 
 | | |
 | --- | --- |
 | Panel | `http://localhost:5173` |
-| E-posta | `demo@zamanla.test` |
-| Şifre | `Demo12345!` |
 | Randevu sayfası | `http://localhost:5173/b/demo-kuafor` |
+| Randevu yönetim sayfası | `http://localhost:5173/b/demo-kuafor/r/demo-randevu` |
 
-Bu hesap yalnızca yerel geliştirme içindir.
+Bu hesaplar yalnızca yerel geliştirme içindir.
 
-Personel hesabını denemek için Personel sayfasında bir personelin "Hesap" düğmesinden davet gönderebilirsin. Link e-postayla gelir (bkz. smtp4dev) ve pencerede de gösterilir; linkten şifre belirleyen personel panele kendi yetkileriyle girer.
+Yeni bir personel hesabı denemek için Personel sayfasında hesabı olmayan bir personelin "Hesap" düğmesinden davet gönderebilirsin. Link e-postayla gelir (bkz. smtp4dev) ve pencerede de gösterilir; linkten şifre belirleyen personel panele kendi yetkileriyle girer.
 
-Demo verisini sıfırdan oluşturmak için veritabanını silip tekrar kurabilirsin:
+Demo verisi kurulduğu güne göre oluşur. Sıfırdan oluşturmak için API'yi durdurup veritabanını silip tekrar kurabilirsin:
 
 ```bash
 dotnet ef database drop --project src/Zamanla.Infrastructure --startup-project src/Zamanla.WebAPI
@@ -332,5 +337,6 @@ client/
 - [ ] Aşama 6: Vitrin
   - [x] 6.1 Görünüm iyileştirmeleri
   - [x] 6.2 Herkese açık sayfalar 
+  - [x] 6.3 Demo verisi ve README vitrini
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).
