@@ -6,6 +6,10 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 
 ## Ekran görüntüleri
 
+Müşteri telefondan randevuyu onaylar onaylamaz randevu salonun takviminde belirir ve zil yeni bildirimi gösterir; panelde sayfa yenilenmez.
+
+![Online randevu: müşteri telefondan randevu alır, randevu salonun takvimine canlı düşer ve zil çalar](docs/screenshots/canli-takvim.gif)
+
 ![Günlük takvim: personel sütunları, molalar, online randevular ve "şu an" çizgisi](docs/screenshots/takvim.png)
 
 ![Genel bakış: günün özeti, sıradaki randevular ve son 7 günün grafiği](docs/screenshots/genel-bakis.png)
