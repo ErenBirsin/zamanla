@@ -1,5 +1,18 @@
 # Değişiklik günlüğü
 
+## [0.16.0] - 2026-10-28
+
+Aşama 6.3: Demo verisi ve README vitrini.
+
+### Eklendi
+
+- Demo salonun verileri genişletildi. Artık 12 hizmet (biri pasif), 4 personel ve 80 müşteri oluşturuluyor. Son 4 haftaya ait tamamlanmış, gelinmemiş ve iptal edilmiş randevuların yanı sıra önümüzdeki 2 haftanın randevuları da ekleniyor. Elif ve Mert için farklı yetkilere sahip personel hesapları oluşturuluyor. Ayrıca bir yıllık izin, bir rapor günü ve son günlere ait online randevu bildirimleri de demo verisine dahil edildi. Tüm isimler, telefon numaraları ve e-posta adresleri kurgusal. Randevu yönetimi sayfasını denemek için `demo-randevu` bağlantısı birkaç gün sonraki bir online randevuya bağlandı.
+- README'ye, online randevunun salon takvimine anlık olarak eklendiğini gösteren bir GIF, panel ve randevu sayfasından ekran görüntüleri, mimari diyagramı, online randevu akış diyagramı ve öne çıkan teknik kararlar bölümü eklendi. Demo bölümü de yeni hesaplar ve bağlantılarla güncellendi.
+
+### Değişti
+
+- Randevu yönetim sayfasında ve takvimdeki randevu detayında bulunan "Randevuyu iptal et" yazısı, çerçeveli bir düğme olarak düzenlendi.
+
 ## [0.15.0] - 2026-10-28
 
 Aşama 6.2: Herkese açık sayfalar.

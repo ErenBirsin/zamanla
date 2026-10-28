@@ -4,6 +4,48 @@
 
 Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) online randevu uygulaması. Salon sahibi hizmetlerini, personelini ve çalışma saatlerini panelden yönetir; müşteriler salonun kendine ait linkinden giriş yapmadan randevu alır.
 
+## Ekran görüntüleri
+
+Müşteri telefondan randevuyu onaylar onaylamaz randevu salonun takviminde belirir ve zil yeni bildirimi gösterir; panelde sayfa yenilenmez.
+
+![Online randevu: müşteri telefondan randevu alır, randevu salonun takvimine canlı düşer ve zil çalar](docs/screenshots/canli-takvim.gif)
+
+![Günlük takvim: personel sütunları, molalar, online randevular ve "şu an" çizgisi](docs/screenshots/takvim.png)
+
+![Genel bakış: günün özeti, sıradaki randevular ve son 7 günün grafiği](docs/screenshots/genel-bakis.png)
+
+<p align="center">
+  <img src="docs/screenshots/randevu-sayfasi.png" alt="Müşterinin online randevu sayfası, bilgisayarda" width="68%">
+  <img src="docs/screenshots/randevu-mobil.png" alt="Müşterinin online randevu sayfası, telefonda" width="24%">
+</p>
+
+<details>
+<summary>Daha fazla ekran görüntüsü</summary>
+
+**Giriş sayfası**
+
+![Giriş sayfası](docs/screenshots/giris.png)
+
+**Online randevu: hizmet seçimi ve son adım**
+
+<p align="center">
+  <img src="docs/screenshots/randevu-adim1.png" alt="Hizmet seçimi, bilgisayarda" width="68%">
+  <img src="docs/screenshots/randevu-mobil-adim1.png" alt="Hizmet seçimi, telefonda" width="24%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/randevu-adim3.png" alt="Müşteri bilgileri, bilgisayarda" width="68%">
+  <img src="docs/screenshots/randevu-mobil-adim3.png" alt="Müşteri bilgileri, telefonda" width="24%">
+</p>
+
+**Randevu yönetim sayfası: takvime ekleme, saat değiştirme ve iptal**
+
+<p align="center">
+  <img src="docs/screenshots/yonetim.png" alt="Randevu yönetim sayfası, bilgisayarda" width="68%">
+  <img src="docs/screenshots/yonetim-mobil.png" alt="Randevu yönetim sayfası, telefonda" width="24%">
+</p>
+
+</details>
+
 ## Özellikler
 
 ### Salon paneli
@@ -47,6 +89,32 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 
 ## Mimari ve teknolojiler
 
+```mermaid
+flowchart TB
+    customer["Müşteri<br/>/b/salon-adi"] --> client
+    owner["Salon sahibi ve personel"] --> client
+    client["React client<br/>TanStack Query, React Router"]
+
+    subgraph webapi["Zamanla.WebAPI"]
+        endpoints["Minimal API ve OData uçları<br/>JWT, istek sınırı"]
+        hub["SignalR hub"]
+        jobs["Arka plan işleri<br/>hatırlatma, token temizliği"]
+    end
+
+    client -- HTTP --> endpoints
+    hub -. "değişti sinyali" .-> client
+
+    subgraph core["Katmanlar · ok yönü bağımlılığı gösterir"]
+        direction LR
+        infra["Zamanla.Infrastructure<br/>EF Core, interceptor'lar,<br/>e-posta, SMS, JWT"] --> app["Zamanla.Application<br/>CQRS, doğrulama, yetki"] --> domain["Zamanla.Domain<br/>entity, value object,<br/>kurallar"]
+    end
+
+    endpoints --> core
+    jobs --> core
+    core --> db[("SQL Server")]
+    core --> smtp["SMTP"]
+```
+
 ### Backend
 
 - **Mimari:** Clean Architecture (Domain, Application, Infrastructure, WebAPI)
@@ -81,6 +149,38 @@ Berber, kuaför ve güzellik salonları için çok kiracılı (multi-tenant) onl
 - **xUnit v3, Shouldly:** birim ve entegrasyon testleri
 - **WebApplicationFactory + Respawn:** gerçek SQL Server üzerinde, her testten önce temizlenen veritabanı
 - **GitHub Actions:** her push ve PR'da backend testleri (SQL Server container ile) ve client lint/build
+
+## Öne çıkan teknik kararlar
+
+- **Tek veritabanında çok kiracılı yapı.** Her kayıtta `TenantId` var. Okumada EF Core global query filter salonun verisini ayırır; yazmada bir interceptor yeni kayda salonu kendisi atar ve başka salonun kaydının değiştirilmesini engeller. Herkese açık sayfalarda salon adresteki slug'dan bulunur.
+- **Çakışan randevuyu veritabanı engeller.** Personel kaydında bir concurrency token (`BookingVersion`) var ve her randevu kaydında artar. Aynı saate aynı anda gelen iki istekten ikincisi kaydedilemez, kullanıcıya tekrar denemesi söylenir.
+- **Randevu kendi kopyasını tutar.** Hizmetin süresi, hazırlık payı ve fiyatı randevu alınırken randevuya kopyalanır; hizmet sonradan değişse de geçmiş randevu ve ciro değişmez. Personel, hazırlık payı bitene kadar dolu sayılır.
+- **Canlı güncellemeler veri taşımaz.** Randevu, izin ya da bildirim kaydedilince bir interceptor salonun SignalR grubuna sadece "değişti" sinyali gönderir; panel veriyi kendi yetkisiyle yeniden çeker. Böylece yetkisi olmayan birine veri sızmaz ve her komuta ayrıca bildirim kodu yazılmaz.
+- **Yetkiler token'da değil veritabanında.** Yetkiler her istekte okunur; geri alınan yetki ya da pasif yapılan hesap hemen geçerli olur. Ciro yetkisi olmayan personele ciro bilgisi API'den hiç gönderilmez.
+- **Linklerdeki anahtarlar özetle saklanır.** Randevu yönetimi, davet, şifre sıfırlama ve refresh token'lar veritabanında SHA-256 özetiyle tutulur; veritabanı sızsa bile linkler kullanılamaz.
+- **Zaman tek yerden.** Saatler UTC saklanır, salonun saat diliminde gösterilir. Kod saati `TimeProvider` üzerinden okur, böylece zamana bağlı kurallar test edilebilir.
+- **Testler gerçek veritabanında.** Entegrasyon testleri sahte bir veritabanı yerine SQL Server üzerinde çalışır ve her testten önce Respawn ile temizlenir; CI'da da SQL Server container'ı kullanılır.
+
+### Online randevu takvime nasıl düşer
+
+```mermaid
+sequenceDiagram
+    actor M as Müşteri
+    participant A as API
+    participant D as SQL Server
+    participant H as SignalR
+    actor P as Salon paneli
+
+    M->>A: Randevu al (/b/demo-kuafor)
+    A->>A: Boş saat, izin ve kural kontrolü
+    A->>D: Randevu + bildirim (tek kayıt)
+    D-->>A: Kaydedildi
+    A-)H: calendarChanged, notificationsChanged
+    A-->>M: Onay ve yönetim linki
+    H-)P: Salonun grubuna sinyal
+    P->>A: Takvimi ve zili yeniden çek (yetkiyle)
+    A-->>P: Güncel veri
+```
 
 ## Kurulum
 
@@ -166,20 +266,25 @@ Gelen kutusu `http://localhost:5000` adresinde açılır. smtp4dev çalışmıyo
 
 ## Demo
 
-Geliştirme ortamında API ilk açıldığında "Demo Kuaför" adında dolu bir salon oluşturulur: 6 hizmet, 3 personel, 8 müşteri ve bugünden başlayan bir haftalık randevu. Demo salon zaten varsa tekrar eklenmez.
+Geliştirme ortamında API ilk açıldığında "Demo Kuaför" adında dolu bir salon oluşturulur: 12 hizmet (biri pasif), 4 personel, 80 müşteri, son 4 haftanın tamamlanan, gelmeyen ve iptal edilen randevuları, önümüzdeki 2 haftanın randevuları, personel izinleri ve bildirimler. Bütün isimler, telefonlar ve e-postalar uydurmadır. Demo salon zaten varsa tekrar eklenmez.
+
+| Hesap | E-posta | Şifre | Yetki |
+| --- | --- | --- | --- |
+| Salon sahibi | `demo@zamanla.test` | `Demo12345!` | Her şey |
+| Personel (Elif) | `elif@zamanla.test` | `Elif2026!` | İzinleri yönetir |
+| Personel (Mert) | `mert@zamanla.test` | `Mert2026!` | Yetkisi yok: takvimi görür, kendi randevularını yönetir |
 
 | | |
 | --- | --- |
 | Panel | `http://localhost:5173` |
-| E-posta | `demo@zamanla.test` |
-| Şifre | `Demo12345!` |
 | Randevu sayfası | `http://localhost:5173/b/demo-kuafor` |
+| Randevu yönetim sayfası | `http://localhost:5173/b/demo-kuafor/r/demo-randevu` |
 
-Bu hesap yalnızca yerel geliştirme içindir.
+Bu hesaplar yalnızca yerel geliştirme içindir.
 
-Personel hesabını denemek için Personel sayfasında bir personelin "Hesap" düğmesinden davet gönderebilirsin. Link e-postayla gelir (bkz. smtp4dev) ve pencerede de gösterilir; linkten şifre belirleyen personel panele kendi yetkileriyle girer.
+Yeni bir personel hesabı denemek için Personel sayfasında hesabı olmayan bir personelin "Hesap" düğmesinden davet gönderebilirsin. Link e-postayla gelir (bkz. smtp4dev) ve pencerede de gösterilir; linkten şifre belirleyen personel panele kendi yetkileriyle girer.
 
-Demo verisini sıfırdan oluşturmak için veritabanını silip tekrar kurabilirsin:
+Demo verisi kurulduğu güne göre oluşur. Sıfırdan oluşturmak için API'yi durdurup veritabanını silip tekrar kurabilirsin:
 
 ```bash
 dotnet ef database drop --project src/Zamanla.Infrastructure --startup-project src/Zamanla.WebAPI
@@ -232,5 +337,6 @@ client/
 - [ ] Aşama 6: Vitrin
   - [x] 6.1 Görünüm iyileştirmeleri
   - [x] 6.2 Herkese açık sayfalar 
+  - [x] 6.3 Demo verisi ve README vitrini
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).
