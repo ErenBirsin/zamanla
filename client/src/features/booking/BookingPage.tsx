@@ -19,6 +19,7 @@ import { ServiceStep } from './ServiceStep'
 import { StepBar } from './StepBar'
 import { TimeStep } from './TimeStep'
 import { publicQueryKey, usePublicSalon } from './usePublicSalon'
+import { SalonInfoCard } from '@/features/booking/SalonInfoCard'
 
 export function BookingPage() {
   const { slug = '' } = useParams()
@@ -98,88 +99,95 @@ export function BookingPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col">
-      {step === 1 ? (
-        <SalonHeader salon={salon.data} />
-      ) : (
-        <StepBar
-          salonName={salon.data.name}
-          subtitle={step === 2 ? `${servicesTitle} · ${servicesSummary}` : 'Son adım'}
-          onBack={() => goTo(step - 1, true)}
-        />
-      )}
+    // bilgisayarda solda salon bilgisi, sağda adımlar; telefonda tek sütun
+    <div className="lg:mx-auto lg:flex lg:max-w-5xl lg:items-start lg:gap-10 lg:px-8 lg:py-10">
+      <SalonInfoCard salon={salon.data} />
 
-      <main className="flex flex-col gap-4.5 px-5 pt-5.5 pb-36">
-        {step === 1 && (
-          <ServiceStep
-            services={salon.data.services}
-            selectedIds={salonServiceIds}
-            onToggle={toggleService}
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col lg:mx-0 lg:min-h-0 lg:max-w-xl lg:flex-1">
+        {step === 1 ? (
+          <div className="lg:hidden">
+            <SalonHeader salon={salon.data} />
+          </div>
+        ) : (
+          <StepBar
+            salonName={salon.data.name}
+            subtitle={step === 2 ? `${servicesTitle} · ${servicesSummary}` : 'Son adım'}
+            onBack={() => goTo(step - 1, true)}
           />
+        )}
+
+        <main className="flex flex-col gap-4.5 px-5 pt-5.5 pb-36 lg:pb-6">
+          {step === 1 && (
+            <ServiceStep
+              services={salon.data.services}
+              selectedIds={salonServiceIds}
+              onToggle={toggleService}
+            />
+          )}
+          {step === 2 && (
+            <TimeStep
+              slug={slug}
+              salon={salon.data}
+              salonServiceIds={salonServiceIds}
+              staffId={staffId}
+              onStaffChange={(id) => {
+                setStaffId(id)
+                setSlot(null)
+              }}
+              date={date}
+              onDateChange={(day) => {
+                setDate(day)
+                setSlot(null)
+              }}
+              slot={slot}
+              onSlotChange={setSlot}
+            />
+          )}
+          {step === 3 && slot && (
+            <InfoStep
+              form={form}
+              onSubmit={(values) => bookMutation.mutate(values)}
+              error={bookMutation.error}
+              slot={slot}
+              endAt={new Date(
+                new Date(slot.startAt).getTime() + totalDuration * 60_000,
+              ).toISOString()}
+              servicesTitle={servicesTitle}
+              totalPrice={totalPrice}
+              cancelHoursBefore={salon.data.cancelHoursBefore}
+            />
+          )}
+        </main>
+
+        {step === 1 && (
+          <BookingFooter
+            title={servicesTitle || 'Hizmet seç'}
+            subtitle={selectedServices.length > 0 ? servicesSummary : 'Birden fazla seçebilirsin'}
+          >
+            <ContinueButton disabled={selectedServices.length === 0} onClick={() => goTo(2)} />
+          </BookingFooter>
         )}
         {step === 2 && (
-          <TimeStep
-            slug={slug}
-            salon={salon.data}
-            salonServiceIds={salonServiceIds}
-            staffId={staffId}
-            onStaffChange={(id) => {
-              setStaffId(id)
-              setSlot(null)
-            }}
-            date={date}
-            onDateChange={(day) => {
-              setDate(day)
-              setSlot(null)
-            }}
-            slot={slot}
-            onSlotChange={setSlot}
-          />
-        )}
-        {step === 3 && slot && (
-          <InfoStep
-            form={form}
-            onSubmit={(values) => bookMutation.mutate(values)}
-            error={bookMutation.error}
-            slot={slot}
-            endAt={new Date(
-              new Date(slot.startAt).getTime() + totalDuration * 60_000,
-            ).toISOString()}
-            servicesTitle={servicesTitle}
-            totalPrice={totalPrice}
-            cancelHoursBefore={salon.data.cancelHoursBefore}
-          />
-        )}
-      </main>
-
-      {step === 1 && (
-        <BookingFooter
-          title={servicesTitle || 'Hizmet seç'}
-          subtitle={selectedServices.length > 0 ? servicesSummary : 'Birden fazla seçebilirsin'}
-        >
-          <ContinueButton disabled={selectedServices.length === 0} onClick={() => goTo(2)} />
-        </BookingFooter>
-      )}
-      {step === 2 && (
-        <BookingFooter
-          title={slot ? formatSlot(slot.startAt) : 'Saat seç'}
-          subtitle={slot ? `${slot.staffFullName} ile, ${totalDuration} dk` : servicesSummary}
-        >
-          <ContinueButton disabled={!slot} onClick={() => goTo(3)} />
-        </BookingFooter>
-      )}
-      {step === 3 && (
-        <BookingFooter>
-          <button
-            type="submit"
-            form={BOOKING_FORM_ID}
-            disabled={bookMutation.isPending}
-            className="h-13 flex-1 cursor-pointer rounded-full bg-clay text-base font-semibold text-white hover:bg-clay-dark disabled:cursor-default disabled:opacity-60"
+          <BookingFooter
+            title={slot ? formatSlot(slot.startAt) : 'Saat seç'}
+            subtitle={slot ? `${slot.staffFullName} ile, ${totalDuration} dk` : servicesSummary}
           >
-            {bookMutation.isPending ? 'Kaydediliyor…' : 'Randevuyu onayla'}
-          </button>
-        </BookingFooter>
-      )}
+            <ContinueButton disabled={!slot} onClick={() => goTo(3)} />
+          </BookingFooter>
+        )}
+        {step === 3 && (
+          <BookingFooter>
+            <button
+              type="submit"
+              form={BOOKING_FORM_ID}
+              disabled={bookMutation.isPending}
+              className="h-13 flex-1 cursor-pointer rounded-full bg-clay text-base font-semibold text-white hover:bg-clay-dark disabled:cursor-default disabled:opacity-60"
+            >
+              {bookMutation.isPending ? 'Kaydediliyor…' : 'Randevuyu onayla'}
+            </button>
+          </BookingFooter>
+        )}
+      </div>
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { Dialog } from '@/shared/ui/Dialog'
 import { FormError } from '@/shared/ui/FormError'
 import { FormField } from '@/shared/ui/FormField'
 import { createCustomer, updateCustomer } from './customersApi'
-import { formatPhone } from './phone'
+import { maskPhone, withPhoneMask } from './phone'
 import { type CustomerValues, customerSchema } from './schemas'
 import type { Customer } from './types'
 import { customersQueryKey } from './useCustomers'
@@ -30,7 +30,7 @@ function toFormValues(customer: Customer): CustomerValues {
   return {
     firstName: customer.firstName,
     lastName: customer.lastName,
-    phoneNumber: formatPhone(customer.phoneNumber),
+    phoneNumber: maskPhone(customer.phoneNumber),
     email: customer.email ?? '',
     note: customer.note ?? '',
   }
@@ -80,12 +80,13 @@ export function CustomerFormDialog({ open, customer, onClose }: CustomerFormDial
         </div>
         <FormField
           label="Telefon"
+          prefix="+90"
           type="tel"
           inputMode="tel"
           autoComplete="off"
-          placeholder="0532 123 45 67"
+          placeholder="532 123 45 67"
           error={errors.phoneNumber?.message}
-          {...register('phoneNumber')}
+          {...withPhoneMask(register('phoneNumber'))}
         />
         <FormField
           label="E-posta"

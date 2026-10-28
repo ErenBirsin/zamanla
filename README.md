@@ -231,5 +231,6 @@ client/
   - [x] 5.7 Şifre sıfırlama ve şifre değiştirme
 - [ ] Aşama 6: Vitrin
   - [x] 6.1 Görünüm iyileştirmeleri
+  - [x] 6.2 Herkese açık sayfalar 
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).

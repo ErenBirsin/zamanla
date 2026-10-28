@@ -10,8 +10,8 @@ interface BookingFooterProps {
 // telefonda başparmağın ulaştığı yerde sabit; seçimin özeti ve devam butonu
 export function BookingFooter({ title, subtitle, children }: BookingFooterProps) {
   return (
-    <footer className="fixed inset-x-0 bottom-0 border-t border-line bg-surface">
-      <div className="mx-auto flex max-w-md items-center gap-4 px-5 pt-4 pb-7">
+    <footer className="fixed inset-x-0 bottom-0 border-t border-line bg-surface lg:sticky lg:bottom-6 lg:mx-5 lg:rounded-card lg:border lg:shadow-lg">
+      <div className="mx-auto flex max-w-md items-center gap-4 px-5 pt-4 pb-7 lg:max-w-none lg:pb-4">
         {title && (
           <div className="flex min-w-0 flex-1 flex-col">
             <span className="truncate text-[15px] font-bold">{title}</span>

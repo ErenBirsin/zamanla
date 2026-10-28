@@ -12,6 +12,7 @@ import { SalonNotFound } from './SalonNotFound'
 import { useManagedAppointment } from './useManagedAppointment'
 import { publicQueryKey, usePublicSalon } from './usePublicSalon'
 import { formatPhone } from '@/features/customers/phone'
+import { SalonInfoCard } from '@/features/booking/SalonInfoCard'
 
 const statusNotes: Record<string, string> = {
   'İptal Edildi': 'Bu randevu iptal edildi.',
@@ -84,72 +85,92 @@ export function ManagePage() {
     })
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-5 pt-10 pb-8">
-      {justBooked && isOpen ? (
-        <div className="flex flex-col items-center gap-3 text-center">
-          <span className="flex size-18 items-center justify-center rounded-full bg-sage-soft">
-            <span className="flex size-12 items-center justify-center rounded-full bg-sage">
+    <div className="lg:mx-auto lg:flex lg:max-w-5xl lg:items-start lg:gap-10 lg:px-8 lg:py-10">
+      <SalonInfoCard salon={salon.data} />
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-5 pt-10 pb-8 lg:mx-0 lg:min-h-0 lg:max-w-xl lg:flex-1 lg:pt-0">
+        {justBooked && isOpen ? (
+          <div className="flex flex-col items-center gap-3 text-center">
+            <span className="flex size-18 items-center justify-center rounded-full bg-sage-soft">
+              <span className="flex size-12 items-center justify-center rounded-full bg-sage">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </span>
+            </span>
+            <h1 className="text-[28px] leading-tight font-bold">
+              Randevun hazır, {item.customerFullName.split(' ')[0]}!
+            </h1>
+            <p className="text-sm text-muted">
+              Bu sayfanın linkini kaydet. Randevunu buradan görebilir, değiştirebilir ya da iptal
+              edebilirsin.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <span className="text-[13px] text-muted">{item.customerFullName}</span>
+            <h1 className="text-[28px] leading-tight font-bold">Randevun</h1>
+          </div>
+        )}
+
+        {!isOpen && (
+          <p
+            role="note"
+            className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-soft"
+          >
+            {statusNotes[item.status]}
+          </p>
+        )}
+
+        <div className="overflow-hidden rounded-[20px] border border-line bg-surface">
+          <div className="flex flex-col gap-1 bg-ink px-4.5 py-4 text-sand">
+            <span className="text-xs font-semibold text-[#cfc4b6]">
+              {salon.data.name} · {item.appointmentNumber}
+            </span>
+            <span
+              className={`font-display text-2xl font-bold ${isOpen ? '' : 'line-through opacity-70'}`}
+            >
+              {formatSlot(item.startAt)}
+            </span>
+          </div>
+          <dl className="flex flex-col gap-2.5 px-4.5 py-4 text-sm">
+            <Row label="Hizmet" value={`${services} · ${duration} dk`} />
+            <Row label="Personel" value={item.staffFullName} />
+            <Row label="Ücret" value={`${formatPrice(item.total)} · salonda`} />
+            {address && <Row label="Adres" value={address} />}
+          </dl>
+        </div>
+
+        <div className="flex gap-2.5">
+          {isOpen && (
+            <button type="button" onClick={addToCalendar} className={actionButton}>
               <svg
-                width="22"
-                height="22"
+                width="17"
+                height="17"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#fff"
-                strokeWidth="3"
+                stroke="currentColor"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 aria-hidden
               >
-                <path d="M20 6 9 17l-5-5" />
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4" />
               </svg>
-            </span>
-          </span>
-          <h1 className="text-[28px] leading-tight font-bold">
-            Randevun hazır, {item.customerFullName.split(' ')[0]}!
-          </h1>
-          <p className="text-sm text-muted">
-            Bu sayfanın linkini kaydet. Randevunu buradan görebilir, değiştirebilir ya da iptal
-            edebilirsin.
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1">
-          <span className="text-[13px] text-muted">{item.customerFullName}</span>
-          <h1 className="text-[28px] leading-tight font-bold">Randevun</h1>
-        </div>
-      )}
-
-      {!isOpen && (
-        <p
-          role="note"
-          className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-soft"
-        >
-          {statusNotes[item.status]}
-        </p>
-      )}
-
-      <div className="overflow-hidden rounded-[20px] border border-line bg-surface">
-        <div className="flex flex-col gap-1 bg-ink px-4.5 py-4 text-sand">
-          <span className="text-xs font-semibold text-[#cfc4b6]">
-            {salon.data.name} · {item.appointmentNumber}
-          </span>
-          <span
-            className={`font-display text-2xl font-bold ${isOpen ? '' : 'line-through opacity-70'}`}
-          >
-            {formatSlot(item.startAt)}
-          </span>
-        </div>
-        <dl className="flex flex-col gap-2.5 px-4.5 py-4 text-sm">
-          <Row label="Hizmet" value={`${services} · ${duration} dk`} />
-          <Row label="Personel" value={item.staffFullName} />
-          <Row label="Ücret" value={`${formatPrice(item.total)} · salonda`} />
-          {address && <Row label="Adres" value={address} />}
-        </dl>
-      </div>
-
-      <div className="flex gap-2.5">
-        {isOpen && (
-          <button type="button" onClick={addToCalendar} className={actionButton}>
+              Takvime ekle
+            </button>
+          )}
+          <button type="button" onClick={() => void copyLink()} className={actionButton}>
             <svg
               width="17"
               height="17"
@@ -161,118 +182,101 @@ export function ManagePage() {
               strokeLinejoin="round"
               aria-hidden
             >
-              <rect x="3" y="4" width="18" height="18" rx="2" />
-              <path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4" />
+              <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
+              <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
             </svg>
-            Takvime ekle
+            Linki kopyala
           </button>
-        )}
-        <button type="button" onClick={() => void copyLink()} className={actionButton}>
-          <svg
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
-            <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
-          </svg>
-          Linki kopyala
-        </button>
-      </div>
-
-      {isOpen && (
-        <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-sand-soft px-4 py-3.5 text-[13px] text-ink-soft">
-          {item.canCancel ? (
-            <p>
-              Son ücretsiz iptal: <strong>{formatDateTime(item.cancelDeadline)}</strong>. O saate
-              kadar bu sayfadan iptal edebilirsin.
-            </p>
-          ) : (
-            <p>
-              İptal için son saat geçti. Gelemeyeceksen lütfen salonu ara
-              {phone && (
-                <>
-                  :{' '}
-                  <a href={`tel:${phone}`} className="font-semibold text-ink underline">
-                    {formatPhone(phone)}
-                  </a>
-                </>
-              )}
-              .
-            </p>
-          )}
-          <p>Ödeme salonda yapılır. Linki kaybetmemek için Takvime ekle'yi kullanabilirsin.</p>
         </div>
-      )}
 
-      {isOpen && mode === 'reschedule' && (
-        <RescheduleSection
-          slug={slug}
-          token={token}
-          salon={salon.data}
-          appointment={item}
-          onClose={() => setMode(null)}
-        />
-      )}
-
-      {isOpen && mode === 'cancel' && (
-        <div className="flex flex-col gap-3 rounded-[20px] border border-clay/30 bg-clay-soft/50 p-4.5">
-          <p className="text-sm">
-            <strong>{formatSlot(item.startAt)}</strong> randevun iptal edilsin mi? Bu işlem geri
-            alınamaz.
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setMode(null)}
-              className="h-11 cursor-pointer rounded-full border border-line bg-surface text-sm font-semibold hover:bg-sand-soft"
-            >
-              Vazgeç
-            </button>
-            <button
-              type="button"
-              disabled={cancelMutation.isPending}
-              onClick={() => cancelMutation.mutate()}
-              className="h-11 cursor-pointer rounded-full bg-clay text-sm font-semibold text-white hover:bg-clay-dark disabled:cursor-default disabled:opacity-60"
-            >
-              İptal et
-            </button>
+        {isOpen && (
+          <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-sand-soft px-4 py-3.5 text-[13px] text-ink-soft">
+            {item.canCancel ? (
+              <p>
+                Son ücretsiz iptal: <strong>{formatDateTime(item.cancelDeadline)}</strong>. O saate
+                kadar bu sayfadan iptal edebilirsin.
+              </p>
+            ) : (
+              <p>
+                İptal için son saat geçti. Gelemeyeceksen lütfen salonu ara
+                {phone && (
+                  <>
+                    :{' '}
+                    <a href={`tel:${phone}`} className="font-semibold text-ink underline">
+                      {formatPhone(phone)}
+                    </a>
+                  </>
+                )}
+                .
+              </p>
+            )}
+            <p>Ödeme salonda yapılır. Linki kaybetmemek için Takvime ekle'yi kullanabilirsin.</p>
           </div>
-        </div>
-      )}
+        )}
 
-      {isOpen && mode === null && (item.canReschedule || item.canCancel) && (
-        <div className="flex flex-col gap-2">
-          {item.canReschedule && (
-            <button
-              type="button"
-              onClick={() => setMode('reschedule')}
-              className="h-12 cursor-pointer rounded-full bg-ink text-[15px] font-semibold text-white"
-            >
-              Saati değiştir
-            </button>
-          )}
-          {item.canCancel && (
-            <button
-              type="button"
-              onClick={() => setMode('cancel')}
-              className="h-11 cursor-pointer text-sm font-semibold text-clay-dark hover:text-clay"
-            >
-              Randevuyu iptal et
-            </button>
-          )}
-        </div>
-      )}
+        {isOpen && mode === 'reschedule' && (
+          <RescheduleSection
+            slug={slug}
+            token={token}
+            salon={salon.data}
+            appointment={item}
+            onClose={() => setMode(null)}
+          />
+        )}
 
-      <footer className="mt-auto pt-6 text-center text-xs text-muted">
-        <strong className="font-display text-sm text-ink">zamanla</strong> ile alındı
-      </footer>
+        {isOpen && mode === 'cancel' && (
+          <div className="flex flex-col gap-3 rounded-[20px] border border-clay/30 bg-clay-soft/50 p-4.5">
+            <p className="text-sm">
+              <strong>{formatSlot(item.startAt)}</strong> randevun iptal edilsin mi? Bu işlem geri
+              alınamaz.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setMode(null)}
+                className="h-11 cursor-pointer rounded-full border border-line bg-surface text-sm font-semibold hover:bg-sand-soft"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                disabled={cancelMutation.isPending}
+                onClick={() => cancelMutation.mutate()}
+                className="h-11 cursor-pointer rounded-full bg-clay text-sm font-semibold text-white hover:bg-clay-dark disabled:cursor-default disabled:opacity-60"
+              >
+                İptal et
+              </button>
+            </div>
+          </div>
+        )}
+
+        {isOpen && mode === null && (item.canReschedule || item.canCancel) && (
+          <div className="flex flex-col gap-2">
+            {item.canReschedule && (
+              <button
+                type="button"
+                onClick={() => setMode('reschedule')}
+                className="h-12 cursor-pointer rounded-full bg-ink text-[15px] font-semibold text-white"
+              >
+                Saati değiştir
+              </button>
+            )}
+            {item.canCancel && (
+              <button
+                type="button"
+                onClick={() => setMode('cancel')}
+                className="h-11 cursor-pointer text-sm font-semibold text-clay-dark hover:text-clay"
+              >
+                Randevuyu iptal et
+              </button>
+            )}
+          </div>
+        )}
+
+        <footer className="mt-auto pt-6 text-center text-xs text-muted">
+          <strong className="font-display text-sm text-ink">zamanla</strong> ile alındı
+        </footer>
+      </div>
     </div>
   )
 }

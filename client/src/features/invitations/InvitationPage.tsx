@@ -11,6 +11,7 @@ import { PasswordField } from '@/shared/ui/PasswordField'
 import { PasswordStrength } from '@/shared/ui/PasswordStrength'
 import { acceptInvitation, getInvitation } from './invitationsApi'
 import { type InvitationValues, invitationSchema } from './schemas'
+import { StatusMessage } from '@/shared/ui/StatusMessage'
 
 export function InvitationPage() {
   const { slug = '', token = '' } = useParams()
@@ -54,19 +55,15 @@ export function InvitationPage() {
     // 404 kullanılmış ya da geri alınmış, 410 süresi dolmuş davet
     const status = isAxiosError(invitation.error) ? invitation.error.response?.status : undefined
     const known = status === 404 || status === 410
+    const message =
+      status === 410
+        ? 'Davetin süresi dolmuş. Salon sahibinden yeni bir davet isteyebilirsin.'
+        : status === 404
+          ? 'Bu davet kullanılmış ya da geri alınmış. Hesabın açıldıysa giriş yapabilirsin.'
+          : undefined
 
     return (
-      <div className="flex flex-col gap-5">
-        <header className="flex flex-col gap-1.5">
-          <h2 className="text-3xl font-bold">Davet açılamadı</h2>
-          {known && (
-            <p className="text-muted">
-              {status === 410
-                ? 'Davetin süresi dolmuş. Salon sahibinden yeni bir davet isteyebilirsin.'
-                : 'Bu davet kullanılmış ya da geri alınmış. Hesabın açıldıysa giriş yapabilirsin.'}
-            </p>
-          )}
-        </header>
+      <StatusMessage icon="mail" title="Davet açılamadı" message={message}>
         {!known && <FormError error={invitation.error} />}
         <Link
           to="/login"
@@ -74,7 +71,7 @@ export function InvitationPage() {
         >
           Giriş sayfasına git
         </Link>
-      </div>
+      </StatusMessage>
     )
   }
 
