@@ -294,7 +294,7 @@ export function AppointmentDetailPanel({
             <button
               type="button"
               onClick={() => setConfirming('cancel')}
-              className="h-10 cursor-pointer text-sm font-semibold text-clay-dark hover:text-clay"
+              className="h-11 cursor-pointer rounded-full border border-line text-sm font-semibold text-clay-dark hover:bg-clay-soft/50"
             >
               Randevuyu iptal et
             </button>

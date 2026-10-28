@@ -265,7 +265,7 @@ export function ManagePage() {
               <button
                 type="button"
                 onClick={() => setMode('cancel')}
-                className="h-11 cursor-pointer text-sm font-semibold text-clay-dark hover:text-clay"
+                className="h-12 cursor-pointer rounded-full border border-line bg-surface text-[15px] font-semibold text-clay-dark hover:bg-clay-soft/50"
               >
                 Randevuyu iptal et
               </button>
