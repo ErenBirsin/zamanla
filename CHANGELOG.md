@@ -1,5 +1,16 @@
 # Değişiklik günlüğü
 
+## [0.15.0] - 2026-10-28
+
+Aşama 6.2: Herkese açık sayfalar.
+
+### Eklendi
+
+- Giriş, kayıt ve şifre sayfalarındaki koyu panele ürünün küçük bir önizlemesi eklendi. Önizlemede örnek bir güne ait randevu listesi ve yeni bir online randevu bildirimi gösteriliyor. Panelin altında da üç kısa özellik maddesi yer alıyor. Geniş ekranlarda içerik panelin ortasında toplanırken telefonlarda panel yalnızca logonun bulunduğu ince bir şerit olarak gösteriliyor.
+- Geçersiz şifre sıfırlama bağlantısı, açılamayan davet ve bulunamayan sayfa, salon veya randevu durumları için ikonlu ortak bir durum kartı oluşturuldu. Davet ekranında bağlantının süresinin dolmuş olması ile daha önce kullanılmış ya da geri alınmış olması ayrı mesajlarla belirtiliyor.
+- Randevu oluşturma ve randevu yönetimi sayfaları bilgisayarlarda iki sütunlu hale getirildi. Sol tarafta salonun adı, adresi, telefonu ve haftalık çalışma saatleri sabit bir kartta gösteriliyor. İçinde bulunulan gün kalın yazıyla belirtiliyor, salonun kapalı olduğu günlerde ise "Kapalı" yazıyor. Sağ tarafta randevu adımları yer alıyor. Alt çubuk bu sütunun genişliğinde bir kart olarak ekranın altına sabitlendi. Telefon görünümünde değişiklik yapılmadı.
+- Tüm telefon alanlarına `+90` ülke kodu kutusu eklendi. Numara girilirken rakamlar `532 123 45 67` biçiminde gruplandırılıyor. Baştaki `0` veya `90` alana yazılmıyor ve 10 haneden fazla rakam girilmesi engelleniyor. Kayıtlı numaralar düzenleme formlarında da bu biçimde gösteriliyor. Liste ekranlarında ise `0532 123 45 67` formatı korunuyor.
+
 ## [0.14.1] - 2026-10-27
 
 Paket güncellemesi: .NET 10.0.13.
