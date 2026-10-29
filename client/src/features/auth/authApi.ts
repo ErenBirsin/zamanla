@@ -39,6 +39,10 @@ export async function changePassword(currentPassword: string, newPassword: strin
   return data.data!
 }
 
+export async function revokeRefreshToken(refreshToken: string) {
+  await http.post<Result<string>>('/auth/logout', { refreshToken })
+}
+
 export async function getCurrentUser() {
   const { data } = await http.get<Result<CurrentUser>>('/auth/me')
   return data.data!

@@ -10,6 +10,7 @@ import { Logo } from '@/shared/ui/Logo'
 import { useRealtimeUpdates } from '@/shared/realtime/useRealtimeUpdates'
 import { NotificationBell } from '@/features/notifications/NotificationBell'
 import { UserMenu } from '@/features/panel/UserMenu'
+import { revokeRefreshToken } from '@/features/auth/authApi'
 
 interface NavItem {
   to: string
@@ -42,6 +43,10 @@ export function PanelLayout() {
   useRealtimeUpdates()
 
   const logout = () => {
+    const { refreshToken } = useSession.getState()
+    if (refreshToken) {
+      void revokeRefreshToken(refreshToken).catch(() => undefined)
+    }
     queryClient.clear()
     clearSession()
   }

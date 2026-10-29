@@ -13,6 +13,7 @@ const anonymousEndpoints = [
   '/auth/login',
   '/auth/register',
   '/auth/refresh',
+  '/auth/logout',
   '/auth/forgot-password',
   '/auth/check-forgot-password-code',
   '/auth/reset-password',
