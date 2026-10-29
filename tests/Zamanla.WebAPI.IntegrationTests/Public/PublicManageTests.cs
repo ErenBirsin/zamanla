@@ -100,7 +100,7 @@ public sealed class PublicManageTests(ZamanlaApiFactory factory) : IntegrationTe
         var appointment = await GetAsync("salon-a", token);
         appointment.Status.ShouldBe("Onaylandı");
         appointment.CanCancel.ShouldBeFalse();
-        appointment.CanReschedule.ShouldBeTrue();
+        appointment.CanReschedule.ShouldBeFalse();
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public sealed class PublicManageTests(ZamanlaApiFactory factory) : IntegrationTe
     }
 
     [Fact]
-    public async Task Reschedule_AfterStart_ReturnsBadRequest()
+    public async Task Reschedule_LessThanThreeHoursBefore_ReturnsBadRequest()
     {
         var tokens = await RegisterAsync("salon-a", "a@test.com");
         var user = await GetMeAsync(tokens.AccessToken);
@@ -148,12 +148,34 @@ public sealed class PublicManageTests(ZamanlaApiFactory factory) : IntegrationTe
         owner.DefaultRequestHeaders.Authorization = new("Bearer", tokens.AccessToken);
         var salon = await SetupSalonAsync(owner);
         var token = await BookAsync("salon-a", salon, NextMonday(10));
-        await MoveAppointmentAsync(user, token, DateTimeOffset.UtcNow.AddMinutes(-10));
+        await MoveAppointmentAsync(user, token, DateTimeOffset.UtcNow.AddHours(1));
 
         var response = await RescheduleAsync("salon-a", token, salon, NextMonday(14));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var result = await response.Content.ReadFromJsonAsync<Result<string>>(CancellationToken);
+        result!.ErrorMessages!.ShouldHaveSingleItem().ShouldStartWith("Randevuya 3 saatten az kaldığı için");
         (await GetAsync("salon-a", token)).CanReschedule.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Reschedule_WhenSalonAllowsLateChange_Succeeds()
+    {
+        var tokens = await RegisterAsync("salon-a", "a@test.com");
+        var user = await GetMeAsync(tokens.AccessToken);
+        using var owner = Factory.CreateClient();
+        owner.DefaultRequestHeaders.Authorization = new("Bearer", tokens.AccessToken);
+        var salon = await SetupSalonAsync(owner);
+        var token = await BookAsync("salon-a", salon, NextMonday(10));
+        await MoveAppointmentAsync(user, token, DateTimeOffset.UtcNow.AddHours(1));
+        // salon son ana kadar linkten değişikliğe izin veriyor
+        var settings = new SettingsUpdateCommand("Test Salon", null, null, BookingPolicy.Default with { CancelHoursBefore = 0 });
+        (await owner.PutAsJsonAsync("/api/settings", settings, CancellationToken)).EnsureSuccessStatusCode();
+
+        var response = await RescheduleAsync("salon-a", token, salon, NextMonday(14));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await GetAsync("salon-a", token)).StartAt.ShouldBe(NextMonday(14));
     }
 
     [Fact]

@@ -193,12 +193,14 @@ export function ManagePage() {
           <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-sand-soft px-4 py-3.5 text-[13px] text-ink-soft">
             {item.canCancel ? (
               <p>
-                Son ücretsiz iptal: <strong>{formatDateTime(item.cancelDeadline)}</strong>. O saate
-                kadar bu sayfadan iptal edebilirsin.
+                Son ücretsiz değişiklik ve iptal:{' '}
+                <strong>{formatDateTime(item.cancelDeadline)}</strong>. O saate kadar bu sayfadan
+                saatini değiştirebilir ya da iptal edebilirsin.
               </p>
             ) : (
               <p>
-                İptal için son saat geçti. Gelemeyeceksen lütfen salonu ara
+                Değişiklik ve iptal için son saat geçti. Saati değiştirmek ya da iptal etmek için
+                lütfen salonu ara
                 {phone && (
                   <>
                     :{' '}

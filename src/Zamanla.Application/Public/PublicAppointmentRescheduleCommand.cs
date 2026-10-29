@@ -12,7 +12,6 @@ using Zamanla.Domain.Tenants;
 
 namespace Zamanla.Application.Public;
 
-// müşteri yetişemeyecekse randevu başlayana kadar linkten saatini değiştirebilir
 public sealed record PublicAppointmentRescheduleCommand(
     string Token,
     Guid StaffId,
@@ -51,10 +50,15 @@ internal sealed class PublicAppointmentRescheduleCommandHandler(
             return Result<string>.Failure(400, "Bu randevu kapanmış, değiştirilemez");
         }
 
+        // iptal süresi saat değiştirmeye de uygulanır; yoksa son anda ileri bir tarihe taşınıp sonra iptal edilebilirdi
         var now = timeProvider.GetUtcNow();
-        if (now >= appointment.Time.Start)
+        var policy = await tenantRepository.GetBookingPolicyAsync(tenantContext.GetTenantId(), cancellationToken);
+        var changeDeadline = appointment.Time.Start.AddHours(-policy.CancelHoursBefore);
+        if (now >= changeDeadline)
         {
-            return Result<string>.Failure(400, "Randevu saati geldiği için linkten değiştirilemiyor, lütfen salonu arayın");
+            return Result<string>.Failure(400, policy.CancelHoursBefore > 0
+                ? $"Randevuya {policy.CancelHoursBefore} saatten az kaldığı için linkten değiştirilemiyor, lütfen salonu arayın"
+                : "Randevu saati geldiği için linkten değiştirilemiyor, lütfen salonu arayın");
         }
 
         // panelde 15 dk tolerans var; müşteri geçmiş bir saate alamaz
@@ -66,20 +70,19 @@ internal sealed class PublicAppointmentRescheduleCommandHandler(
         var timeZone = await tenantRepository.GetTimeZoneAsync(tenantContext.GetTenantId(), cancellationToken);
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, timeZone).DateTime);
         var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(request.StartAt, timeZone).DateTime);
-        var policy = await tenantRepository.GetBookingPolicyAsync(tenantContext.GetTenantId(), cancellationToken);
         if (day > today.AddDays(policy.MaxDaysAhead))
         {
             return Result<string>.Failure(400, $"Online randevu en fazla {policy.MaxDaysAhead} gün sonrası için alınabilir");
         }
 
         var result = await sender.Send(
-         new AppointmentRescheduleCommand(appointment.Id, request.StaffId, request.StartAt),
-         cancellationToken);
-            if (result.IsSuccessful)
-            {
-                notificationRepository.Add(new Notification(NotificationType.AppointmentRescheduled, appointment.Id));
-                await unitOfWork.SaveChangesAsync(cancellationToken);
-            }
+            new AppointmentRescheduleCommand(appointment.Id, request.StaffId, request.StartAt),
+            cancellationToken);
+        if (result.IsSuccessful)
+        {
+            notificationRepository.Add(new Notification(NotificationType.AppointmentRescheduled, appointment.Id));
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
 
         return result;
     }

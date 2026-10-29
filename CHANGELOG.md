@@ -1,5 +1,29 @@
 # Değişiklik günlüğü
 
+## [0.17.0] - 2026-10-29
+
+Aşama 6.4: Son dokunuşlar.
+
+### Eklendi
+
+- Çıkış yapıldığında ilgili cihazın refresh token'ı sunucudan da siliniyor. Böylece silinen token tekrar kullanılarak yeni bir oturum açılamıyor. Diğer cihazlardaki oturumlar açık kalıyor.
+- CI sürecine istemci kodu için Prettier biçim kontrolü eklendi. Windows'ta CRLF satır sonları nedeniyle gereksiz uyarılar çıkmaması için satır sonlarının yönetimi Git'e bırakıldı.
+- CHANGELOG'a 0.6.0 sürümünden itibaren sürümler arası karşılaştırma bağlantıları eklendi.
+
+### Değişti
+
+- README'deki yetki ve güvenlik açıklamaları güncellendi. Ciro yetkisinin yalnızca genel bakış sayfasındaki toplamları etkilediği açıklandı. Çıkış işlemi, birden fazla sekmede oturum kullanımı ve müşteri silme kuralları da eklendi.
+
+### Düzeltildi
+
+- Panel birden fazla sekmede açıkken kullanıcının kendiliğinden oturumdan atılması sorunu giderildi. İki sekme aynı anda token yenilemeye çalıştığında sunucu bunu token hırsızlığı olarak algılıyor ve tüm oturumları kapatıyordu. Artık token yenileme işlemleri sekmeler arasında sırayla yapılıyor. Bir sekmeden çıkış yapıldığında diğer sekmeler de oturumu kapatıyor.
+- İleri tarihli randevusu bulunan müşterilerin silinmesi engellendi. Önceden müşteri silindiğinde randevulardaki müşteri bilgisi kaybolabiliyor ve salon müşteriye ulaşamıyordu. Artık silme işlemi sırasında iptal edilmesi gereken randevular listeleniyor.
+- Online randevu linkinden saat değiştirme işlemi de iptal işlemindeki son süre kuralına bağlandı. Randevuya salonun belirlediği süreden daha az zaman kaldığında (varsayılan 3 saat) müşteri bağlantı üzerinden saat değişikliği yapamıyor ve salonla iletişime geçmesi isteniyor. Randevu sayfasındaki ve ayarlardaki açıklamalar da buna göre güncellendi.
+
+### Güvenlik
+
+- Zod `4.6.7` sürümüne yükseltildi. `npm audit` tarafından bildirilen bellek tüketimi açığı bu güncellemeyle giderildi.
+
 ## [0.16.0] - 2026-10-28
 
 Aşama 6.3: Demo verisi ve README vitrini.
@@ -271,6 +295,32 @@ Aşama 0: Projenin kurulumu ve temel yapı.
 - Hataların merkezi olarak yönetilmesi sağlandı ve API dokümantasyonu için Scalar eklendi.
 - React 19, Vite, TypeScript ve Tailwind CSS ile istemci tarafının temeli oluşturuldu. Tasarım renkleri belirlendi ve API durumunu gösteren bir sağlık kartı eklendi.
 - GitHub Actions üzerinden backend build ve test işlemleri ile istemci lint ve build kontrolleri yapılandırıldı.
+
+[0.17.0]: https://github.com/ErenBirsin/zamanla/compare/v0.16.0...v0.17.0
+
+[0.16.0]: https://github.com/ErenBirsin/zamanla/compare/v0.15.0...v0.16.0
+
+[0.15.0]: https://github.com/ErenBirsin/zamanla/compare/v0.14.1...v0.15.0
+
+[0.14.1]: https://github.com/ErenBirsin/zamanla/compare/v0.14.0...v0.14.1
+
+[0.14.0]: https://github.com/ErenBirsin/zamanla/compare/v0.13.0...v0.14.0
+
+[0.13.0]: https://github.com/ErenBirsin/zamanla/compare/v0.12.0...v0.13.0
+
+[0.12.0]: https://github.com/ErenBirsin/zamanla/compare/v0.11.0...v0.12.0
+
+[0.11.0]: https://github.com/ErenBirsin/zamanla/compare/v0.10.0...v0.11.0
+
+[0.10.0]: https://github.com/ErenBirsin/zamanla/compare/v0.9.0...v0.10.0
+
+[0.9.0]: https://github.com/ErenBirsin/zamanla/compare/v0.8.0...v0.9.0
+
+[0.8.0]: https://github.com/ErenBirsin/zamanla/compare/v0.7.0...v0.8.0
+
+[0.7.0]: https://github.com/ErenBirsin/zamanla/compare/v0.6.0...v0.7.0
+
+[0.6.0]: https://github.com/ErenBirsin/zamanla/compare/v0.5.0...v0.6.0
 
 [0.5.0]: https://github.com/ErenBirsin/zamanla/compare/v0.4.0...v0.5.0
 

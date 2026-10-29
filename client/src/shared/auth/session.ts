@@ -20,3 +20,10 @@ export const useSession = create<SessionState>()(
     { name: 'zamanla-session' },
   ),
 )
+
+// başka sekmede giriş, çıkış ya da token yenileme olunca bu sekme de aynı oturuma geçer
+window.addEventListener('storage', (event) => {
+  if (event.key === 'zamanla-session') {
+    void useSession.persist.rehydrate()
+  }
+})

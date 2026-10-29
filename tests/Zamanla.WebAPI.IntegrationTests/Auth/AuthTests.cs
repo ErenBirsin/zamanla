@@ -90,6 +90,33 @@ public sealed class AuthTests(ZamanlaApiFactory factory) : IntegrationTestBase(f
     }
 
     [Fact]
+    public async Task Logout_RevokesRefreshToken()
+    {
+        var tokens = await RegisterAsync();
+
+        var logoutResponse = await LogoutAsync(tokens.RefreshToken);
+        logoutResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // çıkıştan sonra aynı token'la yeni oturum alınamamalı
+        var refreshResponse = await RefreshAsync(tokens.RefreshToken);
+        refreshResponse.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Logout_KeepsOtherSessionsOpen()
+    {
+        var first = await RegisterAsync();
+        var loginResponse = await LoginAsync("owner@test.com", "Zamanla123!");
+        var second = (await loginResponse.Content.ReadFromJsonAsync<Result<AuthTokens>>(CancellationToken))!.Data!;
+
+        await LogoutAsync(first.RefreshToken);
+
+        // sadece çıkış yapılan cihaz kapanır, diğer cihazdaki oturum sürer
+        var refreshResponse = await RefreshAsync(second.RefreshToken);
+        refreshResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
     public async Task Me_WithoutToken_ReturnsUnauthorized()
     {
         var response = await Client.GetAsync("/api/auth/me", CancellationToken);
@@ -114,4 +141,7 @@ public sealed class AuthTests(ZamanlaApiFactory factory) : IntegrationTestBase(f
 
     private Task<HttpResponseMessage> RefreshAsync(string refreshToken) =>
         Client.PostAsJsonAsync("/api/auth/refresh", new RefreshTokenCommand(refreshToken), CancellationToken);
+
+    private Task<HttpResponseMessage> LogoutAsync(string refreshToken) =>
+        Client.PostAsJsonAsync("/api/auth/logout", new LogoutCommand(refreshToken), CancellationToken);
 }

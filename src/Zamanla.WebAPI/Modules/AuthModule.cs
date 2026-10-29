@@ -37,6 +37,14 @@ public static class AuthModule
             })
             .Produces<Result<AuthTokens>>();
 
+        app.MapPost("/logout",
+            async (LogoutCommand request, ISender sender, CancellationToken cancellationToken) =>
+            {
+                var res = await sender.Send(request, cancellationToken);
+                return res.IsSuccessful ? Results.Ok(res) : Results.Json(res, statusCode: res.StatusCode);
+            })
+            .Produces<Result<string>>();
+
         app.MapPost("/forgot-password",
             async (ForgotPasswordCommand request, ISender sender, CancellationToken cancellationToken) =>
             {

@@ -13,6 +13,7 @@ const anonymousEndpoints = [
   '/auth/login',
   '/auth/register',
   '/auth/refresh',
+  '/auth/logout',
   '/auth/forgot-password',
   '/auth/check-forgot-password-code',
   '/auth/reset-password',
@@ -76,17 +77,33 @@ function isExpiringSoon(accessToken: string) {
   return exp * 1000 - Date.now() < 30_000
 }
 
-async function refreshAccessToken(refreshToken: string) {
-  try {
-    const { data } = await http.post<Result<AuthTokens>>('/auth/refresh', { refreshToken })
-    useSession.getState().setTokens(data.data!)
-    return data.data!.accessToken
-  } catch (error) {
-    if (isAxiosError(error) && error.response?.status === 401) {
-      useSession.getState().clear()
+// panel birden fazla sekmede açık olabilir; aynı refresh token iki kez giderse sunucu
+// bunu çalınma sayar ve bütün oturumları kapatır. Bu yüzden yenileme sekmeler arasında sırayla yapılır
+async function refreshAccessToken(usedRefreshToken: string) {
+  const refresh = async () => {
+    // sıra beklerken başka sekme yenilemiş olabilir; o zaman onun token'ı kullanılır
+    await useSession.persist.rehydrate()
+    const { accessToken, refreshToken } = useSession.getState()
+    if (!refreshToken) {
+      throw new Error('Oturum başka bir sekmede kapatıldı')
     }
-    throw error
+    if (refreshToken !== usedRefreshToken && accessToken) {
+      return accessToken
+    }
+
+    try {
+      const { data } = await http.post<Result<AuthTokens>>('/auth/refresh', { refreshToken })
+      useSession.getState().setTokens(data.data!)
+      return data.data!.accessToken
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 401) {
+        useSession.getState().clear()
+      }
+      throw error
+    }
   }
+
+  return navigator.locks ? navigator.locks.request('zamanla-token-refresh', refresh) : refresh()
 }
 
 export function getErrorMessages(error: unknown): string[] {
