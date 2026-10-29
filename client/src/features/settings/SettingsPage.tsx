@@ -120,10 +120,10 @@ export function SettingsPage() {
               {...register('maxDaysAhead', { valueAsNumber: true })}
             />
             <FormField
-              label="Linkten iptal için son süre (saat)"
+              label="Linkten değişiklik ve iptal için son süre (saat)"
               type="number"
               inputMode="numeric"
-              hint="Randevuya bu kadar saat kala müşteri linkten iptal edemez; 0 girersen son ana kadar edebilir."
+              hint="Randevuya bu kadar saat kala müşteri linkten saatini değiştiremez ve iptal edemez; 0 girersen son ana kadar yapabilir."
               error={errors.cancelHoursBefore?.message}
               {...register('cancelHoursBefore', { valueAsNumber: true })}
             />

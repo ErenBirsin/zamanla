@@ -87,7 +87,7 @@ internal sealed class PublicAppointmentGetQueryHandler(
                 .ToList(),
             Total = appointment.Total.Value,
             CanCancel = isOpen && now < cancelDeadline,
-            CanReschedule = isOpen && now < appointment.Time.Start,
+            CanReschedule = isOpen && now < cancelDeadline,
             CancelDeadline = cancelDeadline
         };
     }

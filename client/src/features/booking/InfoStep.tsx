@@ -138,8 +138,8 @@ export function InfoStep({
             <path d="M12 16v-4M12 8h.01" />
           </svg>
           {cancelHoursBefore > 0
-            ? `Randevudan ${cancelHoursBefore} saat öncesine kadar ücretsiz iptal edebilirsin.`
-            : 'Randevu saatine kadar ücretsiz iptal edebilirsin.'}{' '}
+            ? `Randevudan ${cancelHoursBefore} saat öncesine kadar saatini değiştirebilir ya da ücretsiz iptal edebilirsin.`
+            : 'Randevu saatine kadar saatini değiştirebilir ya da ücretsiz iptal edebilirsin.'}{' '}
           Ödeme salonda yapılır.
         </p>
 
