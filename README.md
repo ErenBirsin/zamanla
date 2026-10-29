@@ -55,13 +55,13 @@ Müşteri telefondan randevuyu onaylar onaylamaz randevu salonun takviminde beli
 - Genel bakış: bugünün randevu sayısı, beklenen ciro, tamamlanan, gelmeyen ve iptal edilen randevular, sıradaki randevular ve son 7 günün randevu ve ciro grafiği. Takvim değişince sayfa yenilenmeden güncellenir.
 - Hizmetler: süre, hazırlık payı, fiyat ve kategori.
 - Personel: verdiği hizmetler ve haftalık çalışma saatleri. Aynı güne öğle arası gibi birden fazla aralık girilebilir.
-- Müşteriler: isim ya da telefonla arama. Silinen müşterinin kişisel bilgileri KVKK'ya uygun şekilde anonimleştirilir.
+- Müşteriler: isim ya da telefonla arama. Silinen müşterinin kişisel bilgileri KVKK'ya uygun şekilde anonimleştirilir; ileri tarihli randevusu olan müşteri, randevuları iptal edilmeden silinemez.
 - Günlük takvim: personel sütunları, mola, mesai dışı ve kapalı saatler, izinler, "şu an" çizgisi ve geçen saatlerin soluk gösterimi. Randevu ya da izin değişince sayfa yenilenmeden güncellenir.
 - Randevular: birden fazla hizmet, tamamlandı / gelmedi / iptal / yeniden planlama ve randevu geçmişi.
 - İzinler: personel izni ve bayram gibi salonun kapalı olduğu günler, tüm gün ya da saat aralığıyla.
 - Bildirimler: müşteri online randevu alınca, linkten iptal edince ya da saatini değiştirince zil ile haber verilir; okunmamış sayısı ve okundu işareti tutulur.
 - Ayarlar: salon adı, adres, telefon ve online randevu kuralları.
-- Personel hesapları: salon sahibi personeli e-postayla gönderilen davet linkiyle panele çağırır, yetkilerini personel başına seçer ve hesabı pasif yapabilir. Yetkisi olmayan personel takvimi görür, müşteri ekler ve kendi randevularını yönetir; ciro, ayarlar ve diğer yönetim ekranları yetkiye göre açılır.
+- Personel hesapları: salon sahibi personeli e-postayla gönderilen davet linkiyle panele çağırır, yetkilerini personel başına seçer ve hesabı pasif yapabilir. Yetkisi olmayan personel takvimi görür, müşteri ekler ve kendi randevularını yönetir; genel bakıştaki ciro, ayarlar ve diğer yönetim ekranları yetkiye göre açılır.
 - Panel telefon ekranına da uyum sağlar: menü üst çubuktaki ☰ düğmesiyle açılır, listeler kart olarak görünür. Veriler yüklenirken sayfanın iskeleti, API'ye ulaşılamazsa "Tekrar dene" kartı gösterilir; silme gibi işlemler onay penceresiyle sorulur.
 
 ### Müşteri tarafı
@@ -77,12 +77,13 @@ Müşteri telefondan randevuyu onaylar onaylamaz randevu salonun takviminde beli
 - Boş saatler çalışma saatlerine, molalara, izinlere ve diğer randevulara göre 15 dakikalık adımlarla hesaplanır.
 - Onaylı randevusu olan bir aralığa izin ya da kapalı gün girilemez; etkilenen randevular listelenir.
 - Aynı saate aynı anda gelen iki randevudan yalnızca biri kaydedilir.
-- Online randevu kuralları her salon için ayarlardan değiştirilebilir: kaç gün ilerisi (varsayılan 60), linkten iptal için son süre (varsayılan 3 saat) ve aynı telefonla en fazla ileri tarihli randevu (varsayılan 5).
+- Online randevu kuralları her salon için ayarlardan değiştirilebilir: kaç gün ilerisi (varsayılan 60), linkten saat değiştirme ve iptal için son süre (varsayılan 3 saat) ve aynı telefonla en fazla ileri tarihli randevu (varsayılan 5).
 - Yönetim, davet ve şifre sıfırlama linklerindeki anahtarlar veritabanında açık haliyle değil, SHA-256 özetiyle saklanır. Davet linki 7 gün, şifre sıfırlama linki 1 saat geçerlidir; ikisi de bir kez kullanılabilir.
 - Şifre en az 8 karakter olur, büyük ve küçük harf, rakam ve özel karakter içerir; Türkçe harfler de sayılır. Kural hem formda hem API'de uygulanır.
 - Şifremi unuttum ekranı e-posta kayıtlı olsun olmasın aynı cevabı verir. Şifre değişince ya da sıfırlanınca diğer cihazlardaki oturumlar kapanır.
-- Yetkiler her istekte veritabanından okunur; yetki geri alınınca ya da hesap pasif yapılınca hemen geçerli olur, pasif hesabın açık oturumları kapanır. Başka personelin randevusu için ayrı yetki gerekir, ciro yetkisi olmayana ciro bilgisi API'den hiç gönderilmez.
-- JWT access token (15 dk) ve refresh token (14 gün). Kullanılmış bir refresh token tekrar gelirse açık oturumlar kapatılır. Süresi dolan token'lar günde bir silinir.
+- Yetkiler her istekte veritabanından okunur; yetki geri alınınca ya da hesap pasif yapılınca hemen geçerli olur, pasif hesabın açık oturumları kapanır. Başka personelin randevusu için ayrı yetki gerekir. Ciro yetkisi olmayan personele genel bakıştaki ciro toplamları API'den hiç gönderilmez; tek tek randevuların fiyatı ise randevu detayında görünür.
+- JWT access token (15 dk) ve refresh token (14 gün). Çıkış yapınca o cihazın refresh token'ı sunucuda da silinir. Kullanılmış bir refresh token tekrar gelirse açık oturumlar kapatılır. Süresi dolan token'lar günde bir silinir.
+- Panel birden fazla sekmede açıksa token yenileme sekmeler arasında sırayla yapılır; bir sekmede çıkış yapılınca diğer sekmeler de oturumu kapatır.
 - E-posta ya da SMS gönderilemezse randevu yine oluşturulur. Hatırlatma bir sonraki turda tekrar denenir.
 - Giriş, kayıt ve herkese açık uçlarda IP bazlı istek sınırı.
 - Canlı güncellemeler sadece salonun kendi paneline gider ve veri taşımaz; panel değişen veriyi yetkili uçlardan yeniden çeker.
@@ -148,7 +149,7 @@ flowchart TB
 
 - **xUnit v3, Shouldly:** birim ve entegrasyon testleri
 - **WebApplicationFactory + Respawn:** gerçek SQL Server üzerinde, her testten önce temizlenen veritabanı
-- **GitHub Actions:** her push ve PR'da backend testleri (SQL Server container ile) ve client lint/build
+- **GitHub Actions:** her push ve PR'da backend testleri (SQL Server container ile) ve client lint, Prettier biçim kontrolü ve build
 
 ## Öne çıkan teknik kararlar
 
@@ -156,7 +157,7 @@ flowchart TB
 - **Çakışan randevuyu veritabanı engeller.** Personel kaydında bir concurrency token (`BookingVersion`) var ve her randevu kaydında artar. Aynı saate aynı anda gelen iki istekten ikincisi kaydedilemez, kullanıcıya tekrar denemesi söylenir.
 - **Randevu kendi kopyasını tutar.** Hizmetin süresi, hazırlık payı ve fiyatı randevu alınırken randevuya kopyalanır; hizmet sonradan değişse de geçmiş randevu ve ciro değişmez. Personel, hazırlık payı bitene kadar dolu sayılır.
 - **Canlı güncellemeler veri taşımaz.** Randevu, izin ya da bildirim kaydedilince bir interceptor salonun SignalR grubuna sadece "değişti" sinyali gönderir; panel veriyi kendi yetkisiyle yeniden çeker. Böylece yetkisi olmayan birine veri sızmaz ve her komuta ayrıca bildirim kodu yazılmaz.
-- **Yetkiler token'da değil veritabanında.** Yetkiler her istekte okunur; geri alınan yetki ya da pasif yapılan hesap hemen geçerli olur. Ciro yetkisi olmayan personele ciro bilgisi API'den hiç gönderilmez.
+- **Yetkiler token'da değil veritabanında.** Yetkiler her istekte okunur; geri alınan yetki ya da pasif yapılan hesap hemen geçerli olur. Ciro yetkisi olmayan personele genel bakıştaki ciro toplamları arayüzde gizlenmekle kalmaz, API'den de gönderilmez.
 - **Linklerdeki anahtarlar özetle saklanır.** Randevu yönetimi, davet, şifre sıfırlama ve refresh token'lar veritabanında SHA-256 özetiyle tutulur; veritabanı sızsa bile linkler kullanılamaz.
 - **Zaman tek yerden.** Saatler UTC saklanır, salonun saat diliminde gösterilir. Kod saati `TimeProvider` üzerinden okur, böylece zamana bağlı kurallar test edilebilir.
 - **Testler gerçek veritabanında.** Entegrasyon testleri sahte bir veritabanı yerine SQL Server üzerinde çalışır ve her testten önce Respawn ile temizlenir; CI'da da SQL Server container'ı kullanılır.
@@ -334,9 +335,10 @@ client/
   - [x] 5.5 Günlük özet
   - [x] 5.6 Personel hesapları ve yetkiler
   - [x] 5.7 Şifre sıfırlama ve şifre değiştirme
-- [ ] Aşama 6: Vitrin
+- [x] Aşama 6: Vitrin
   - [x] 6.1 Görünüm iyileştirmeleri
-  - [x] 6.2 Herkese açık sayfalar 
+  - [x] 6.2 Herkese açık sayfalar
   - [x] 6.3 Demo verisi ve README vitrini
+  - [x] 6.4 Son dokunuşlar
 
 Sürüm notları için [CHANGELOG.md](CHANGELOG.md).
