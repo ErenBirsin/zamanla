@@ -320,6 +320,25 @@ public sealed class AppointmentTests(ZamanlaApiFactory factory) : IntegrationTes
         blocked.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         allowed.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
+
+    [Fact]
+    public async Task CustomerDelete_WithUpcomingAppointment_ReturnsConflict()
+    {
+        using var client = await CreateOwnerClientAsync("salon-a", "a@test.com");
+        var salon = await SetupSalonAsync(client);
+        var id = await CreateAppointmentAsync(client, salon, NextMonday(10));
+
+        var blocked = await client.DeleteAsync($"/api/customers/{salon.CustomerId}", CancellationToken);
+        (await client.PutAsJsonAsync(
+            $"/api/appointments/{id}/cancel", new AppointmentCancelCommand(id, null), CancellationToken))
+            .EnsureSuccessStatusCode();
+        var allowed = await client.DeleteAsync($"/api/customers/{salon.CustomerId}", CancellationToken);
+
+        blocked.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        var result = await blocked.Content.ReadFromJsonAsync<Result<string>>(CancellationToken);
+        result!.ErrorMessages!.ShouldHaveSingleItem().ShouldStartWith("Müşterinin 1 ileri tarihli randevusu var");
+        allowed.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
     #endregion
 
     #region Yardımcılar

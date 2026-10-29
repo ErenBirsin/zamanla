@@ -77,6 +77,13 @@ public sealed class NotificationCenterTests(ZamanlaApiFactory factory) : Integra
         var customers = await client.GetFromJsonAsync<ODataResponse<CustomerDto>>("/api/odata/customers", CancellationToken);
         var customerId = customers!.Value.Single(c => c.FirstName == "Ayse").Id;
 
+        // ileri tarihli randevusu olan müşteri silinemez; panelden iptal bildirim oluşturmaz
+        var appointments = await client.GetFromJsonAsync<ODataResponse<AppointmentDto>>("/api/odata/appointments", CancellationToken);
+        var appointmentId = appointments!.Value.Single().Id;
+        (await client.PutAsJsonAsync(
+            $"/api/appointments/{appointmentId}/cancel", new AppointmentCancelCommand(appointmentId, null), CancellationToken))
+            .EnsureSuccessStatusCode();
+
         (await client.DeleteAsync($"/api/customers/{customerId}", CancellationToken)).EnsureSuccessStatusCode();
 
         // KVKK: bildirim adı saklamadığı için silinen müşterinin adı burada da görünmez
